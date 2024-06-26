@@ -4,35 +4,31 @@ import AddRouteConfig from "./AddRouteConfig";
 import Table from "react-bootstrap/Table";
 import Button from '@mui/material/Button';
 import { routers } from '@prisma/client'
-import { Router } from "next/router";
 
 export default function RouterDivConfig({ router }: { router: routers }) {
-  const RouterName = router.name;
+  const router_name = router.name;
+  const router_sn = router.serial_number;
 
-  const relay_port = router.pump_microprocessor_port;
-  const sbc_port = router.pump_hub_port;
-
-  const routerheader = (
+  const router_mp_port = router.pump_microprocessor_port;
+  const router_hub_port = router.pump_hub_port;
+  const router_main_station = router.linked_to_base_station;
+  const routersList = (
     <tr>
-      <td colSpan={4}>
-        <h3>{RouterName} </h3>
-        <Button variant="contained" color="error">
-          DELETE
-        </Button>
-      </td>
-    </tr>
-  );
-  const routerPump = (
-    <tr>
-      <td>Pump</td>
       <td>
         <input
-          type="number"
+          type="text"
+          name="sbc"
+          value={router_name}
+        />
+      </td>
+      <td>
+        <input
+          type="text"
           min="0"
           max="5"
           name="sbc"
-          value={sbc_port!}
-        />{" "}
+          value={router_sn!}
+        />
       </td>
       <td>
         <input
@@ -40,11 +36,35 @@ export default function RouterDivConfig({ router }: { router: routers }) {
           min="0"
           max="3"
           name="relay"
-          value={relay_port!}
+          value={router_mp_port!}
           size={10}
         />
       </td>
-      <td></td>
+      <td>
+        <input
+          type="number"
+          min="0"
+          max="3"
+          name="relay"
+          value={router_hub_port!}
+          size={10}
+        />
+      </td>
+      <td>
+        <input
+          type="checkbox"
+          min="0"
+          max="3"
+          name="relay"
+          checked={router_main_station!}
+          size={10}
+        />
+      </td>
+      <td colSpan={4}>
+        <Button variant="contained" color="error">
+          DELETE
+        </Button>
+      </td>
     </tr>
   );
 
@@ -56,20 +76,18 @@ export default function RouterDivConfig({ router }: { router: routers }) {
     >
       <Table striped bordered hover>
         <thead>
-          {routerheader}
           <tr>
             <th>Name</th>
+            <th>Serial Number</th>
             <th>SBC port</th>
             <th>Relay port</th>
-            <th>Connected to base station</th>
+            <th>Connected to base station?</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {routerPump}
-          <AddRouteConfig
-            routerName={RouterName}
-          />
+          {routersList}
+          <AddRouteConfig />
         </tbody>
       </Table>
     </div>

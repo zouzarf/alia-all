@@ -1,33 +1,13 @@
 import React, { useState } from "react";
 import Button from '@mui/material/Button';
 
-export default function AddRouteConfig(props) {
+export default function AddRouteConfig() {
   const [nameValue, setName] = useState("");
   const [sbcPortValue, setsbcPort] = useState("");
   const [relayPortValue, setrelayPort] = useState("");
 
-  const routerName = props.routerName;
-  const updateRoutersData = props.fetchRoutersData;
 
-  const addRouterName = () => {
-    fetch(
-      "http://localhost:8000/add-route/" +
-        routerName +
-        "/" +
-        nameValue +
-        "/" +
-        sbcPortValue +
-        "/" +
-        relayPortValue
-    )
-      .then((response) => {
-        console.log(response);
-        return response.json();
-      })
-      .then((data) => {
-        updateRoutersData();
-      });
-  };
+  
 
   return (
     <tr>
@@ -41,7 +21,19 @@ export default function AddRouteConfig(props) {
           value={nameValue}
           size="10"
           onChange={(e) => setName(e.target.value)}
-        />{" "}
+        />
+      </td>
+      <td>
+        <input
+          type="text"
+          name="sbc"
+          required
+          minlength="0"
+          maxlength="10"
+          value={nameValue}
+          size="10"
+          onChange={(e) => setName(e.target.value)}
+        />
       </td>
       <td>
         <input
@@ -68,6 +60,16 @@ export default function AddRouteConfig(props) {
           size="10"
           onChange={(e) => setrelayPort(e.target.value)}
         />{" "}
+      </td>
+      <td>
+        <input
+          type="checkbox"
+          min="0"
+          max="3"
+          name="relay"
+          checked={false}
+          size={10}
+        />
       </td>
       <td>
       <Button variant="contained" color="success" onClick={(e) => addRouterName()}>

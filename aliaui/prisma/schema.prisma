@@ -34,10 +34,12 @@ model general_config {
 }
 
 model routers {
-  id                       Int    @default(autoincrement())
-  name                     String @unique @db.VarChar(255)
+  id                       Int      @default(autoincrement())
+  name                     String   @unique @db.VarChar(255)
+  serial_number            String?  @db.VarChar(255)
   pump_microprocessor_port Int?
   pump_hub_port            Int?
+  linked_to_base_station   Boolean?
 
   @@schema("config")
 }
