@@ -4,3 +4,4 @@ my-app2/*
 nodeapp/*
 test/*
 python_code/*
+.DS_Store
