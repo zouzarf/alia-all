@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import RouterDivConfig from "./routersDiv";
+import RouterDivConfig from "./RoutersDiv";
 import AddRouterConfig from "./AddRouterConfig";
 import { routers } from '@prisma/client'
 

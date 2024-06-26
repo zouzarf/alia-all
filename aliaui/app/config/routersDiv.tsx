@@ -13,14 +13,14 @@ export default function RouterDivConfig({ router }: { router: routers }) {
   const router_hub_port = router.pump_hub_port;
   const router_main_station = router.linked_to_base_station;
   const routersList = (
-    <tr>
-      <td>
-        <input
-          type="text"
-          name="sbc"
-          value={router_name}
-        />
-      </td>
+
+    <><td>
+      <input
+        type="text"
+        name="sbc"
+        value={router_name}
+      />
+    </td>
       <td>
         <input
           type="text"
@@ -65,7 +65,7 @@ export default function RouterDivConfig({ router }: { router: routers }) {
           DELETE
         </Button>
       </td>
-    </tr>
+    </>
   );
 
   return (
@@ -86,8 +86,9 @@ export default function RouterDivConfig({ router }: { router: routers }) {
           </tr>
         </thead>
         <tbody>
-          {routersList}
-          <AddRouteConfig />
+          <tr>
+            {routersList}
+          </tr>
         </tbody>
       </Table>
     </div>

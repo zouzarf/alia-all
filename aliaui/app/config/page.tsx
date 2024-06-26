@@ -7,6 +7,7 @@ import RouterConfig from "./RouterConfig";
 import Overview from "./Overview";
 import GeneralConfig from "./GeneralConfig";
 import prisma from "@/lib/db";
+import RoutesConfig from "./RoutesConfig";
 
 export default async function ZonesNetwork() {
 
@@ -41,6 +42,10 @@ export default async function ZonesNetwork() {
                         <h2>Routers</h2>
                         <RouterConfig
                             configRouters={routers}
+                        />
+                        <h2>Routes</h2>
+                        <RoutesConfig
+                            configRoutes={routes}
                         />
                     </Grid>
                     <Grid item xs={4}>
