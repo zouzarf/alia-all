@@ -1,0 +1,61 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["alia", "config"]
+}
+
+model logs {
+  id          Int       @unique @default(autoincrement())
+  ts          DateTime? @default(now()) @db.Timestamptz(6)
+  producer    String?   @db.VarChar(255)
+  log_message String?   @db.VarChar(255)
+
+  @@schema("alia")
+}
+
+model base_station_ports {
+  name                String @unique @db.VarChar(255)
+  microprocessor_port Int?
+  hub_port            Int?
+
+  @@schema("config")
+}
+
+model general_config {
+  name  String  @unique @db.VarChar(255)
+  value String? @db.VarChar(255)
+
+  @@schema("config")
+}
+
+model routers {
+  id                       Int    @default(autoincrement())
+  name                     String @unique @db.VarChar(255)
+  pump_microprocessor_port Int?
+  pump_hub_port            Int?
+
+  @@schema("config")
+}
+
+model routes {
+  id                       Int  @unique @default(autoincrement())
+  from                     Int?
+  to                       Int?
+  pump_microprocessor_port Int?
+  pump_hub_port            Int?
+
+  @@unique([from, to])
+  @@schema("config")
+}
+
+model zones {
+  id   Int    @default(autoincrement())
+  name String @unique @db.VarChar(255)
+
+  @@schema("config")
+}

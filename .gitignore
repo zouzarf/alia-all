@@ -1,0 +1,6 @@
+db/postgresdata
+my-app/*
+my-app2/*
+nodeapp/*
+test/*
+python_code/*
