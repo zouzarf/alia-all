@@ -54,18 +54,18 @@ export default function Scheduler() {
                         })
                     }}
                 />
-                <input aria-label="Time" type="time" />
+
                 {dailyActions.map(x => {
                     return (<>
                         {x.hour} Û {x.water_level} Û {x.dose_number} Û {x.routing_time} Û {x.mixing_time} Û {x.compressing_time}
                     </>)
                 })}
-
-                <TextField id="outlined-basic" label="Amount of water (L)" variant="outlined" />
-                <TextField id="outlined-basic" label="Dose number" variant="outlined" />
-                <TextField id="outlined-basic" label="Mixing pumps(minutes)" variant="outlined" />
-                <TextField id="outlined-basic" label="Routing Pumps timer(minutes)" variant="outlined" />
-                <TextField id="outlined-basic" label="Compressor timer (minutes)" variant="outlined" />
+                <input aria-label="Time" type="number" value={time} onChange={(e) => { setTime(parseInt(e.target.value)) }} />
+                <TextField type="number" id="outlined-basic" label="Amount of water (L)" variant="outlined" value={waterLevel} onChange={(e) => { setWaterLevel(parseInt(e.target.value)) }} />
+                <TextField type="number" id="outlined-basic" label="Dose number" variant="outlined" value={doseNumber} onChange={(e) => { setDoseNumber(parseInt(e.target.value)) }} />
+                <TextField type="number" id="outlined-basic" label="Mixing pumps(minutes)" variant="outlined" value={mixingTime} onChange={(e) => { setMixingTime(parseInt(e.target.value)) }} />
+                <TextField type="number" id="outlined-basic" label="Routing Pumps timer(minutes)" variant="outlined" value={routingTime} onChange={(e) => { setRoutingTime(parseInt(e.target.value)) }} />
+                <TextField type="number" id="outlined-basic" label="Compressor timer (minutes)" variant="outlined" value={compressingTime} onChange={(e) => { setCompressingTime(parseInt(e.target.value)) }} />
                 <Button variant="contained" color="success" onClick={
                     () => {
                         setDailyActions(oldArray => [...oldArray, {
