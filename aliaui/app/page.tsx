@@ -1,5 +1,5 @@
 "use client"
-import { CircularProgress, Divider } from "@mui/material";
+import { CircularProgress, Divider, Paper } from "@mui/material";
 import Image from "next/image";
 import React, { useEffect } from "react";
 import WaterTank from "./waterTank";
@@ -38,11 +38,12 @@ export default function Home() {
     client.on('error', err => console.error('error', err));
   }, []);
   return (
-    <div className="App">
+    <Paper><div className="App">
       <h2>
         State: {masterEvent} {masterEvent === "MIX" ? (<CircularProgress size="20px" />) : <div />}
       </h2>
       <div className='rowC'>
+
         <div className='rowR'>
           <WaterTank waterValue={waterValue} mixing={masterEvent === "MIX"} />
         </div>
@@ -53,7 +54,9 @@ export default function Home() {
           <Mixer masterEvent={masterEvent} />
           <Routing zones={zonesList} masterEvent={masterEvent} />
         </div>
+
       </div>
     </div>
+    </Paper>
   );
 }
