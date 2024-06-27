@@ -8,6 +8,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 prisma = "^0.13.1"
+phidget22 = "^1.19.20240513"
+pydantic = "^2.7.4"
 
 
 [build-system]

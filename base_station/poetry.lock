@@ -232,6 +232,17 @@ files = [
 ]
 
 [[package]]
+name = "phidget22"
+version = "1.19.20240513"
+description = "Phidget22 Python wrapper library"
+optional = false
+python-versions = "*"
+files = [
+    {file = "Phidget22-1.19.20240513-py3-none-any.whl", hash = "sha256:b304fe2b50ff9e74297774f33600b7a29986d74035edbbf548902eabe5da52fe"},
+    {file = "Phidget22-1.19.20240513.tar.gz", hash = "sha256:d987e7b087a4bfe5fb3349720692e272025d424f180c86d4d47e6e8ac886b15a"},
+]
+
+[[package]]
 name = "prisma"
 version = "0.13.1"
 description = "Prisma Client Python is an auto-generated and fully type-safe database client"
@@ -416,4 +427,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "15f6224718642b37049e1ffdc22c2c0271a78b71912d3bc5f51738c45b30e886"
+content-hash = "63e0a6a0502c31885509fd5a9484313abed3c84480833e0e08e793099fcb001c"

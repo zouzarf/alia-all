@@ -1,5 +1,5 @@
-from Phidget22.Phidget import *
-from Phidget22.Devices.CurrentInput import *
+from Phidget22.Devices.CurrentInput import CurrentInput
+
 
 class WaterLevel:
     def __init__(self, port, onCurrentChange):

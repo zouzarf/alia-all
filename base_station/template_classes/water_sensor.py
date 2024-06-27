@@ -1,7 +1,6 @@
 from template_classes.knob import Knob
 from template_classes.water_level import WaterLevel
 from mqtt_config import client
-from read_yaml import parse_config
 import sys
 
 
@@ -25,7 +24,7 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
-global ws
+global voltage_water_sensor
 
 
 class WaterSensor(metaclass=SingletonMeta):
@@ -34,21 +33,21 @@ class WaterSensor(metaclass=SingletonMeta):
 
         def onVoltageChange(self, voltage):
             global ws
-            wl = round((float(voltage) * 1000 - 4) / 16 * 100, 2)
-            client.publish("water_level", str(wl), retain=True)
-            if "ws" in globals():
-                ws.water_level = wl
+            # wl = round((float(voltage) * 1000 - 4) / 16 * 100, 2)
+            voltage = float(voltage)
+            client.publish("water_level", str(voltage), retain=True)
+            if "voltage_water_sensor" in globals():
+                ws.voltage = voltage
 
-        self.water_level = -1
+        self.voltage = -1
         print("-- water sensor -- connecting")
         # self.water_sensor = Knob(port=water_port,onVoltageChange=onVoltageChange)
         self.water_sensor = WaterLevel(port=water_port, onCurrentChange=onVoltageChange)
         print("-- water sensor -- connected")
 
-    def get_water_level(self):
-        return self.water_level
+    def get_water_voltage(self):
+        return self.voltage
 
 
-base_station_ip = sys.argv[1]
-config, _, _, _ = parse_config(base_station_ip)
+config, _, _, _ = parse_config("127.0.0.1")  # type: ignore
 ws = WaterSensor(config["BASESTATION"])
