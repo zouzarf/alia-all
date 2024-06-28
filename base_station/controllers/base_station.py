@@ -36,8 +36,8 @@ class BaseStation:
             get_sensor_ports(base_station_config, "COMPRESSOR")
         )
 
-    def dose(self, doser, amount, wait_event):
-        self.dosing_pump.dose(doser, amount, wait_event)
+    def enable_dosing(self, doser: int):
+        self.dosing_pump.enable_dosing(doser)
 
     def open_routing_valve(self):
         self.routing_valve.enable()

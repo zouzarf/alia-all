@@ -23,6 +23,10 @@ def on_message(mosq, obj, message):
 
     # TODO: FINISH ALL ACTIONS
     match command_message.actionner:
+        case "RELOAD_CONFIG":
+            global base_station
+            t = base_station_ports.prisma().find_many()
+            base_station = BaseStation(t)
         case "WATERPUMP":
             if command_message.command == "ACTIVATE":
                 base_station.water_pump.enable_water_sucking()

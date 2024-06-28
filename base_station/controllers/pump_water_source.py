@@ -1,9 +1,4 @@
-from Phidget22.Phidget import *  # type: ignore
-from Phidget22.Devices.VoltageInput import *  # type: ignore
-from Phidget22.Devices.VoltageRatioInput import *  # type: ignore
-from template_classes.water_sensor import ws
 from template_classes.relay import RelayChannel
-import time
 
 
 class PumpWaterSource:
