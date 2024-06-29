@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "router"
+version = "0.1.0"
+description = ""
+authors = ["Zakaria Ouzarf <zakaria.ouzarf@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+phidget22 = "^1.19.20240513"
+prisma = "^0.13.1"
+paho-mqtt = "^2.1.0"
+pydantic = "^2.7.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
