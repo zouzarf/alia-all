@@ -1,0 +1,99 @@
+generator client {
+  provider             = "prisma-client-py"
+  previewFeatures      = ["multiSchema"]
+  recursive_type_depth = "5"
+  interface            = "sync"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:mysecretpassword@localhost:5432/postgres"
+  schemas  = ["alia", "config", "scheduler"]
+}
+
+model logs {
+  id          Int       @unique @default(autoincrement())
+  ts          DateTime? @default(now()) @db.Timestamptz(6)
+  producer    String?   @db.VarChar(255)
+  log_message String?   @db.VarChar(255)
+
+  @@schema("alia")
+}
+
+model base_station_ports {
+  name                String @unique @db.VarChar(255)
+  microprocessor_port Int?
+  hub_port            Int?
+
+  @@schema("config")
+}
+
+model general_config {
+  name  String  @unique @db.VarChar(255)
+  value String? @db.VarChar(255)
+
+  @@schema("config")
+}
+
+model routers {
+  id                       Int      @default(autoincrement())
+  name                     String   @unique @db.VarChar(255)
+  serial_number            String?  @db.VarChar(255)
+  pump_microprocessor_port Int?
+  pump_hub_port            Int?
+  linked_to_base_station   Boolean?
+
+  @@schema("config")
+}
+
+model routes {
+  id                        Int  @unique @default(autoincrement())
+  src                       Int?
+  dst                       Int?
+  valve_microprocessor_port Int?
+  valve_hub_port            Int?
+
+  @@unique([src, dst])
+  @@schema("config")
+}
+
+model zones {
+  id   Int    @default(autoincrement())
+  name String @unique @db.VarChar(255)
+
+  @@schema("config")
+}
+
+model daily_schedule_actions {
+  id               Int  @unique @default(autoincrement())
+  schedule_id      Int?
+  hour             Int?
+  water_level      Int?
+  dose_number      Int?
+  mixing_time      Int?
+  routing_time     Int?
+  compressing_time Int?
+
+  @@schema("scheduler")
+}
+
+model schedules {
+  id         Int       @unique @default(autoincrement())
+  name       String?   @db.VarChar(255)
+  zone_id    Int?
+  start_date DateTime? @db.Timestamptz(6)
+  end_date   DateTime? @db.Timestamptz(6)
+
+  @@schema("scheduler")
+}
+
+model events {
+  id              Int       @unique @default(autoincrement())
+  schedule_id     Int?
+  daily_action_id Int?
+  schedule_date   DateTime? @db.Timestamptz(6)
+  process_start   DateTime? @db.Timestamptz(6)
+  process_end     DateTime? @db.Timestamptz(6)
+
+  @@schema("scheduler")
+}
