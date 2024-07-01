@@ -6,8 +6,6 @@ export default function Chart({ nodes, edges }: { nodes: GraphNode[], edges: Gra
 
   return (
     <div>
-      <h1>Configuration overview </h1>
-
       <div
         style={{
           border: "solid 1px red",

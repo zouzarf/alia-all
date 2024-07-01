@@ -8,8 +8,10 @@ import Overview from "./Overview";
 import GeneralConfig from "./GeneralConfig";
 import prisma from "@/lib/db";
 import RoutesConfig from "./RoutesConfig";
+import styles from './styles.module.css'
+import ConfigEditor from "./ConfigEditor";
 
-export default async function ZonesNetwork() {
+export default async function ConfigPage({ params }: { params: { slug: string[] } }) {
 
     const baseStationPorts = await prisma.base_station_ports.findMany()
     const generalConfig = await prisma.general_config.findMany()
@@ -17,41 +19,25 @@ export default async function ZonesNetwork() {
     const routers = await prisma.routers.findMany()
     const routes = await prisma.routes.findMany()
 
+    console.log(params.slug)
+
+
 
     return (
 
         <div>
             <Paper>
                 <Grid container spacing={2}>
-                    <Grid item xs={8}>
+                    <Grid item xs={12}>
+                        <h2 className={styles.title}>Overview</h2>
                         <Overview routers={routers} zones={zones} routes={routes} />
-                        <h2>General Config</h2>
-                        <div>
-                            <GeneralConfig
-                                config={generalConfig}
-                            />
-                        </div>
-                        <h2>Zones</h2>
-                        <ZonesConfig config={zones} />
-                        <h2>Base station</h2>
-                        <div>
-                            <BaseStationConfig
-                                config={baseStationPorts}
-                            />
-                        </div>
-                        <h2>Routers</h2>
-                        <RouterConfig
-                            configRouters={routers}
-                        />
-                        <h2>Routes</h2>
-                        <RoutesConfig
-                            configRoutes={routes}
-                        />
+                        <h2 className={styles.title}>Edit Config</h2>
+                        <ConfigEditor generalConfig={generalConfig} zones={zones} routers={routers} baseStationConfig={baseStationPorts} routes={routes} selected={params.slug != null && params.slug.length > 0 ? params.slug[0] : "general"} />
                     </Grid>
                     <Grid item xs={4}>
                     </Grid>
                 </Grid>
             </Paper>
-        </div>
+        </div >
     );
 }

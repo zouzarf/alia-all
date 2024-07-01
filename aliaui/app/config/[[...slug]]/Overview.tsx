@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Chart from "./Chart";
-import configData from "../config.json";
+import configData from "../../config.json";
 import { Paper } from "@mui/material";
 import { routers, routes, zones } from '@prisma/client'
 
@@ -29,10 +29,10 @@ export default function Overview({ routes, routers, zones }: { routes: routes[],
     console.log(routersNodes)
     const edges = routes.map(r => {
         return {
-            id: r.from + "->" + r.to,
-            source: r.from!.toString(),
-            target: r.to!.toString(),
-            label: (r.pump_microprocessor_port + "/" + r.pump_hub_port)!,
+            id: r.src + "->" + r.dst,
+            source: r.src!.toString(),
+            target: r.dst!.toString(),
+            label: (r.valve_microprocessor_port + "/" + r.valve_hub_port)!,
         };
     }).concat([{
         id: "base_station" + "->" + data['TO'],

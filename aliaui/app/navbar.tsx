@@ -17,9 +17,9 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Link from 'next/link';
 
-const pages = [['Config', 'config'], ['Scheduler', 'scheduler'], ['Logs', 'logs']];
+const pages = [['Config', '/config'], ['Scheduler', '/scheduler'], ['Logs', '/logs']];
 
-function ResponsiveAppBar() {
+function NavigationBar() {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -128,4 +128,4 @@ function ResponsiveAppBar() {
         </AppBar>
     );
 }
-export default ResponsiveAppBar;
+export default NavigationBar;

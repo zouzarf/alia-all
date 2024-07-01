@@ -45,13 +45,13 @@ model routers {
 }
 
 model routes {
-  id                       Int  @unique @default(autoincrement())
-  from                     Int?
-  to                       Int?
-  pump_microprocessor_port Int?
-  pump_hub_port            Int?
+  id                        Int  @unique @default(autoincrement())
+  src                       Int?
+  dst                       Int?
+  valve_microprocessor_port Int?
+  valve_hub_port            Int?
 
-  @@unique([from, to])
+  @@unique([src, dst])
   @@schema("config")
 }
 
@@ -81,6 +81,17 @@ model schedules {
   zone_id    Int?
   start_date DateTime? @db.Timestamptz(6)
   end_date   DateTime? @db.Timestamptz(6)
+
+  @@schema("scheduler")
+}
+
+model events {
+  id              Int       @unique @default(autoincrement())
+  schedule_id     Int?
+  daily_action_id Int?
+  schedule_date   DateTime? @db.Timestamptz(6)
+  process_start   DateTime? @db.Timestamptz(6)
+  process_end     DateTime? @db.Timestamptz(6)
 
   @@schema("scheduler")
 }
