@@ -1,6 +1,6 @@
-from Phidget22.Phidget import *
-from Phidget22.Devices.VoltageInput import *
-from Phidget22.Devices.VoltageRatioInput import *
+from Phidget22.Phidget import *  # type: ignore
+from Phidget22.Devices.VoltageInput import *  # type: ignore
+from Phidget22.Devices.VoltageRatioInput import *  # type: ignore
 from template_classes.relay import RelayChannel
 import time
 import paho.mqtt.client as paho

@@ -51,11 +51,11 @@ class BaseStation:
     def close_routing_pump(self):
         pass
 
-    def push_water_out():
+    def push_water_out(self):
         pass
 
-    def stop_pushing_water_out():
+    def stop_pushing_water_out(self):
         pass
 
-    def check_events(zone):
+    def check_events(self, zone):
         pass
