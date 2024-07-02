@@ -8,7 +8,6 @@ export default function Chart({ nodes, edges }: { nodes: GraphNode[], edges: Gra
     <div>
       <div
         style={{
-          border: "solid 1px red",
           height: "500px",
           margin: "10px",
           position: "relative",

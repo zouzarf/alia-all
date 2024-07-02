@@ -1,29 +1,20 @@
 import React, { useState } from "react";
 import FormControl from "@mui/material/FormControl";
 import InputAdornment from "@mui/material/InputAdornment";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import client from "./mqtt_c";
+import { Button, Input } from "@nextui-org/react";
 
 export default function Mixer({ masterEvent }: { masterEvent: string }) {
     const [mixValue, setMixValue] = useState(1);
 
     return (
-        <FormControl>
-            <TextField
+        <div className="flex flex-col">
+            <Input
                 id="standard-basic"
                 label="Mix (min)"
                 type="number"
-                variant="standard"
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <AccessTimeIcon />
-                        </InputAdornment>
-                    ),
-                }}
-                value={mixValue}
+                value={mixValue.toString()}
                 onChange={(event) => {
                     const value = event.target.value;
                     setMixValue(parseInt(value));
@@ -31,7 +22,6 @@ export default function Mixer({ masterEvent }: { masterEvent: string }) {
             />
 
             <Button
-                variant="contained"
                 disabled={masterEvent !== "IDLE"}
                 onClick={() => {
                     if (mixValue > 0) {
@@ -46,7 +36,6 @@ export default function Mixer({ masterEvent }: { masterEvent: string }) {
                 Mix
             </Button>
             <Button
-                variant="contained"
                 disabled={masterEvent !== "MIX"}
                 onClick={() => {
                     client.publish(
@@ -57,6 +46,6 @@ export default function Mixer({ masterEvent }: { masterEvent: string }) {
             >
                 Stop mixing
             </Button>
-        </FormControl>
+        </div>
     );
 }

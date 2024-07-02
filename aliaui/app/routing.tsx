@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
-import Button from "@mui/material/Button";
 import client from "./mqtt_c";
 import MenuItem from "@mui/material/MenuItem";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import { Button, Input } from "@nextui-org/react";
 
 export default function Routing({ zones, masterEvent }: { zones: string[], masterEvent: string }) {
     const listOfZones = zones.map((e) => (
@@ -20,8 +20,7 @@ export default function Routing({ zones, masterEvent }: { zones: string[], maste
     const [compressingTime, setComressingTime] = useState(1);
 
     return (
-        <FormControl>
-            <InputLabel id="demo-simple-select-filled-label">Target zone</InputLabel>
+        <div className="flex flex-col">
             <Select
                 labelId="demo-simple-select-filled-label"
                 id="demo-simple-select-filled"
@@ -35,38 +34,22 @@ export default function Routing({ zones, masterEvent }: { zones: string[], maste
                 {listOfZones}
             </Select>
 
-            <TextField
+            <Input
                 id="outlined-number"
                 label="Routing time (s)"
                 type="number"
-                variant="standard"
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <AccessTimeIcon />
-                        </InputAdornment>
-                    ),
-                }}
-                value={routingTime}
+                value={routingTime.toString()}
                 onChange={(event) => {
                     const value = event.target.value;
                     setRoutingTime(parseInt(value));
                 }}
             />
 
-            <TextField
+            <Input
                 id="outlined-number"
                 label="Compression time (s)"
                 type="number"
-                variant="standard"
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <AccessTimeIcon />
-                        </InputAdornment>
-                    ),
-                }}
-                value={compressingTime}
+                value={compressingTime.toString()}
                 onChange={(event) => {
                     const value = event.target.value;
                     setComressingTime(parseInt(value));
@@ -74,7 +57,6 @@ export default function Routing({ zones, masterEvent }: { zones: string[], maste
             />
 
             <Button
-                variant="contained"
                 disabled={masterEvent === "ROUTING" || masterEvent !== "IDLE"}
                 onClick={() => {
                     client.publish(
@@ -95,7 +77,6 @@ export default function Routing({ zones, masterEvent }: { zones: string[], maste
                 Start Routing
             </Button>
             <Button
-                variant="contained"
                 disabled={masterEvent !== "ROUTING"}
                 onClick={() => {
                     client.publish(
@@ -106,6 +87,6 @@ export default function Routing({ zones, masterEvent }: { zones: string[], maste
             >
                 Stop routing
             </Button>
-        </FormControl>
+        </div>
     );
 }

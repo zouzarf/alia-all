@@ -1,61 +1,51 @@
 import React, { useState } from "react";
 import Button from '@mui/material/Button';
+import { Checkbox, Input, Select } from "@nextui-org/react";
 
 export default function AddRouterConfig() {
   const [nameValue, setName] = useState("");
 
   return (
-    <><td>
-      <input
-        type="text"
-        name="sbc"
-        value={""}
-      />
-    </td>
-      <td>
-        <input
+    <div className="flex flex-col gap-4">
+      <div className="flex w-full flex-wrap md:flex-nowrap mb-6 md:mb-0 gap-4">
+        <Input
           type="text"
-          min="0"
-          max="5"
-          name="sbc"
-          value={""}
+          label="Router Name"
+          value={nameValue}
+          labelPlacement="outside"
+          onChange={(e) => {
+            console.log(e)
+            setName(e.target.value);
+          }}
         />
-      </td>
-      <td>
-        <input
+        <Input
+          type="text"
+          min={0}
+          max={5}
+          label="Serial Number"
+          labelPlacement="outside"
+        />
+        <Input
+          min={0}
+          max={5}
           type="number"
-          min="0"
-          max="3"
-          name="relay"
-          value={""}
-          size={10}
+          label="Router SbcPort"
+          labelPlacement="outside"
         />
-      </td>
-      <td>
-        <input
+        <Input
+          min={0}
+          max={5}
           type="number"
-          min="0"
-          max="3"
-          name="relay"
-          value={""}
-          size={10}
+          label="Router Hub Port"
+          labelPlacement="outside"
         />
-      </td>
-      <td>
-        <input
-          type="checkbox"
-          min="0"
-          max="3"
-          name="relay"
-          checked={false}
-          size={10}
-        />
-      </td>
-      <td colSpan={4}>
-        <Button variant="contained" color="error">
-          DELETE
-        </Button>
-      </td>
-    </>
+        <Checkbox defaultSelected size="sm">Base Sation</Checkbox>
+
+
+      </div>
+      <Button color="success">
+        Add
+      </Button>
+    </div>
   );
 }

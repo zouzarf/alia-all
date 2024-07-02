@@ -29,3 +29,11 @@ export const insertScheduler = async (schedule: schedules, dailyActions: daily_s
 
     return response
 }
+export const readSchedules = async () => {
+    const response = await prisma.schedules.findMany()
+    return response
+}
+export const readDailyActions = async (jobId: number) => {
+    const response = await prisma.daily_schedule_actions.findMany({ "where": { "schedule_id": jobId } })
+    return response
+}

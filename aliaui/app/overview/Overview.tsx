@@ -2,12 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Chart from "./Chart";
-import configData from "../../config.json";
 import { Paper } from "@mui/material";
 import { routers, routes, zones } from '@prisma/client'
 
 export default function Overview({ routes, routers, zones }: { routes: routes[], routers: routers[], zones: zones[] }) {
-    const ip = configData["MQTT-IP"]
     const [data, setData] = useState({ "TO": "test", "pump": "E" });
 
     const zonesNodes = zones.map(l => {
@@ -44,16 +42,9 @@ export default function Overview({ routes, routers, zones }: { routes: routes[],
 
     return (
 
-        <div>
-            <Paper>
-                <div className="App">
-                    <Chart
-                        nodes={zonesNodes.concat(routersNodes)}
-                        edges={edges}
-                    />
-                </div>
-
-            </Paper>
-        </div>
+        <Chart
+            nodes={zonesNodes.concat(routersNodes)}
+            edges={edges}
+        />
     );
 }

@@ -1,7 +1,10 @@
-import { Paper } from "@mui/material";
 import prisma from "@/lib/db";
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import React, { Key } from "react";
+import { logs } from "@prisma/client";
+import Logs from "./Logs";
 
-export default async function Logs() {
+export default async function Page() {
     const a = await prisma.logs.findMany({
         orderBy: [
             {
@@ -10,13 +13,5 @@ export default async function Logs() {
         ],
         take: 10
     })
-    console.log(a)
-    return
-    <>
-        <div>
-            <Paper>
-                {a.map(x => x.ts?.toLocaleString() + "  -   " + x.producer + "  -  " + x.log_message)}
-            </Paper>
-        </div>
-    </>
+    return (<Logs logs={a} />)
 }

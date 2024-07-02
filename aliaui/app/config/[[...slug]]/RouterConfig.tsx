@@ -3,26 +3,20 @@ import React from "react";
 import RouterDivConfig from "./RoutersDiv";
 import AddRouterConfig from "./AddRouterConfig";
 import { routers } from '@prisma/client'
+import { Divider } from "@nextui-org/react";
 
 
 export default function RouterConfig({ configRouters }: { configRouters: routers[] }) {
   const RoutersData = configRouters;
 
-  const routersz = RoutersData.map((e) => (
-    <RouterDivConfig
-      router={e}
-    />
-  ));
+  const routersz = <RouterDivConfig
+    router={configRouters}
+  />;
 
   return (
-    <div
-      style={{
-        border: "2px solid red",
-        background: "#92A8D1",
-        margin: "left 3000px",
-      }}
-    >
+    <div>
       {routersz}
+      <Divider className="my-4" />
       <AddRouterConfig />
     </div>
   );

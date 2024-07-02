@@ -6,18 +6,10 @@ import RouteDiv from "./routeDiv";
 
 
 export default function RoutesConfig({ configRoutes }: { configRoutes: routes[] }) {
-    const routersz = configRoutes.map((e) => (
-        <RouteDiv routes={e} />
-    ));
+    const routersz = <RouteDiv routes={configRoutes} />
 
     return (
-        <div
-            style={{
-                border: "2px solid red",
-                background: "#92A8D1",
-                margin: "left 3000px",
-            }}
-        >
+        <div>
             {routersz}
         </div>
     );

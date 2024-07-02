@@ -25,7 +25,7 @@ export default function ConfigEditor(
 
     return (
         <div className="flex w-full flex-col">
-            <Tabs aria-label="Options" selectedKey={selected}>
+            <Tabs aria-label="Options" selectedKey={selected} fullWidth size="sm">
                 <Tab key="general" title="General Parameters" href={"/config/general"}>
                     <Card>
                         <CardBody>

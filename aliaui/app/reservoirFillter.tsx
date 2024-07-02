@@ -1,31 +1,22 @@
 import FormControl from "@mui/material/FormControl";
 import React, { useState } from "react";
 import InputAdornment from "@mui/material/InputAdornment";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
 import client from "./mqtt_c";
 import ScienceIcon from "@mui/icons-material/Science";
 import config from "./config.json";
+import { Button, Input } from "@nextui-org/react";
 
 export default function ReservoirFiller({ masterEvent, current_value }: { masterEvent: string, current_value: number }) {
     const WATER_LEVEL_MAX_LITERS = config.WATER_LEVEL_MAX_LITERS;
     const [waterValue, setWaterValue] = useState(10);
 
     return (
-        <FormControl>
-            <TextField
+        <div className="flex flex-col">
+            <Input
                 id="standard-basic"
                 label="Load water (L)"
-                variant="standard"
                 type="number"
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <ScienceIcon />
-                        </InputAdornment>
-                    ),
-                }}
-                value={waterValue}
+                value={waterValue.toString()}
                 onChange={(event) => {
                     const value = parseInt(event.target.value);
                     if (value <= WATER_LEVEL_MAX_LITERS) {
@@ -33,9 +24,8 @@ export default function ReservoirFiller({ masterEvent, current_value }: { master
                     }
                 }}
             />
-
             <Button
-                variant="contained"
+                color="default"
                 disabled={masterEvent !== "IDLE"}
                 onClick={() => {
                     if (
@@ -54,7 +44,7 @@ export default function ReservoirFiller({ masterEvent, current_value }: { master
                 LOAD
             </Button>
             <Button
-                variant="contained"
+                color="default"
                 disabled={masterEvent !== "FILL"}
                 onClick={() => {
                     client.publish(
@@ -65,6 +55,6 @@ export default function ReservoirFiller({ masterEvent, current_value }: { master
             >
                 STOP
             </Button>
-        </FormControl>
+        </div>
     );
 }

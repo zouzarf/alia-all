@@ -38,23 +38,21 @@ export default function Home() {
     client.on('error', err => console.error('error', err));
   }, []);
   return (
-    <Paper><div className="App">
-      <h2>
+    <Paper><div className="flex flex-col">
+      <h2 className="text-center">
         State: {masterEvent} {masterEvent === "MIX" ? (<CircularProgress size="20px" />) : <div />}
       </h2>
-      <div className='rowC'>
+      <WaterTank waterValue={waterValue} mixing={masterEvent === "MIX"} />
 
-        <div className='rowR'>
-          <WaterTank waterValue={waterValue} mixing={masterEvent === "MIX"} />
-        </div>
-        <Divider />
-        <div className='rowR'>
-          <ReservoirFiller masterEvent={masterEvent} current_value={waterValue} />
-          <Dosing masterEvent={masterEvent} />
-          <Mixer masterEvent={masterEvent} />
-          <Routing zones={zonesList} masterEvent={masterEvent} />
-        </div>
-
+      <Divider />
+      <h2 className="text-center">
+        Manual Controls
+      </h2>
+      <div className='flex flex-row content-start justify-center gap-4'>
+        <ReservoirFiller masterEvent={masterEvent} current_value={waterValue} />
+        <Dosing masterEvent={masterEvent} />
+        <Mixer masterEvent={masterEvent} />
+        <Routing zones={zonesList} masterEvent={masterEvent} />
       </div>
     </div>
     </Paper>
