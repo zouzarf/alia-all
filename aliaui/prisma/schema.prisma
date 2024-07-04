@@ -33,12 +33,21 @@ model general_config {
   @@schema("config")
 }
 
+model nodes {
+  node_name String   @unique @db.VarChar(255)
+  routers   routers?
+  zones     zones?
+
+  @@schema("config")
+}
+
 model routers {
   name                     String   @unique @db.VarChar(255)
   serial_number            String?  @unique @db.VarChar(255)
   pump_microprocessor_port Int?
   pump_hub_port            Int?
   linked_to_base_station   Boolean?
+  nodes                    nodes    @relation(fields: [name], references: [node_name], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("config")
 }
@@ -55,7 +64,8 @@ model routes {
 }
 
 model zones {
-  name String @unique @db.VarChar(255)
+  name  String @unique @db.VarChar(255)
+  nodes nodes  @relation(fields: [name], references: [node_name], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("config")
 }

@@ -1,19 +1,20 @@
 "use client"
 import React, { Key, useState } from "react";
-import { routers } from '@prisma/client'
+import { routers, routes } from '@prisma/client'
 import { Button, Checkbox, Divider, Input, Radio, RadioGroup, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { addRouter, deleteRouter } from "@/lib/routerActions";
 import { cp } from "fs";
 import { useRouter } from "next/navigation";
+import DeleteIcon from '@mui/icons-material/Delete';
 
-
-export default function RouterConfig({ configRouters }: { configRouters: routers[] }) {
+export default function RouterConfig({ configRouters, routes }: { configRouters: routers[], routes: routes[] }) {
 
 
   return (
     <div>
       <RouterDivConfig
         router={configRouters}
+        routes={routes}
       />
       <Divider className="my-4" />
       <AddRouterConfig otherRouters={configRouters} />
@@ -21,8 +22,7 @@ export default function RouterConfig({ configRouters }: { configRouters: routers
   );
 }
 
-export function RouterDivConfig({ router }: { router: routers[] }) {
-  const rrouter = useRouter()
+export function RouterDivConfig({ router, routes }: { router: routers[], routes: routes[] }) {
   const rows = router;
 
   const columns = [
@@ -80,12 +80,12 @@ export function RouterDivConfig({ router }: { router: routers[] }) {
         );
       case "connect_router":
         return (
-          router.linked_to_base_station == false ? "Router: AZEAZE Ports : 3/0" : ""
+          router.linked_to_base_station == false ? `${routes.filter(x => x.dst == router.name)[0].src} ${routes.filter(x => x.dst == router.name)[0].valve_microprocessor_port}/${routes.filter(x => x.dst == router.name)[0].valve_hub_port}` : ""
         );
       case "action":
         return (
-          <Button variant="bordered" color="danger" onClick={() => { deleteRouter(router); rrouter.push("/config/routers") }}>
-            Delete(cascading)
+          <Button isIconOnly variant="bordered" color="danger" onClick={() => { deleteRouter(router); }}>
+            <DeleteIcon />
           </Button>
         );
       default:
@@ -177,7 +177,7 @@ export function AddRouterConfig({ otherRouters }: { otherRouters: routers[] }) {
           }}
         >
           <Radio isDisabled={otherRouters.filter(x => x.linked_to_base_station).length != 0} value="true">Base station</Radio>
-          <Radio value="false">Another Router</Radio>
+          <Radio isDisabled={otherRouters.filter(x => x.linked_to_base_station).length == 0} value="false">Another Router</Radio>
         </RadioGroup>
       </div>
       <div className="flex w-full flex-wrap md:flex-nowrap mb-6 md:mb-0 gap-4">
@@ -226,7 +226,7 @@ export function AddRouterConfig({ otherRouters }: { otherRouters: routers[] }) {
 
 
       </div>
-      <Button color="success" isDisabled={linkedToBase == false && linkedToRouter == ""} onClick={() => {
+      <Button color="success" isDisabled={(linkedToBase == false && linkedToRouter == "") || name == ""} onClick={() => {
         addRouter(
           {
             "name": name,
@@ -235,8 +235,7 @@ export function AddRouterConfig({ otherRouters }: { otherRouters: routers[] }) {
             "pump_microprocessor_port": hubPort,
             "linked_to_base_station": linkedToBase
           }, linkedToRouter, pvRouterMpPort, pvRouterMpPort);
-        rrouter.refresh();
-        rrouter.push("/config/routers");
+        setLinkedToBase(false);
 
       }}>
         Add

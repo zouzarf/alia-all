@@ -2,7 +2,9 @@ import React, { Key, useState } from "react";
 import { zones, routers, routes } from '@prisma/client'
 import { Divider } from "@nextui-org/divider";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Input, Button, SelectItem, Select } from "@nextui-org/react";
-import { createZone } from "@/lib/zonesActions";
+import { createZone, deleteZone } from "@/lib/zonesActions";
+import { useRouter } from "next/navigation";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 export default function ZonesConfig({ config, routers, routes }: { config: zones[], routers: routers[], routes: routes[] }) {
@@ -57,8 +59,8 @@ export default function ZonesConfig({ config, routers, routes }: { config: zones
         );
       case "action":
         return (
-          <Button variant="bordered" color="danger">
-            DELETE
+          <Button isIconOnly variant="bordered" color="danger" onClick={() => deleteZone(user.name)}>
+            <DeleteIcon />
           </Button>
         );
       default:
@@ -89,8 +91,9 @@ export default function ZonesConfig({ config, routers, routes }: { config: zones
 }
 
 export function AddZoneConfig({ routers }: { routers: routers[] }) {
-
+  const rrouter = useRouter()
   const [name, setName] = React.useState("")
+  const [routerName, setRouterName] = React.useState("")
   const [sbcPort, setSbcPort] = React.useState(0)
   const [hubPort, setHubPort] = React.useState(0)
 
@@ -111,6 +114,11 @@ export function AddZoneConfig({ routers }: { routers: routers[] }) {
           placeholder="Select a router"
           selectionMode="single"
           className="max-w-xs"
+          value={routerName}
+          onChange={(e) => {
+            console.log(e)
+            setRouterName(e.target.value);
+          }}
         >
           {routers.map(router => (
             <SelectItem key={router.name}>
@@ -145,7 +153,9 @@ export function AddZoneConfig({ routers }: { routers: routers[] }) {
 
 
       </ div>
-      <Button color="success" onClick={() => createZone(name)}>
+      <Button isDisabled={routerName == "" || name == ""} color="success" onClick={() => {
+        createZone(name, routerName, sbcPort, hubPort);
+      }}>
         Add
       </Button></div>
   );

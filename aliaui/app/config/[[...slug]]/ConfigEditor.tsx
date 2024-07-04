@@ -38,6 +38,7 @@ export default function ConfigEditor(
                         <CardBody>
                             <RouterConfig
                                 configRouters={routers}
+                                routes={routes}
                             />
                         </CardBody>
                     </Card>
