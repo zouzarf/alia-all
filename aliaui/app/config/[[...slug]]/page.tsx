@@ -12,22 +12,7 @@ export default async function ConfigPage({ params }: { params: { slug: string[] 
     const routers = await prisma.routers.findMany()
     const routes = await prisma.routes.findMany()
 
-    console.log(params.slug)
-
-
-
     return (
-
-        <div>
-            <Paper>
-                <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                        <ConfigEditor generalConfig={generalConfig} zones={zones} routers={routers} baseStationConfig={baseStationPorts} routes={routes} selected={params.slug != null && params.slug.length > 0 ? params.slug[0] : "general"} />
-                    </Grid>
-                    <Grid item xs={4}>
-                    </Grid>
-                </Grid>
-            </Paper>
-        </div >
+        <ConfigEditor generalConfig={generalConfig} zones={zones} routers={routers} baseStationConfig={baseStationPorts} routes={routes} selected={params.slug != null && params.slug.length > 0 ? params.slug[0] : "general"} />
     );
 }

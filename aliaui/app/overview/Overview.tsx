@@ -33,9 +33,9 @@ export default function Overview({ routes, routers, zones }: { routes: routes[],
             label: (r.valve_microprocessor_port + "/" + r.valve_hub_port)!,
         };
     }).concat([{
-        id: "base_station" + "->" + data['TO'],
+        id: "base_station" + "->" + routers.filter(x => x.linked_to_base_station)[0].name,
         source: "base_station",
-        target: data['TO'],
+        target: routers.filter(x => x.linked_to_base_station)[0].name,
         label: "TO",
     }]);
     console.log(edges)

@@ -34,9 +34,8 @@ model general_config {
 }
 
 model routers {
-  id                       Int      @default(autoincrement())
   name                     String   @unique @db.VarChar(255)
-  serial_number            String?  @db.VarChar(255)
+  serial_number            String?  @unique @db.VarChar(255)
   pump_microprocessor_port Int?
   pump_hub_port            Int?
   linked_to_base_station   Boolean?
@@ -45,9 +44,9 @@ model routers {
 }
 
 model routes {
-  id                        Int  @unique @default(autoincrement())
-  src                       Int?
-  dst                       Int?
+  id                        Int     @unique @default(autoincrement())
+  src                       String? @db.VarChar(255)
+  dst                       String? @db.VarChar(255)
   valve_microprocessor_port Int?
   valve_hub_port            Int?
 
@@ -56,7 +55,6 @@ model routes {
 }
 
 model zones {
-  id   Int    @default(autoincrement())
   name String @unique @db.VarChar(255)
 
   @@schema("config")
@@ -75,16 +73,6 @@ model daily_schedule_actions {
   @@schema("scheduler")
 }
 
-model schedules {
-  id         Int       @unique @default(autoincrement())
-  name       String?   @db.VarChar(255)
-  zone_id    Int?
-  start_date DateTime? @db.Timestamptz(6)
-  end_date   DateTime? @db.Timestamptz(6)
-
-  @@schema("scheduler")
-}
-
 model events {
   id              Int       @unique @default(autoincrement())
   schedule_id     Int?
@@ -92,6 +80,16 @@ model events {
   schedule_date   DateTime? @db.Timestamptz(6)
   process_start   DateTime? @db.Timestamptz(6)
   process_end     DateTime? @db.Timestamptz(6)
+
+  @@schema("scheduler")
+}
+
+model schedules {
+  id         Int       @unique @default(autoincrement())
+  name       String?   @db.VarChar(255)
+  zone_id    Int?
+  start_date DateTime? @db.Timestamptz(6)
+  end_date   DateTime? @db.Timestamptz(6)
 
   @@schema("scheduler")
 }
