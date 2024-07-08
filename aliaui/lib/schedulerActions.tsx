@@ -1,22 +1,24 @@
 "use server"
 import 'server-only'
 
-import { daily_schedule_actions, schedules } from '@prisma/client'
+import { actions, jobs } from '@prisma/client'
 import prisma from "@/lib/db";
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
-export const insertScheduler = async (schedule: schedules, dailyActions: daily_schedule_actions[]) => {
-    const response = await prisma.schedules.create({
+export const insertScheduler = async (job: jobs, dailyActions: actions[]) => {
+    const response = await prisma.jobs.create({
         data: {
-            name: schedule.name,
-            zone_id: schedule.zone_id,
-            start_date: schedule.start_date,
-            end_date: schedule.end_date
+            name: job.name,
+            zone: job.zone,
+            start_date: job.start_date,
+            end_date: job.end_date
         }
     })
     dailyActions.map(async (dailyAction) => {
-        await prisma.daily_schedule_actions.create({
+        await prisma.actions.create({
             data: {
-                schedule_id: response.id,
+                job_id: response.id,
                 hour: dailyAction.hour,
                 compressing_time: dailyAction.compressing_time,
                 water_level: dailyAction.water_level,
@@ -26,14 +28,36 @@ export const insertScheduler = async (schedule: schedules, dailyActions: daily_s
             }
         });
     })
-
+    revalidatePath('/')
+    redirect(`/scheduler/${response.id}`)
+}
+export const readAllSchedules = async () => {
+    const response = await prisma.jobs.findMany()
     return response
 }
-export const readSchedules = async () => {
-    const response = await prisma.schedules.findMany()
+export const readSchedule = async (jobId: number) => {
+    const response = await prisma.jobs.findUnique({ "where": { "id": jobId } })
     return response
 }
 export const readDailyActions = async (jobId: number) => {
-    const response = await prisma.daily_schedule_actions.findMany({ "where": { "schedule_id": jobId } })
+    const response = await prisma.actions.findMany({ "where": { "job_id": jobId } })
     return response
+}
+
+export const readEvents = async (jobId: number) => {
+    const response = await prisma.events_logs.findMany({ "where": { "job_id": jobId } })
+    return response
+}
+export const deleteJob = async (jobId: number) => {
+    await prisma.$transaction([
+        prisma.jobs.delete({
+            where: { id: jobId }
+        }),
+        prisma.actions.deleteMany({
+            where: { job_id: jobId }
+        })
+    ])
+    revalidatePath('/')
+    redirect(`/scheduler`)
+
 }

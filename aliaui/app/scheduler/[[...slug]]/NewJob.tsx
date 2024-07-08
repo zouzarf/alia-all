@@ -9,7 +9,7 @@ import TimeRange from 'react-time-range';
 import TextField from '@mui/material/TextField';
 import { insertScheduler } from "@/lib/schedulerActions";
 import TimePicker from "react-time-picker";
-import { daily_schedule_actions } from '@prisma/client'
+import { actions, zones } from '@prisma/client'
 import { Input, Select, SelectItem, TimeInput, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider } from "@nextui-org/react";
 import { RangeCalendar } from "@nextui-org/react";
 import type { DateValue } from "@react-types/calendar";
@@ -17,19 +17,23 @@ import type { RangeValue } from "@react-types/shared";
 import { today, getLocalTimeZone } from "@internationalized/date";
 
 
-export default function NewJob() {
-    const [zone, setZone] = useState("0");
-    const [scheduleName, setScheduleName] = useState("Schedule X");
+export default function NewJob({ zones }: { zones: zones[] }) {
+    const zones_elements = zones.map(z => <SelectItem key={z.name}>
+        {z.name}
+    </SelectItem>)
+    const [zone, setZone] = useState("");
+    const [scheduleName, setScheduleName] = useState("");
     const [selectionRange, setSelectionRange] = useState({
         startDate: new Date(),
         endDate: new Date(),
         key: 'selection',
     });
-    const [dailyActions, setDailyActions] = useState<daily_schedule_actions[]>([]);
+    const [dailyActions, setDailyActions] = useState<actions[]>([]);
 
     const [time, setTime] = useState(0);
     const [waterLevel, setWaterLevel] = useState(0);
     const [doseNumber, setDoseNumber] = useState(0);
+    const [doseAmount, setDoseAmount] = useState(0);
     const [mixingTime, setMixingTime] = useState(0);
     const [compressingTime, setCompressingTime] = useState(0);
     const [routingTime, setRoutingTime] = useState(0);
@@ -72,7 +76,7 @@ export default function NewJob() {
             label: "Action",
         }
     ];
-    const renderCell = React.useCallback((ds: daily_schedule_actions, columnKey: Key) => {
+    const renderCell = React.useCallback((ds: actions, columnKey: Key) => {
 
         switch (columnKey) {
             case "hour":
@@ -109,24 +113,21 @@ export default function NewJob() {
     return (
 
         <div className="flex flex-col">
-            <h1 className="text-center">New Scheduler</h1>
+            <h1 className="text-center">New Job</h1>
 
-            <div className="flex flex-row"> <Input type="text" value={scheduleName} onChange={(e) => setScheduleName(e.target.value)} /><Select
-                placeholder="Select a zone"
-                selectionMode="single"
-                className="w-full"
-            >
-                <SelectItem key={0}>
-                    Se1e
-                </SelectItem>
-                <SelectItem key={1}>
-                    Se1e3
-                </SelectItem>
-                <SelectItem key={2}>
-                    Se1e4
-                </SelectItem>
+            <div className="flex flex-row">
+                <Input type="text" label="Job Name"
+                    labelPlacement="outside" value={scheduleName} onChange={(e) => setScheduleName(e.target.value)} />
+                <Select
+                    placeholder="Select a zone"
+                    selectionMode="single"
+                    className="w-full"
+                    selectedKeys={[zone]}
+                    onChange={(e) => setZone(e.target.value)}
+                >
+                    {zones_elements}
 
-            </Select></div>
+                </Select></div>
 
 
             <Divider className="my-4" />
@@ -158,19 +159,22 @@ export default function NewJob() {
 
 
             <div className="flex flex-row items-center">
-                <TimeInput granularity="hour" label="Hour" hourCycle={24} /><Input type="number" id="outlined-basic" label="Amount of water (L)" value={waterLevel.toString()} onChange={(e) => { setWaterLevel(parseInt(e.target.value)) }} />
-                <Input type="number" id="outlined-basic" label="Dose number" value={doseNumber.toString()} onChange={(e) => { setDoseNumber(parseInt(e.target.value)) }} />
-                <Input type="number" id="outlined-basic" label="Mixing timer(minutes)" value={mixingTime.toString()} onChange={(e) => { setMixingTime(parseInt(e.target.value)) }} />
-                <Input type="number" id="outlined-basic" label="Routing timer(minutes)" value={routingTime.toString()} onChange={(e) => { setRoutingTime(parseInt(e.target.value)) }} />
-                <Input type="number" id="outlined-basic" label="Compressor timer(minutes)" value={compressingTime.toString()} onChange={(e) => { setCompressingTime(parseInt(e.target.value)) }} />
+                <Input type="number" id="outlined-basic" label="Hour" min={0} max={23} value={time.toString()} onChange={(e) => { setTime(parseInt(e.target.value)) }} />
+                <Input type="number" id="outlined-basic" label="Amount of water (L)" min={0} value={waterLevel.toString()} onChange={(e) => { setWaterLevel(parseInt(e.target.value)) }} />
+                <Input type="number" id="outlined-basic" label="Dose number" min={0} value={doseNumber.toString()} onChange={(e) => { setDoseNumber(parseInt(e.target.value)) }} />
+                <Input type="number" id="outlined-basic" label="Dose amount" min={0} value={doseAmount.toString()} onChange={(e) => { setDoseAmount(parseInt(e.target.value)) }} />
+                <Input type="number" id="outlined-basic" label="Mixing timer(minutes)" min={0} value={mixingTime.toString()} onChange={(e) => { setMixingTime(parseInt(e.target.value)) }} />
+                <Input type="number" id="outlined-basic" label="Routing timer(minutes)" min={0} value={routingTime.toString()} onChange={(e) => { setRoutingTime(parseInt(e.target.value)) }} />
+                <Input type="number" id="outlined-basic" label="Compressor timer(minutes)" min={0} value={compressingTime.toString()} onChange={(e) => { setCompressingTime(parseInt(e.target.value)) }} />
                 <Button className="" color="success" onClick={
                     () => {
                         setDailyActions(oldArray => [...oldArray, {
                             id: 0,
-                            schedule_id: 0,
+                            job_id: 0,
                             hour: time,
                             water_level: waterLevel,
                             dose_number: doseNumber,
+                            dose_amount: doseAmount,
                             mixing_time: mixingTime,
                             routing_time: routingTime,
                             compressing_time: compressingTime
@@ -186,7 +190,7 @@ export default function NewJob() {
                     {
                         id: 0,
                         name: scheduleName,
-                        zone_id: parseInt(zone),
+                        zone: zone,
                         start_date: selectionRange.startDate,
                         end_date: selectionRange.endDate
                     },
