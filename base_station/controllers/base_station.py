@@ -1,49 +1,61 @@
-from pump_dosing import PumpDosing
-from pump_mixing import PumpMixing
-from pump_water_source import PumpWaterSource
+from controllers.pump_water_source import PumpWaterSource
 from template_classes.relay import RelayChannel
 from template_classes.water_sensor import WaterSensor
-from prisma.models import base_station_ports
+from data_model import BaseStationConfig
 
 
-def get_sensor_ports(config: list[base_station_ports], conf: str) -> tuple[int, int]:
+def get_sensor_ports(config: list[BaseStationConfig], conf: str) -> tuple[int, int]:
     port1 = [i for i in config if i.name == conf][0].microprocessor_port
     port2 = [i for i in config if i.name == conf][0].hub_port
     return (0 if port1 is None else port1, 0 if port2 is None else port2)
 
 
 class BaseStation:
-    def __init__(self, base_station_config: list[base_station_ports]):
+    def __init__(self, base_station_config: list[BaseStationConfig]):
         self.water_sensor = WaterSensor(
             get_sensor_ports(base_station_config, "WATERSENSOR")[0]
         )
-        self.water_pump = PumpWaterSource(
-            get_sensor_ports(base_station_config, "WATERPUMP")[0],
-            get_sensor_ports(base_station_config, "WATERPUMP")[1],
-        )
-        self.dosing_pump = PumpDosing(base_station_config)
-        self.mixing_pump = PumpMixing(
-            get_sensor_ports(base_station_config, "MIXINGPUMP")[0],
-            get_sensor_ports(base_station_config, "MIXINGPUMP")[1],
-        )
-        self.routing_valve = RelayChannel(
-            get_sensor_ports(base_station_config, "ROUTINGVALVE")
-        )
-        self.routing_pump = RelayChannel(
-            get_sensor_ports(base_station_config, "ROUTINGPUMP")
-        )
-        self.compressor = RelayChannel(
-            get_sensor_ports(base_station_config, "COMPRESSOR")
-        )
-
-    def enable_dosing(self, doser: int):
-        self.dosing_pump.enable_dosing(doser)
-
-    def open_routing_valve(self):
-        self.routing_valve.enable()
-
-    def close_routing_value(self):
-        self.routing_valve.disable()
+        self.actionners = {
+            "WATERPUMP": RelayChannel(
+                ports=(
+                    get_sensor_ports(base_station_config, "WATERPUMP")[0],
+                    get_sensor_ports(base_station_config, "WATERPUMP")[1],
+                )
+            ),
+            "DOSINGPUMP1": RelayChannel(
+                ports=(
+                    get_sensor_ports(base_station_config, "DOSINGPUMP1")[0],
+                    get_sensor_ports(base_station_config, "DOSINGPUMP1")[1],
+                )
+            ),
+            "DOSINGPUMP2": RelayChannel(
+                ports=(
+                    get_sensor_ports(base_station_config, "DOSINGPUMP2")[0],
+                    get_sensor_ports(base_station_config, "DOSINGPUMP2")[1],
+                )
+            ),
+            "DOSINGPUMP3": RelayChannel(
+                ports=(
+                    get_sensor_ports(base_station_config, "DOSINGPUMP3")[0],
+                    get_sensor_ports(base_station_config, "DOSINGPUMP3")[1],
+                )
+            ),
+            "MIXINGPUMP": RelayChannel(
+                ports=(
+                    get_sensor_ports(base_station_config, "MIXINGPUMP")[0],
+                    get_sensor_ports(base_station_config, "MIXINGPUMP")[1],
+                )
+            ),
+            "ROUTINGVALVE": RelayChannel(
+                get_sensor_ports(base_station_config, "ROUTINGVALVE")
+            ),
+            "ROUTINGPUMP": RelayChannel(
+                get_sensor_ports(base_station_config, "ROUTINGPUMP")
+            ),
+            "COMPRESSOR": RelayChannel(
+                get_sensor_ports(base_station_config, "COMPRESSOR")
+            ),
+        }
 
     def enable_routing_pump(self):
         pass

@@ -1,6 +1,7 @@
 from Phidget22.Phidget import *
 from Phidget22.Devices.VoltageInput import *
 
+
 class Knob:
     def __init__(self, port, onVoltageChange):
         self.voltageInput5 = VoltageInput()

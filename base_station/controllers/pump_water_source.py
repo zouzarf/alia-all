@@ -10,22 +10,8 @@ class PumpWaterSource:
         self.pump = RelayChannel(ports=pump_ports)
         self.TANK_CAPACITY = 10
 
-    def enable_water_sucking(self):
-        # self.water_valve_1.enable()
-        # self.water_valve_2.enable()
+    def enable(self):
         self.pump.enable()
 
-    def disable_water_sucking(self):
+    def disable(self):
         self.pump.disable()
-        # self.water_valve_2.disable()
-        # self.water_valve_1.disable()
-
-    def enable_mixing(self):
-        # self.mixing_valve_1.enable()
-        # self.mixing_valve_2.enable()
-        self.pump.enable()
-
-    def disable_mixing(self):
-        self.pump.disable()
-        # self.mixing_valve_1.disable()
-        # self.mixing_valve_2.disable()

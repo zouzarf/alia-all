@@ -1,14 +1,27 @@
 from controllers.base_station import BaseStation
 from mqtt_config import client
-from prisma.models import base_station_ports
-import prisma
 import json
 from pydantic.dataclasses import dataclass
+import sqlalchemy as db
+from data_model import BaseStationConfig
+from sqlalchemy.orm import sessionmaker
+from Phidget22.Devices.Log import *
+from Phidget22.LogLevel import *
+from paho.mqtt.client import MQTTMessage
 
-MQTT_SERVER_IP = "127.0.01"
-prisma.register(prisma.Prisma())
-t = base_station_ports.prisma().find_many()
-base_station = BaseStation(t)
+Log.enable(LogLevel.PHIDGET_LOG_INFO, "/base_station/file.log")
+
+engine = db.create_engine(
+    "postgresql://postgres:mysecretpassword@localhost:5432/postgres"
+)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+
+config = session.query(BaseStationConfig).all()
+
+MQTT_SERVER_IP = "127.0.0.1"
+base_station = BaseStation(config)
 
 
 @dataclass
@@ -17,23 +30,21 @@ class ControllerCommand:
     command: str
 
 
-def on_message(mosq, obj, message):
+def on_message(mosq, obj, message: MQTTMessage):
 
-    command_message = ControllerCommand(**json.loads(message))
+    command_message = ControllerCommand(**json.loads(message.payload.decode()))
 
     # TODO: FINISH ALL ACTIONS
     match command_message.actionner:
         case "RELOAD_CONFIG":
             global base_station
-            t = base_station_ports.prisma().find_many()
-            base_station = BaseStation(t)
-        case "WATERPUMP":
-            if command_message.command == "ACTIVATE":
-                base_station.water_pump.enable_water_sucking()
-            else:
-                base_station.water_pump.disable_water_sucking()
+            config = session.query(BaseStationConfig).all()
+            base_station = BaseStation(config)
         case _:
-            pass
+            if command_message.command == "ACTIVATE":
+                base_station.actionners[command_message.actionner].enable()
+            else:
+                base_station.actionners[command_message.actionner].disable()
 
 
 def on_connect(client, userdata, flags, rc):

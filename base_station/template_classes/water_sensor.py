@@ -36,6 +36,6 @@ class WaterSensor(metaclass=SingletonMeta):
             )
 
         print("-- water sensor -- connecting")
-        # self.water_sensor = Knob(port=water_port,onVoltageChange=onVoltageChange)
-        self.water_sensor = WaterLevel(port=water_port, onCurrentChange=onVoltageChange)
+        self.water_sensor = Knob(port=water_port, onVoltageChange=onVoltageChange)
+        # self.water_sensor = WaterLevel(port=water_port, onCurrentChange=onVoltageChange)
         print("-- water sensor -- connected")
