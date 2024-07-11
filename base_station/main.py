@@ -5,11 +5,7 @@ from pydantic.dataclasses import dataclass
 import sqlalchemy as db
 from data_model import BaseStationConfig
 from sqlalchemy.orm import sessionmaker
-from Phidget22.Devices.Log import *
-from Phidget22.LogLevel import *
 from paho.mqtt.client import MQTTMessage
-
-Log.enable(LogLevel.PHIDGET_LOG_INFO, "/base_station/file.log")
 
 engine = db.create_engine(
     "postgresql://postgres:mysecretpassword@localhost:5432/postgres"
