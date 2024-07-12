@@ -8,9 +8,11 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 phidget22 = "^1.19.20240513"
-prisma = "^0.13.1"
 paho-mqtt = "^2.1.0"
 pydantic = "^2.7.4"
+sqlalchemy = "^2.0.31"
+psycopg2 = "^2.9.9"
+getmac = "^0.9.4"
 
 
 [build-system]

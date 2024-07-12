@@ -1,24 +1,22 @@
 from template_classes.relay import RelayChannel
-from prisma.models import routers, routes
+from db import session, GeneralConfig, RoutersConfig, RoutingConfig
 
 
 class RoutingStation:
-    def __init__(self, routes_config: list[routes], router_config: routers):
+    def __init__(
+        self, routes_config: list[RoutingConfig], router_config: RoutersConfig
+    ):
         self.zones = {}
         for node in routes_config:
-            node_name = node.dst
-            mp_port = node.valve_microprocessor_port
-            relay_port = node.valve_hub_port
-            self.zones[node_name] = RelayChannel((mp_port, relay_port))
-        pump_p1 = router_config.pump_microprocessor_port
-        pump_p2 = router_config.pump_hub_port
-        self.pump = RelayChannel((pump_p1, pump_p2))
+            self.zones[node.dst] = RelayChannel(
+                (node.valve_microprocessor_port, node.valve_hub_port)
+            )
+        self.pump = RelayChannel(
+            (router_config.pump_microprocessor_port, router_config.pump_hub_port)
+        )
 
-    def open_route(self, zone_id: int):
-
+    def open_route(self, zone_id: str):
         self.zones[zone_id].enable()
-        self.pump.enable()
 
-    def close_route(self, zone_id: int):
+    def close_route(self, zone_id: str):
         self.zones[zone_id].disable()
-        self.pump.disable()
