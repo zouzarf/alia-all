@@ -1,6 +1,6 @@
 
 import { readAllSchedules, readDailyActions, readEvents } from "@/lib/schedulerActions";
-import { actions, events_logs, zones } from "@prisma/client";
+import { jobs_actions, events_logs, zones } from "@prisma/client";
 import LeftBar from "./LeftBar";
 import NewJob from "./NewJob";
 import JobInfo from "./JobInfo";
@@ -9,7 +9,7 @@ import prisma from "@/lib/db";
 export default async function ScheduleA({ params }: { params: { slug: string[] } }) {
 
     const jobs = await readAllSchedules()
-    const dailyActions: actions[] = params.slug != null && params.slug.length > 0 ? await readDailyActions(parseInt(params.slug[0])) : []
+    const dailyActions: jobs_actions[] = params.slug != null && params.slug.length > 0 ? await readDailyActions(parseInt(params.slug[0])) : []
     const events: events_logs[] = params.slug != null && params.slug.length > 0 ? await readEvents(parseInt(params.slug[0])) : []
     const zones: zones[] = await prisma.zones.findMany()
 

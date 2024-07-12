@@ -6,16 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["alia", "config", "scheduler"]
-}
-
-model logs {
-  id          Int       @unique @default(autoincrement())
-  ts          DateTime? @default(now()) @db.Timestamptz(6)
-  producer    String?   @db.VarChar(255)
-  log_message String?   @db.VarChar(255)
-
-  @@schema("alia")
+  schemas  = ["config", "live", "scheduler"]
 }
 
 model base_station_ports {
@@ -43,7 +34,7 @@ model nodes {
 
 model routers {
   name                     String   @unique @db.VarChar(255)
-  serial_number            String?  @unique @db.VarChar(255)
+  mac_address              String?  @unique @db.VarChar(255)
   pump_microprocessor_port Int?
   pump_hub_port            Int?
   linked_to_base_station   Boolean?
@@ -70,7 +61,38 @@ model zones {
   @@schema("config")
 }
 
-model actions {
+model logs {
+  id          Int       @unique @default(autoincrement())
+  ts          DateTime? @default(now()) @db.Timestamptz(6)
+  producer    String?   @db.VarChar(255)
+  log_message String?   @db.VarChar(255)
+
+  @@schema("live")
+}
+
+model events_logs {
+  id            Int       @unique @default(autoincrement())
+  job_id        Int?
+  action_id     Int?
+  job_full_date DateTime? @db.Timestamptz(6)
+  process_start DateTime? @db.Timestamptz(6)
+  process_end   DateTime? @db.Timestamptz(6)
+  status        String?   @db.VarChar(255)
+
+  @@schema("scheduler")
+}
+
+model jobs {
+  id         Int      @unique @default(autoincrement())
+  name       String   @unique @db.VarChar(255)
+  zone_name  String   @db.VarChar(255)
+  start_date DateTime @db.Timestamptz(6)
+  end_date   DateTime @db.Timestamptz(6)
+
+  @@schema("scheduler")
+}
+
+model jobs_actions {
   id               Int  @unique @default(autoincrement())
   job_id           Int?
   hour             Int?
@@ -82,27 +104,5 @@ model actions {
   compressing_time Int?
 
   @@unique([job_id, hour])
-  @@schema("scheduler")
-}
-
-model events_logs {
-  id            Int       @unique @default(autoincrement())
-  job_id        Int?
-  action_id     Int?
-  schedule_date DateTime? @db.Timestamptz(6)
-  process_start DateTime? @db.Timestamptz(6)
-  process_end   DateTime? @db.Timestamptz(6)
-  status        String?   @db.VarChar(255)
-
-  @@schema("scheduler")
-}
-
-model jobs {
-  id         Int      @unique @default(autoincrement())
-  name       String   @unique @db.VarChar(255)
-  zone       String   @db.VarChar(255)
-  start_date DateTime @db.Timestamptz(6)
-  end_date   DateTime @db.Timestamptz(6)
-
   @@schema("scheduler")
 }

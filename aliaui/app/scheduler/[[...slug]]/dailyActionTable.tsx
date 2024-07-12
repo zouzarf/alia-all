@@ -1,10 +1,10 @@
 "use client"
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
-import { actions } from "@prisma/client";
+import { jobs_actions } from "@prisma/client";
 import React from "react";
 import { Key } from "react";
 
-export default function DailyActionsTable({ dailyActions }: { dailyActions: actions[] }) {
+export default function DailyActionsTable({ dailyActions }: { dailyActions: jobs_actions[] }) {
     const rows = dailyActions;
 
     const columns = [
@@ -44,7 +44,7 @@ export default function DailyActionsTable({ dailyActions }: { dailyActions: acti
             label: "Action",
         }
     ];
-    const renderCell = React.useCallback((ds: actions, columnKey: Key) => {
+    const renderCell = React.useCallback((ds: jobs_actions, columnKey: Key) => {
 
         switch (columnKey) {
             case "hour":

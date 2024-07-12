@@ -1,6 +1,6 @@
 build:
-	docker build -t nextjs-docker .
+	docker build --network=host -t nextjs-docker .
 run:
-	docker run -p 3000:3000 nextjs-docker
+	docker run -it --network=host -p 3000:3000 nextjs-docker
 dev:
 	npm run dev

@@ -1,14 +1,14 @@
 "use client"
 import { Paper } from "@mui/material";
 import { Button, Divider, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
-import { actions, events_logs, jobs } from "@prisma/client";
+import { jobs_actions, events_logs, jobs } from "@prisma/client";
 import React, { Key } from "react";
 import DailyActionsTable from "./dailyActionTable";
 import EventsTimeLine from "./EventsTimeline";
 import { deleteJob } from "@/lib/schedulerActions";
 import DeleteIcon from '@mui/icons-material/Delete';
 
-export default function JobInfo({ job, dailyActions, events }: { job: jobs, dailyActions: actions[], events: events_logs[] }) {
+export default function JobInfo({ job, dailyActions, events }: { job: jobs, dailyActions: jobs_actions[], events: events_logs[] }) {
 
 
 
@@ -26,7 +26,7 @@ export default function JobInfo({ job, dailyActions, events }: { job: jobs, dail
                         </div>
                         <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                             <dt className="text-sm font-medium leading-6 text-gray-900">Zone</dt>
-                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{job.zone}</dd>
+                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{job.zone_name}</dd>
                         </div>
                         <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                             <dt className="text-sm font-medium leading-6 text-gray-900">Start date</dt>

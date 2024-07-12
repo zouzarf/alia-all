@@ -1,10 +1,8 @@
 "use client"
 import React, { Key, useState } from "react";
 import { routers, routes } from '@prisma/client'
-import { Button, Checkbox, Divider, Input, Radio, RadioGroup, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import { Button, Divider, Input, Radio, RadioGroup, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { addRouter, deleteRouter } from "@/lib/routerActions";
-import { cp } from "fs";
-import { useRouter } from "next/navigation";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function RouterConfig({ configRouters, routes }: { configRouters: routers[], routes: routes[] }) {
@@ -64,7 +62,7 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
         );
       case "serial_number":
         return (
-          router.serial_number
+          router.mac_address
         );
       case "sbc_port":
         return (
@@ -109,9 +107,8 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
   );
 }
 export function AddRouterConfig({ otherRouters }: { otherRouters: routers[] }) {
-  const rrouter = useRouter()
   const [name, setName] = useState("");
-  const [sn, setSn] = useState("");
+  const [macAddress, setMacAddress] = useState("");
   const [mpPort, setMpPort] = useState(0);
   const [hubPort, setHubPort] = useState(0);
   const [linkedToBase, setLinkedToBase] = useState(otherRouters.filter(x => x.linked_to_base_station).length == 0);
@@ -135,11 +132,11 @@ export function AddRouterConfig({ otherRouters }: { otherRouters: routers[] }) {
           type="text"
           min={0}
           max={5}
-          value={sn}
-          label="Serial Number"
+          value={macAddress}
+          label="Mac Address"
           labelPlacement="outside"
           onChange={(e) => {
-            setSn(e.target.value);
+            setMacAddress(e.target.value);
           }}
         />
         <Input
@@ -230,7 +227,7 @@ export function AddRouterConfig({ otherRouters }: { otherRouters: routers[] }) {
         addRouter(
           {
             "name": name,
-            "serial_number": sn,
+            "mac_address": macAddress,
             "pump_hub_port": mpPort,
             "pump_microprocessor_port": hubPort,
             "linked_to_base_station": linkedToBase

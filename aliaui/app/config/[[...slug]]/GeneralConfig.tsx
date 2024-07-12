@@ -7,6 +7,7 @@ export default function GeneralConfig({ config }: { config: general_config[] }) 
 
   const configLines = config.map(line => (
     <GeneralConfigLine
+      key={line.name}
       config={line}
     />
   ));

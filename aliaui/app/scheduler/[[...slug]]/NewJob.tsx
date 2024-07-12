@@ -9,7 +9,7 @@ import TimeRange from 'react-time-range';
 import TextField from '@mui/material/TextField';
 import { insertScheduler } from "@/lib/schedulerActions";
 import TimePicker from "react-time-picker";
-import { actions, zones } from '@prisma/client'
+import { jobs_actions, zones } from '@prisma/client'
 import { Input, Select, SelectItem, TimeInput, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider } from "@nextui-org/react";
 import { RangeCalendar } from "@nextui-org/react";
 import type { DateValue } from "@react-types/calendar";
@@ -28,7 +28,7 @@ export default function NewJob({ zones }: { zones: zones[] }) {
         endDate: new Date(),
         key: 'selection',
     });
-    const [dailyActions, setDailyActions] = useState<actions[]>([]);
+    const [dailyActions, setDailyActions] = useState<jobs_actions[]>([]);
 
     const [time, setTime] = useState(0);
     const [waterLevel, setWaterLevel] = useState(0);
@@ -76,7 +76,7 @@ export default function NewJob({ zones }: { zones: zones[] }) {
             label: "Action",
         }
     ];
-    const renderCell = React.useCallback((ds: actions, columnKey: Key) => {
+    const renderCell = React.useCallback((ds: jobs_actions, columnKey: Key) => {
 
         switch (columnKey) {
             case "hour":
@@ -190,7 +190,7 @@ export default function NewJob({ zones }: { zones: zones[] }) {
                     {
                         id: 0,
                         name: scheduleName,
-                        zone: zone,
+                        zone_name: zone,
                         start_date: selectionRange.startDate,
                         end_date: selectionRange.endDate
                     },

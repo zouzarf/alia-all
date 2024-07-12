@@ -83,7 +83,7 @@ function NavigationBar() {
                             }}
                         >
                             {pages.map((page) => (
-                                <Link href={page[1]}>
+                                <Link key={page[0]} href={page[1]}>
                                     <MenuItem key={page[0]} onClick={handleCloseNavMenu}>
                                         <Typography textAlign="center">{page[0]}</Typography>
                                     </MenuItem>
@@ -112,7 +112,7 @@ function NavigationBar() {
                     </Typography>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
-                            <Link href={page[1]}>
+                            <Link key={page[0]} href={page[1]}>
                                 <Button
                                     key={page[0]}
                                     onClick={handleCloseNavMenu}
