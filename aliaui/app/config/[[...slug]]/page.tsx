@@ -1,7 +1,4 @@
-
-import { Grid, Paper } from "@mui/material";
 import prisma from "@/lib/db";
-import styles from './styles.module.css'
 import ConfigEditor from "./ConfigEditor";
 
 export default async function ConfigPage({ params }: { params: { slug: string[] } }) {

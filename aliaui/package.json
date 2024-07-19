@@ -9,28 +9,22 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@mantine/core": "^7.11.0",
     "@mui/icons-material": "^5.15.20",
-    "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.20",
-    "@nextui-org/button": "^2.0.34",
-    "@nextui-org/input": "^2.2.2",
     "@nextui-org/react": "^2.4.2",
     "@prisma/client": "^5.15.1",
     "d3-color": "^3.1.0",
     "framer-motion": "^11.2.12",
     "mqtt": "^5.7.2",
-    "next": "14.2.4",
+    "next": "13.2.4",
     "react": "^18",
     "react-bootstrap": "^2.10.3",
     "react-date-range": "^2.0.1",
     "react-dom": "^18",
     "react-liquid-gauge": "^1.2.4",
     "react-time-picker": "^7.0.0",
-    "react-time-range": "^1.0.4",
-    "reagraph": "^4.19.1"
+    "react-time-range": "^1.0.4"
   },
   "devDependencies": {
     "@types/d3-color": "^3.1.3",
