@@ -1,16 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
-from multiprocessing.pool import ThreadPool
-import queue
-import threading
-from base_command import ControllerCommand
-from commands_handler import command_handler, mqtt_message_handler
+from commands_handler import mqtt_message_handler
 from config import MQTT_IP, WATER_SENSOR_CHANNEL
-from hub_command import HubCommand
 from mqtt_config import client
-from prisma import Prisma
-import json
 from paho.mqtt.client import MQTTMessage
-from water import water_voltage
 
 executor = ThreadPoolExecutor(max_workers=10)
 
