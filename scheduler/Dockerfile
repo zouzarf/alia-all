@@ -1,9 +1,25 @@
-FROM python:3.11.9-alpine3.20
+FROM python:3.11
 
-RUN pip install poetry
+# Configure Poetry
+ENV POETRY_VERSION=1.6.1
+ENV POETRY_HOME=/opt/poetry
+ENV POETRY_VENV=/opt/poetry-venv
+ENV POETRY_CACHE_DIR=/opt/.cache
 
-COPY . .
+# Install poetry separated from system interpreter
+RUN python3 -m venv $POETRY_VENV \
+    && $POETRY_VENV/bin/pip install -U pip setuptools \
+    && $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
+
+# Add `poetry` to PATH
+ENV PATH="${PATH}:${POETRY_VENV}/bin"
+
+WORKDIR /app
+
+# Install dependencies
+COPY poetry.lock pyproject.toml ./
 RUN poetry install
-RUN poetry prisma generate db
-
-ENTRYPOINT ["poetry", "run", "python", "main.py"]
+# Run your app
+COPY . /app
+RUN chmod +x entry_point.sh
+CMD ["./entry_point.sh" ]
