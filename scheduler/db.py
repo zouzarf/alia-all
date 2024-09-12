@@ -1,3 +1,5 @@
+import logging
+import time
 import sqlalchemy as db
 from sqlalchemy.sql import text
 from sqlalchemy import String, Integer
@@ -32,6 +34,17 @@ class EventsLogs(Base):
     status: Mapped[str] = mapped_column()
 
 
+class Logs(Base):
+    __tablename__ = "logs"
+    __table_args__ = {"schema": "live"}
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ts: Mapped[datetime] = mapped_column()
+    log_level: Mapped[str] = mapped_column()
+    producer: Mapped[str] = mapped_column()
+    log_message: Mapped[str] = mapped_column()
+    module_name: Mapped[str] = mapped_column()
+
+
 engine = db.create_engine(
     "postgresql://postgres:mysecretpassword@localhost:5432/postgres"
 )
@@ -57,40 +70,26 @@ class ScheduleAction(BaseModel):
     scheduled_date: datetime
 
 
-def get_to_do() -> list[ScheduleAction]:
-    return [
-        ScheduleAction.from_list(k)
-        for k in session.execute(
-            text(
-                """
-                    select
-                        a.id as schedule_id,
-                        a.name as schedule_name,
-                        a.zone_name as zone_name,
-                        b.id as action_id,
-                        b.water_level,
-                        b.dose_number,
-                        b.dose_amount,
-                        b.mixing_time,
-                        b.routing_time,
-                        b.compressing_time,
-                        (dd :: date + interval '1 hour' * b.hour) AS scheduled_date
-                    from
-                        scheduler.jobs a
-                        JOIN LATERAL generate_series(a.start_date, a.end_date, '1 day' :: interval) dd ON true
-                        JOIN scheduler.jobs_actions b ON a.id = b.job_id
-                        left join scheduler.events_logs c on a.id = c.job_id
-                        and c.action_id = b.id
-                        and c.job_full_date = (dd :: date + interval '1 hour' * b.hour)
-                    where
-                        (dd :: date + interval '1 hour' * b.hour) <= now()
-                        and c.process_start is null
-                    order by
-                        (dd :: date + interval '1 hour' * b.hour)
-                """
+class DBHandler(logging.Handler):
+    def __init__(self):
+        super().__init__()
+        self.connection = session
+
+    def emit(self, record):
+        filename = record.filename
+        tm = datetime.fromtimestamp(record.created).strftime("%Y-%m-%d %H:%M:%S.%f")
+        levelname = record.levelname
+        message = record.getMessage()
+        self.connection.add(
+            Logs(
+                producer="Scheduler",
+                module_name=filename,
+                ts=tm,
+                log_level=levelname,
+                log_message=message,
             )
-        ).fetchall()
-    ]
+        )
+        self.connection.commit()
 
-
-print(get_to_do())
+    def close(self):
+        super().close()
