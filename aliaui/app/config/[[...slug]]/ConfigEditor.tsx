@@ -6,6 +6,7 @@ import ZonesConfig from './ZonesConfig';
 import RouterConfig from './RouterConfig';
 import BaseStationConfig from './BaseStationConfig';
 import { Tabs, Tab, Card, CardBody } from "@nextui-org/react";
+import Init from './Init';
 
 export default function ConfigEditor(
     { generalConfig, zones, routers, baseStationConfig, routes, selected }: {
@@ -47,6 +48,13 @@ export default function ConfigEditor(
                     <Card>
                         <CardBody>
                             <ZonesConfig routers={routers} routes={routes} config={zones} />
+                        </CardBody>
+                    </Card>
+                </Tab>
+                <Tab key="init" title="Init" href={"/config/init"}>
+                    <Card>
+                        <CardBody>
+                            <Init />
                         </CardBody>
                     </Card>
                 </Tab>

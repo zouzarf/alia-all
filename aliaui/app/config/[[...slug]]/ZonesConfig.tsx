@@ -157,6 +157,7 @@ export function AddZoneConfig({ routers }: { routers: routers[] }) {
         createZone(name, routerName, sbcPort, hubPort);
       }}>
         Add
-      </Button></div>
+      </Button>
+    </div>
   );
 }
