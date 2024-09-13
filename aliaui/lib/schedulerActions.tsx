@@ -23,6 +23,7 @@ export const insertScheduler = async (job: jobs, dailyActions: jobs_actions[]) =
                 compressing_time: dailyAction.compressing_time,
                 water_level: dailyAction.water_level,
                 dose_number: dailyAction.dose_number,
+                dose_amount: dailyAction.dose_amount,
                 mixing_time: dailyAction.mixing_time,
                 routing_time: dailyAction.routing_time,
             }

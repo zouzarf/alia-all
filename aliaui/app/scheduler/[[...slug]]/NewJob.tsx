@@ -57,6 +57,10 @@ export default function NewJob({ zones }: { zones: zones[] }) {
             label: "Dose number",
         },
         {
+            key: "dose_amount",
+            label: "Dose Amount",
+        },
+        {
             key: "mixing_time",
             label: "Mixing timer",
         },
@@ -90,6 +94,10 @@ export default function NewJob({ zones }: { zones: zones[] }) {
             case "dose_number":
                 return (
                     ds.dose_number
+                );
+            case "dose_amount":
+                return (
+                    ds.dose_amount
                 );
             case "routing_time":
                 return (
