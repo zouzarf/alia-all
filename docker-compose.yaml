@@ -4,6 +4,16 @@ services:
     network_mode: "host"        
     restart: on-failure
     profiles: [rasp]
+  scheduler:
+    image: "alia2024/scheduler:latest"
+    network_mode: "host"        
+    restart: on-failure
+    profiles: [rasp]
+  hub:
+    image: "alia2024/hub:latest"
+    network_mode: "host"        
+    restart: on-failure
+    profiles: [rasp]
   mqtt:
     image: "alia2024/mqtt:latest"
     network_mode: "host"        
