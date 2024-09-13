@@ -14,6 +14,14 @@ export default function Logs({ logs }: { logs: logs[] }) {
             label: "Producer",
         },
         {
+            key: "module_name",
+            label: "Module",
+        },
+        {
+            key: "log_level",
+            label: "Level",
+        },
+        {
             key: "message",
             label: "Message",
         }
@@ -23,12 +31,18 @@ export default function Logs({ logs }: { logs: logs[] }) {
         switch (columnKey) {
             case "ts":
                 return (
-                    ds.ts?.toString()
+                    ds.ts?.toISOString().toString()
                 );
-            case "producter":
+            case "producer":
                 return (
                     ds.producer
                 );
+            case "module_name":
+                return (
+                    ds.module_name
+                );
+            case "log_level":
+                return ds.log_level;
             case "message":
                 return (
                     ds.log_message
@@ -37,16 +51,29 @@ export default function Logs({ logs }: { logs: logs[] }) {
                 return ds.id;
         }
     }, []);
-    return (<Table aria-label="Example table with dynamic content">
-        <TableHeader columns={columns}>
-            {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
-        </TableHeader>
-        <TableBody items={logs}>
-            {(item) => (
-                <TableRow key={item.id}>
-                    {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                </TableRow>
-            )}
-        </TableBody>
-    </Table>)
+    const renderColor = React.useCallback((ds: logs) => {
+
+        switch (ds.log_level) {
+            case "ERROR":
+                return (
+                    "text-red-700"
+                );
+            default:
+                return "text-green-500";
+        }
+    }, []);
+    return (
+        <Table aria-label="Example table with dynamic content">
+            <TableHeader columns={columns}>
+                {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+            </TableHeader>
+            <TableBody items={logs}>
+                {(item) => (
+                    <TableRow key={item.id}>
+                        {(columnKey) => <TableCell><p className={renderColor(item)}>{renderCell(item, columnKey)}</p></TableCell>}
+                    </TableRow>
+                )}
+            </TableBody>
+        </Table>
+    )
 }

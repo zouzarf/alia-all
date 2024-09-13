@@ -61,10 +61,21 @@ model zones {
   @@schema("config")
 }
 
-model logs {
+model events {
   id          Int       @unique @default(autoincrement())
   ts          DateTime? @default(now()) @db.Timestamptz(6)
   producer    String?   @db.VarChar(255)
+  log_message String?   @db.VarChar(255)
+
+  @@schema("live")
+}
+
+model logs {
+  id          Int       @unique @default(autoincrement())
+  producer    String?   @db.VarChar(255)
+  ts          DateTime? @default(now()) @db.Timestamptz(6)
+  module_name String?   @db.VarChar(255)
+  log_level   String?   @db.VarChar(255)
   log_message String?   @db.VarChar(255)
 
   @@schema("live")
