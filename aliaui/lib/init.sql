@@ -20,18 +20,20 @@ create table config.general_config (
 INSERT INTO
     config.general_config
 VALUES
-    ('test', 'test');
-
-INSERT INTO
-    config.base_station_ports
-VALUES
-    ('test', 0, 0);
+    ('WATER_OFFSET_L', '1'),
+    ('WATER_VOLT_TO_L_CONVERSION', '0.1'),
+    ('DOSING_TIME', '10');
 
 create table config.base_station_ports (
     name varchar(255) not null UNIQUE,
     microprocessor_port int,
     hub_port int
 );
+
+INSERT INTO
+    config.base_station_ports
+VALUES
+    ('test', 0, 0);
 
 create table config.zones (
     name varchar(255) not null unique REFERENCES config.nodes(node_name)
