@@ -1,31 +1,39 @@
 from concurrent.futures import ThreadPoolExecutor
-from commands_handler import mqtt_message_handler
-from config import MQTT_IP, WATER_SENSOR_CHANNEL
+from config import HUB_LISTENING_CHANNEL, MQTT_IP, WATER_SENSOR_CHANNEL
+from hub_command import HubCommandManager
 from mqtt_config import client
 from paho.mqtt.client import MQTTMessage
+from logger import logger as logging
 
 executor = ThreadPoolExecutor(max_workers=10)
 
 
-def on_message(mosq, obj, message: MQTTMessage):
-    executor.submit(mqtt_message_handler, message)
-
-
 def on_connect(client, userdata, flags, rc):
-    print(f"-- HUB -- Connected with result code " + str(rc))
-    client.subscribe("hub")
+    logging.info(f"Connected to Mqtt server result code " + str(rc))
+    client.subscribe(HUB_LISTENING_CHANNEL)
     client.subscribe(WATER_SENSOR_CHANNEL)
 
 
 def main():
-    global routing_station
+    try:
+        global routing_station
+        logging.info("-----")
+        logging.info("-HUB-")
+        logging.info("-----")
 
-    client.on_connect = on_connect
-    client.on_message = on_message
+        hm = HubCommandManager("test", client)
 
-    client.connect(MQTT_IP, 1883, 60)
+        def on_message(mosq, obj, message: MQTTMessage):
+            executor.submit(hm.mqtt_message_handler, message)
 
-    client.loop_forever()
+        client.on_connect = on_connect
+        client.on_message = on_message
+
+        client.connect(MQTT_IP, 1883, 60)
+
+        client.loop_forever()
+    except Exception as e:
+        logging.error(str(e))
 
 
 main()
