@@ -8,11 +8,11 @@ import { redirect } from 'next/navigation';
 const fs = require('fs');
 const path = require('path');
 export const init = async () => {
-    const sqlFilePath = path.resolve(process.cwd(), 'lib/init.sql');
+    const sqlFilePath = path.resolve(process.cwd(), 'public/init.sql');
     const sqls = fs.readFileSync(sqlFilePath, 'utf8').split(";");
     for (const sql of sqls) {
         await prisma.$queryRawUnsafe(sql)
     }
     revalidatePath('/')
-    redirect(`/config/zones_config`)
+    redirect(`/`)
 }

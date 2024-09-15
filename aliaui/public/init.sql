@@ -33,7 +33,15 @@ create table config.base_station_ports (
 INSERT INTO
     config.base_station_ports
 VALUES
-    ('test', 0, 0);
+    ('WATERSENSOR', 4, null),
+    ('WATERPUMP', 0, 1),
+    ('DOSINGPUMP1', 0, 2),
+    ('DOSINGPUMP2', 7, 7),
+    ('DOSINGPUMP3', 0, 3),
+    ('MIXINGPUMP', 1, 1),
+    ('ROUTINGVALVE', 1, 2),
+    ('ROUTINGPUMP', 1, 3),
+    ('COMPRESSOR', 1, 4);
 
 create table config.zones (
     name varchar(255) not null unique REFERENCES config.nodes(node_name)
