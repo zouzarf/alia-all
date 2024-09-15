@@ -1,26 +1,50 @@
 services:
   ui:
-    image: "alia2024/alia:latest"
+    image: "alia2024/ui:latest"
     network_mode: "host"        
     restart: on-failure
     profiles: [rasp]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.6'
   scheduler:
     image: "alia2024/scheduler:latest"
     network_mode: "host"        
     restart: on-failure
     profiles: [rasp]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
   hub:
     image: "alia2024/hub:latest"
     network_mode: "host"        
     restart: on-failure
     profiles: [rasp]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
   mqtt:
     image: "alia2024/mqtt:latest"
     network_mode: "host"        
     restart: on-failure
     profiles: [rasp]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+  base_station:
+    image: "alia2024/base_station:latest"
+    network_mode: "host"        
+    restart: on-failure
+    privileged: true
+    profiles: [base_station]
+    environment:
+      rasp_server: 192.168.1.167
   db:
-    image: "postgres:16.3"
+    image: "postgres:16.3-alpine3.20"
     network_mode: "host"        
     restart: on-failure
     volumes:
@@ -29,5 +53,9 @@ services:
       POSTGRES_PASSWORD: mysecretpassword
       PGDATA: /var/lib/postgresql/data/db-files/
     profiles: [rasp]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
 volumes:
   db-vol:
