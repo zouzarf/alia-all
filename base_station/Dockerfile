@@ -1,6 +1,6 @@
-FROM python:3.11.9-slim-bullseye
+FROM python:3.11-slim
 # Configure Poetry
-RUN apt-get update
+RUN apt-get -y update
 RUN apt-get -y install curl libusb-1.0-0-dev
 RUN curl -fsSL https://www.phidgets.com/downloads/setup_linux | bash -
 RUN apt-get -y install libphidget22

@@ -1,7 +1,7 @@
 from controllers.pump_water_source import PumpWaterSource
+from db import BaseStationConfig
 from template_classes.relay import RelayChannel
 from template_classes.water_sensor import WaterSensor
-from data_model import BaseStationConfig
 
 
 def get_sensor_ports(config: list[BaseStationConfig], conf: str) -> tuple[int, int]:
