@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.11-alpine
 
 # Configure Poetry
 ENV POETRY_VERSION=1.6.1
@@ -21,5 +21,4 @@ COPY poetry.lock pyproject.toml ./
 RUN poetry install
 # Run your app
 COPY . /app
-RUN chmod +x entry_point.sh
-CMD ["./entry_point.sh" ]
+CMD ["poetry","run","python","main.py"]

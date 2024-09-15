@@ -11,14 +11,17 @@ executor = ThreadPoolExecutor(max_workers=10)
 
 
 def main():
-    logging.info("------------------")
-    logging.info("STARTING SCHEDULER")
-    logging.info("------------------")
-    h = HubCommandManager()
-    e = EventProcessor(h)
-    s = Scheduler(e)
-    executor.submit(s.run)
-    h.client.loop_forever()
+    try:
+        logging.info("------------------")
+        logging.info("STARTING SCHEDULER")
+        logging.info("------------------")
+        h = HubCommandManager()
+        e = EventProcessor(h)
+        s = Scheduler(e)
+        executor.submit(s.run)
+        h.client.loop_forever()
+    except Exception as e:
+        logging.error(str(e))
 
 
 main()
