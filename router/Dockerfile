@@ -1,4 +1,4 @@
-FROM python:3.11.9-slim-bullseye as phidget-python-image
+FROM python:3.11.9-slim as phidget-python-image
 # Configure Poetry
 RUN apt-get update
 RUN apt-get -y install curl libusb-1.0-0-dev
