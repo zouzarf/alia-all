@@ -7,18 +7,20 @@ import DailyActionsTable from "./dailyActionTable";
 import EventsTimeLine from "./EventsTimeline";
 import { deleteJob } from "@/lib/schedulerActions";
 import DeleteIcon from '@mui/icons-material/Delete';
-import client from "@/app/mqtt_c";
-
+import { mqttConnecter } from "@/lib/mqttClient";
+import useSWR from "swr";
+const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 export default function JobInfo({ job, dailyActions, events }: { job: jobs, dailyActions: jobs_actions[], events: events_logs[] }) {
 
-
+    const { data, error } = useSWR("/api/config", fetcher);
+    const client = mqttConnecter(data)
 
     return (
         <Paper>
             <div>
                 <Button className="justify-self-start" isIconOnly variant="bordered" color="danger" onClick={() => {
                     deleteJob(job.id);
-                    client.publish(
+                    client?.publish(
                         "hub",
                         JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
                     );

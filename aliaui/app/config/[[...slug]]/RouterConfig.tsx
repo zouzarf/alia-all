@@ -4,8 +4,9 @@ import { routers, routes } from '@prisma/client'
 import { Button, Divider, Input, Radio, RadioGroup, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { addRouter, deleteRouter } from "@/lib/routerActions";
 import DeleteIcon from '@mui/icons-material/Delete';
-import client from "@/app/mqtt_c";
-
+import { mqttConnecter } from "@/lib/mqttClient";
+import useSWR from "swr";
+const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 export default function RouterConfig({ configRouters, routes }: { configRouters: routers[], routes: routes[] }) {
 
 
@@ -23,6 +24,8 @@ export default function RouterConfig({ configRouters, routes }: { configRouters:
 
 export function RouterDivConfig({ router, routes }: { router: routers[], routes: routes[] }) {
   const rows = router;
+  const { data, error } = useSWR("/api/config", fetcher);
+  const client = mqttConnecter(data)
 
   const columns = [
     {
@@ -85,7 +88,7 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
         return (
           <Button isIconOnly variant="bordered" color="danger" onClick={() => {
             deleteRouter(router);
-            client.publish(
+            client?.publish(
               "hub",
               JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
             );
@@ -122,6 +125,8 @@ export function AddRouterConfig({ otherRouters }: { otherRouters: routers[] }) {
   const [linkedToRouter, setLinkedToRouter] = useState("");
   const [pvRouterMpPort, setPvRouterMpPort] = useState(0);
   const [pvRouterHubPort, setPvRouterHubPort] = useState(0);
+  const { data, error } = useSWR("/api/config", fetcher);
+  const client = mqttConnecter(data)
 
   return (
     <div className="flex flex-col gap-4">
@@ -240,7 +245,7 @@ export function AddRouterConfig({ otherRouters }: { otherRouters: routers[] }) {
             "linked_to_base_station": linkedToBase
           }, linkedToRouter, pvRouterMpPort, pvRouterMpPort);
         setLinkedToBase(false);
-        client.publish(
+        client?.publish(
           "hub",
           JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
         );

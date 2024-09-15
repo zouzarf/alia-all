@@ -2,16 +2,19 @@ import React, { useState } from "react";
 
 import FormControl from "@mui/material/FormControl";
 import InputAdornment from "@mui/material/InputAdornment";
-import client from "./mqtt_c";
 import BalanceIcon from "@mui/icons-material/Balance";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import { Button, Input } from "@nextui-org/react";
-
+import { mqttConnecter } from "@/lib/mqttClient";
+import useSWR from "swr";
+const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 export default function Dosing({ masterEvent }: { masterEvent: string }) {
     const [doseValue, setDoseValue] = useState(0);
     const [doserValue, setDoserValue] = useState("");
+    const { data, error } = useSWR("/api/config", fetcher);
+    const client = mqttConnecter(data)
 
     return (
         <div className="flex flex-col" >
@@ -53,7 +56,7 @@ export default function Dosing({ masterEvent }: { masterEvent: string }) {
                 disabled={masterEvent !== "IDLE"}
                 onClick={() => {
                     if (doseValue > 0) {
-                        client.publish(
+                        client?.publish(
                             "master_command",
                             JSON.stringify({
                                 command: "DOSE",
@@ -70,7 +73,7 @@ export default function Dosing({ masterEvent }: { masterEvent: string }) {
                 color="default"
                 disabled={masterEvent !== "DOSE"}
                 onClick={() => {
-                    client.publish(
+                    client?.publish(
                         "master_command",
                         JSON.stringify({ command: "STOP_DOSE", value: "0" })
                     );

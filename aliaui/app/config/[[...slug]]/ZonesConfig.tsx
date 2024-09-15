@@ -5,11 +5,12 @@ import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Input,
 import { createZone, deleteZone } from "@/lib/zonesActions";
 import { useRouter } from "next/navigation";
 import DeleteIcon from '@mui/icons-material/Delete';
-import client from "@/app/mqtt_c";
-
+import { mqttConnecter } from "@/lib/mqttClient";
+import useSWR from "swr";
 
 export default function ZonesConfig({ config, routers, routes }: { config: zones[], routers: routers[], routes: routes[] }) {
-
+  const { data, error } = useSWR("/api/config", fetcher);
+  const client = mqttConnecter(data)
   const rows = config.map(zone => {
     const route = routes.filter(route => route.dst == zone.name)[0]
     const router = route != null ? routers.filter(router => router.name == route.src)[0] : { "name": "" }
@@ -62,7 +63,7 @@ export default function ZonesConfig({ config, routers, routes }: { config: zones
         return (
           <Button isIconOnly variant="bordered" color="danger" onClick={() => {
             deleteZone(user.name);
-            client.publish(
+            client?.publish(
               "hub",
               JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
             );
@@ -97,13 +98,15 @@ export default function ZonesConfig({ config, routers, routes }: { config: zones
     </div>
   );
 }
-
+const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 export function AddZoneConfig({ routers }: { routers: routers[] }) {
   const rrouter = useRouter()
   const [name, setName] = React.useState("")
   const [routerName, setRouterName] = React.useState("")
   const [sbcPort, setSbcPort] = React.useState(0)
   const [hubPort, setHubPort] = React.useState(0)
+  const { data, error } = useSWR("/api/config", fetcher);
+  const client = mqttConnecter(data)
 
   return (
     <div className="flex flex-col gap-4">
@@ -163,7 +166,7 @@ export function AddZoneConfig({ routers }: { routers: routers[] }) {
       </ div>
       <Button isDisabled={routerName == "" || name == ""} color="success" onClick={() => {
         createZone(name, routerName, sbcPort, hubPort);
-        client.publish(
+        client?.publish(
           "hub",
           JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
         );

@@ -1,14 +1,10 @@
 import React, { useState } from "react";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
-import client from "./mqtt_c";
 import MenuItem from "@mui/material/MenuItem";
-import InputAdornment from "@mui/material/InputAdornment";
-import TextField from "@mui/material/TextField";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { Button, Input } from "@nextui-org/react";
-
+import { mqttConnecter } from "@/lib/mqttClient";
+import useSWR from "swr";
+const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 export default function Routing({ zones, masterEvent }: { zones: string[], masterEvent: string }) {
     const listOfZones = zones.map((e) => (
         <MenuItem key={e} value={e}>
@@ -18,6 +14,8 @@ export default function Routing({ zones, masterEvent }: { zones: string[], maste
     const [zoneValue, setzoneValue] = useState("");
     const [routingTime, setRoutingTime] = useState(1);
     const [compressingTime, setComressingTime] = useState(1);
+    const { data, error } = useSWR("/api/config", fetcher);
+    const client = mqttConnecter(data)
 
     return (
         <div className="flex flex-col">
@@ -59,7 +57,7 @@ export default function Routing({ zones, masterEvent }: { zones: string[], maste
             <Button
                 disabled={masterEvent === "ROUTING" || masterEvent !== "IDLE"}
                 onClick={() => {
-                    client.publish(
+                    client?.publish(
                         "master_command",
                         JSON.stringify({
                             command: "ROUTE",
@@ -79,7 +77,7 @@ export default function Routing({ zones, masterEvent }: { zones: string[], maste
             <Button
                 disabled={masterEvent !== "ROUTING"}
                 onClick={() => {
-                    client.publish(
+                    client?.publish(
                         "master_command",
                         JSON.stringify({ command: "STOP_ROUTE", value: "0" })
                     );

@@ -2,8 +2,8 @@ import React, { Key, useState } from "react";
 import { base_station_ports } from '@prisma/client'
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Input } from "@nextui-org/react";
 import { updateBaseStation } from "@/lib/configActions";
-import client from "@/app/mqtt_c";
-
+import { mqttConnecter } from "@/lib/mqttClient";
+import useSWR from "swr";
 export default function BaseStationConfig({ config }: { config: base_station_ports[] }) {
 
   const rows = config;
@@ -57,9 +57,12 @@ export default function BaseStationConfig({ config }: { config: base_station_por
     </Table>
   );
 }
-
+const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 export function HubPort({ config }: { config: base_station_ports }) {
   const [hub_port, setHubPort] = useState(config.hub_port)
+
+  const { data, error } = useSWR("/api/config", fetcher);
+  const client = mqttConnecter(data)
 
   return (
     <Input
@@ -73,7 +76,7 @@ export function HubPort({ config }: { config: base_station_ports }) {
         setHubPort(parseInt(e.target.value));
         updateBaseStation(config.name, { hub_port: parseInt(e.target.value) })
 
-        client.publish(
+        client?.publish(
           "hub",
           JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
         );
@@ -84,6 +87,8 @@ export function HubPort({ config }: { config: base_station_ports }) {
 }
 export function SbcPort({ config }: { config: base_station_ports }) {
   const [hub_port, setHubPort] = useState(config.microprocessor_port)
+  const { data, error } = useSWR("/api/config", fetcher);
+  const client = mqttConnecter(data)
 
   return (
     <Input
@@ -96,7 +101,7 @@ export function SbcPort({ config }: { config: base_station_ports }) {
       onChange={(e) => {
         setHubPort(parseInt(e.target.value));
         updateBaseStation(config.name, { microprocessor_port: parseInt(e.target.value) });
-        client.publish(
+        client?.publish(
           "hub",
           JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
         );

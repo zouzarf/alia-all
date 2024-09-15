@@ -1,0 +1,6 @@
+{
+    "MQTT-IP":"127.0.0.1",
+    "MQTT-PORT":"9009",
+    "WATER_LEVEL_MAX_LITERS":10,
+    "MIXING_SECONDS":1
+}

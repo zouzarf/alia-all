@@ -7,36 +7,41 @@ import ReservoirFiller from "./reservoirFillter";
 import Dosing from "./doser";
 import Mixer from "./mixer";
 import Routing from "./routing";
-import client from './mqtt_c';
+import useSWR from 'swr'
+import { mqttConnecter } from "@/lib/mqttClient";
+const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 
 export default function Home() {
   const [zonesList, setzonesList] = React.useState([]);
   const [waterValue, setwaterValue] = React.useState(0);
   const [masterEvent, setmasterEvent] = React.useState("NULL");
+  const { data, error } = useSWR("/api/config", fetcher);
+  const client = mqttConnecter(data)
   useEffect(() => {
-    client.on('message', function (topic, message) {
-      if (topic === "water_level") {
-        setwaterValue(parseFloat(message.toString()));
+    client?.on('message', function (topic: string, payload: Buffer) {
+      if (topic === "water_voltage") {
+        setwaterValue(parseFloat(payload.toString()));
+        console.log(payload.toString())
       }
       else if (topic === "config") {
-        setzonesList(JSON.parse(message.toString()).zones);
+        setzonesList(JSON.parse(payload.toString()).zones);
       }
       else if (topic === "master_event") {
-        setmasterEvent(message.toString());
+        setmasterEvent(payload.toString());
       }
       else {
-        console.log("Weird message:" + topic + "" + message);
+        console.log("Weird message:" + topic + "" + payload);
       }
     })
-    client.on('disconnect', function () {
+    client?.on('disconnect', function () {
       console.log('DISCONNECTION');
     });
-    client.on('offline', function () {
+    client?.on('offline', function () {
       console.log('OFFLINE');
     });
-    client.on('close', () => console.log('disconnected', new Date()));
-    client.on('error', err => console.error('error', err));
-  }, []);
+    client?.on('close', () => console.log('disconnected', new Date()));
+    client?.on('error', (err: any) => console.error('error', err));
+  }, [client]);
   return (
     <Paper><div className="flex flex-col">
       <h2 className="text-center">

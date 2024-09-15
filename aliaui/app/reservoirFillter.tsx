@@ -1,14 +1,14 @@
-import FormControl from "@mui/material/FormControl";
 import React, { useState } from "react";
-import InputAdornment from "@mui/material/InputAdornment";
-import client from "./mqtt_c";
-import ScienceIcon from "@mui/icons-material/Science";
 import config from "./config.json";
 import { Button, Input } from "@nextui-org/react";
-
+import { mqttConnecter } from "@/lib/mqttClient";
+import useSWR from "swr";
+const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 export default function ReservoirFiller({ masterEvent, current_value }: { masterEvent: string, current_value: number }) {
     const WATER_LEVEL_MAX_LITERS = config.WATER_LEVEL_MAX_LITERS;
     const [waterValue, setWaterValue] = useState(10);
+    const { data, error } = useSWR("/api/config", fetcher);
+    const client = mqttConnecter(data)
 
     return (
         <div className="flex flex-col">
@@ -33,7 +33,7 @@ export default function ReservoirFiller({ masterEvent, current_value }: { master
                         waterValue <= WATER_LEVEL_MAX_LITERS &&
                         waterValue > current_value
                     ) {
-                        client.publish(
+                        client?.publish(
                             "master_command",
                             JSON.stringify({ command: "FILL", value: waterValue })
                         );
@@ -47,7 +47,7 @@ export default function ReservoirFiller({ masterEvent, current_value }: { master
                 color="default"
                 disabled={masterEvent !== "FILL"}
                 onClick={() => {
-                    client.publish(
+                    client?.publish(
                         "master_command",
                         JSON.stringify({ command: "STOP_FILL", value: "0" })
                     );

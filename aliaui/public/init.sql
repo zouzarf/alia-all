@@ -101,7 +101,7 @@ create table live.logs (
     ts timestamptz DEFAULT now(),
     module_name varchar(255),
     log_level varchar(255),
-    log_message varchar(255)
+    log_message varchar(20000)
 );
 
 create table live.events (

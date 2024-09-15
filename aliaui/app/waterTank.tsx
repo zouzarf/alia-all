@@ -5,7 +5,6 @@ import LiquidFillGauge from 'react-liquid-gauge';
 export default function WaterTank({ waterValue, mixing }: { waterValue: number, mixing: boolean }) {
 
     const WATER_MAX_LEVEL = 10
-    console.log(WATER_MAX_LEVEL)
     const state = waterValue
     const waveFrequency = mixing === true ? 8 : 2
     const waveAmplitude = mixing === true ? 4 : 1
@@ -13,7 +12,6 @@ export default function WaterTank({ waterValue, mixing }: { waterValue: number, 
     const endColor = '#dc143c'; // crimson
     const radius = 150;
     //const interpolate = interpolateRgb(startColor, endColor);
-    console.log(state)
     const fillColor = state > 20 ? startColor : endColor
     const gradientStops = [
         {

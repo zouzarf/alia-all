@@ -30,7 +30,8 @@
     "react-liquid-gauge": "^1.2.4",
     "react-time-picker": "^7.0.0",
     "react-time-range": "^1.0.4",
-    "reagraph": "^4.19.1"
+    "reagraph": "^4.19.1",
+    "swr": "^2.2.5"
   },
   "devDependencies": {
     "@types/d3-color": "^3.1.3",

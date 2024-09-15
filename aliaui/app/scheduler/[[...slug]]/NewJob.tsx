@@ -15,9 +15,10 @@ import { RangeCalendar } from "@nextui-org/react";
 import type { DateValue } from "@react-types/calendar";
 import type { RangeValue } from "@react-types/shared";
 import { today, getLocalTimeZone } from "@internationalized/date";
-import client from "@/app/mqtt_c";
+import { mqttConnecter } from "@/lib/mqttClient";
+import useSWR from "swr";
 
-
+const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 export default function NewJob({ zones }: { zones: zones[] }) {
     const zones_elements = zones.map(z => <SelectItem key={z.name}>
         {z.name}
@@ -43,6 +44,8 @@ export default function NewJob({ zones }: { zones: zones[] }) {
         start: today(getLocalTimeZone()),
         end: today(getLocalTimeZone()).add({ weeks: 1 }),
     });
+    const { data, error } = useSWR("/api/config", fetcher);
+    const client = mqttConnecter(data)
 
     const columns = [
         {
@@ -206,7 +209,7 @@ export default function NewJob({ zones }: { zones: zones[] }) {
                     dailyActions
                 );
 
-                client.publish(
+                client?.publish(
                     "hub",
                     JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
                 );
