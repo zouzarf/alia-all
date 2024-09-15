@@ -9,6 +9,7 @@ from dataclasses import dataclass
 class ControllerCommand:
     actionner: str
     command: str
+    arg1: str
 
 
 class NodeCommand:
@@ -16,12 +17,27 @@ class NodeCommand:
     def __init__(self, mqtt_client):
         self.mqtt_client = mqtt_client
 
+    def reload_config(self, channel):
+        self.mqtt_client.publish(
+            channel,
+            json.dumps(
+                dataclasses.asdict(
+                    ControllerCommand(
+                        actionner="RELOAD_CONFIG", command="ACTIVATE", arg1=""
+                    )
+                )
+            ),
+            2,
+        )
+
     def enable_water_pump(self):
         self.mqtt_client.publish(
             BASE_STATION_CHANNEL,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="WATERPUMP", command="ACTIVATE")
+                    ControllerCommand(
+                        actionner="WATERPUMP", command="ACTIVATE", arg1=""
+                    )
                 )
             ),
             2,
@@ -32,7 +48,9 @@ class NodeCommand:
             BASE_STATION_CHANNEL,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="WATERPUMP", command="DESACTIVATE")
+                    ControllerCommand(
+                        actionner="WATERPUMP", command="DESACTIVATE", arg1=""
+                    )
                 )
             ),
             2,
@@ -46,6 +64,7 @@ class NodeCommand:
                     ControllerCommand(
                         actionner="DOSINGPUMP" + str(pump_number),
                         command="ACTIVATE",
+                        arg1="",
                     )
                 )
             ),
@@ -60,6 +79,7 @@ class NodeCommand:
                     ControllerCommand(
                         actionner="DOSINGPUMP" + str(pump_number),
                         command="DESACTIVATE",
+                        arg1="",
                     )
                 )
             ),
@@ -71,7 +91,8 @@ class NodeCommand:
             BASE_STATION_CHANNEL,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="MIXINGPUMP", command="ACTIVATE")
+                    ControllerCommand(actionner="MIXINGPUMP", command="ACTIVATE"),
+                    arg1="",
                 )
             ),
             2,
@@ -82,18 +103,20 @@ class NodeCommand:
             BASE_STATION_CHANNEL,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="MIXINGPUMP", command="DESACTIVATE")
+                    ControllerCommand(actionner="MIXINGPUMP", command="DESACTIVATE"),
+                    arg1="",
                 )
             ),
             2,
         )
 
-    def enable_routing_valve(self, node_name: str):
+    def enable_routing_valve(self, node_name: str, destination: str):
         self.mqtt_client.publish(
             node_name,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="ROUTE", command="ACTIVATE-VALVE")
+                    ControllerCommand(actionner="ROUTINGVALVE", command="ACTIVATE"),
+                    arg1=destination,
                 )
             ),
             2,
@@ -104,7 +127,8 @@ class NodeCommand:
             node_name,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="ROUTE", command="ACTIVATE-PUMP")
+                    ControllerCommand(actionner="ROUTNGPUMP", command="ACTIVATE"),
+                    arg1="",
                 )
             ),
             2,
@@ -115,7 +139,8 @@ class NodeCommand:
             node_name,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="ROUTE", command="DEACTIVATE-PUMP")
+                    ControllerCommand(actionner="ROUTNGPUMP", command="DEACTIVATE"),
+                    arg1="",
                 )
             ),
             2,
@@ -126,7 +151,9 @@ class NodeCommand:
             "base_station",
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="ROUTE", command="ACTIVATE-COMPRESSOR")
+                    ControllerCommand(
+                        actionner="COMPRESSOR", command="ACTIVATE", arg1=""
+                    )
                 )
             ),
             2,
@@ -138,19 +165,21 @@ class NodeCommand:
             json.dumps(
                 dataclasses.asdict(
                     ControllerCommand(
-                        actionner="ROUTE", command="DEACTIVATE-COMPRESSOR"
+                        actionner="COMPRESSOR", command="DEACTIVATE", arg1=""
                     )
                 )
             ),
             2,
         )
 
-    def disable_routing_valve(self, node_name: str):
+    def disable_routing_valve(self, node_name: str, destination: str):
         self.mqtt_client.publish(
             node_name,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="ROUTE", command="DEACTIVATE-VALVE")
+                    ControllerCommand(
+                        actionner="ROUTINGVALVE", command="DEACTIVATE", arg1=destination
+                    )
                 )
             ),
             2,

@@ -41,12 +41,13 @@ class HubCommandManager:
             i.name: i.value for i in session.query(GeneralConfig).all()
         }
         routing_config = session.query(RoutingConfig).all()
+        routing_config = session.query(RoutersConfig).all()
         main_router = (
             session.query(RoutersConfig)
             .where(RoutersConfig.linked_to_base_station == True)
             .one()
         )
-        self.routing = Routing(routing_config, main_router)
+        self.routing = Routing(routing_config, main_router, routing_config)
 
     def mqtt_message_handler(self, message: MQTTMessage):
         match message.topic:
@@ -65,6 +66,9 @@ class HubCommandManager:
             match command.command:
                 case "RELOAD_CONFIG":
                     self.load_config()
+                    for router in self.routing.routers:
+                        self.node_command.reload_config(router.name)
+                    self.node_command.reload_config(BASE_STATION_CHANNEL)
                     logging.info(f"Reloading config ...")
                 case "FILL_WATER":
                     global water_voltage
@@ -114,9 +118,9 @@ class HubCommandManager:
                     logging.info(f"Getting path to zone {zone_name}  ")
                     path = self.routing.get_path_to_zone(zone_name)
                     logging.info(str(path))
-                    for src, _ in path:
+                    for src, dst in path:
                         logging.info(f"Send open valve command to {src} ...")
-                        self.node_command.enable_routing_valve(src)
+                        self.node_command.enable_routing_valve(src, dst)
                     for src, _ in path:
                         logging.info(f"Send open pump command to {src} ...")
                         self.node_command.enable_routing_pump(src)
@@ -133,9 +137,9 @@ class HubCommandManager:
                     time.sleep(int(compressing_time) * 60)
                     logging.info(f"Disabling compressor ...")
                     self.node_command.disable_compressor()
-                    for src, _ in path:
+                    for src, dst in path:
                         logging.info(f"Send close valve command to {src} ...")
-                        self.node_command.disable_routing_valve(src)
+                        self.node_command.disable_routing_valve(src, dst)
                     logging.info("Sending routing_done response to hub_response")
                     self.mqtt_client.publish("hub_response", "routing_done")
                 case _:

@@ -1,6 +1,10 @@
+from db import RoutersConfig
+
+
 class Routing:
-    def __init__(self, routing_config, main_router):
+    def __init__(self, routing_config, main_router, routers: list[RoutersConfig]):
         self.routing_config = routing_config
+        self.routers = routers
         self.main_router = main_router.name
 
     def get_nodes_and_neighbours(self) -> dict[str, list[str]]:

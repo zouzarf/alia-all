@@ -43,7 +43,7 @@ class RoutersConfig(Base):
     __tablename__ = "routers"
     __table_args__ = {"schema": "config"}
     name: Mapped[str] = mapped_column(String(30), primary_key=True)
-    mac_address: Mapped[str] = mapped_column()
+    serial_number: Mapped[str] = mapped_column()
     pump_microprocessor_port: Mapped[int] = mapped_column()
     pump_hub_port: Mapped[int] = mapped_column()
     linked_to_base_station: Mapped[bool] = mapped_column()

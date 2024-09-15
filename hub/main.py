@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+import traceback
 from config import HUB_LISTENING_CHANNEL, MQTT_IP, WATER_SENSOR_CHANNEL
 from hub_command import HubCommandManager
 from mqtt_config import client
@@ -33,7 +34,11 @@ def main():
 
         client.loop_forever()
     except Exception as e:
+        logging.error("Error while initializing")
         logging.error(str(e))
+        for x in traceback.format_exc().splitlines():
+            logging.error(str(x))
+        raise e
 
 
 main()
