@@ -7,9 +7,9 @@ from logger import logger as logging
 
 @dataclass
 class RoutingCommand:
+    actionner: str
     command: str
-    dest: str
-    action: str
+    arg1: str
 
 
 class CommandHandler:
@@ -32,7 +32,7 @@ class CommandHandler:
         logging.info(f"Executing command: {command_message.command}")
         try:
             match command_message.command:
-                case "RELOADCONFIG":
+                case "RELOAD_CONFIG":
                     logging.info("Reloading config ...")
                     self.routing_station.close()
                     self.load_config()
@@ -48,15 +48,15 @@ class CommandHandler:
                 case "ROUTINGVALVE":
                     if command_message.action == "ACTIVATE":
                         logging.info(
-                            f"Enabling routing valve to {command_message.dest}..."
+                            f"Enabling routing valve to {command_message.arg1}..."
                         )
-                        self.routing_station.open_route(command_message.dest)
+                        self.routing_station.open_route(command_message.arg1)
                         logging.info("Routing valve enabled")
                     else:
                         logging.info(
-                            f"Disabling routing valve to {command_message.dest}..."
+                            f"Disabling routing valve to {command_message.arg1}..."
                         )
-                        self.routing_station.close_route(command_message.dest)
+                        self.routing_station.close_route(command_message.arg1)
                         logging.info("Routing valve disabled")
                 case _:
                     pass
