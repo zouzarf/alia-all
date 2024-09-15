@@ -7,6 +7,7 @@ import DailyActionsTable from "./dailyActionTable";
 import EventsTimeLine from "./EventsTimeline";
 import { deleteJob } from "@/lib/schedulerActions";
 import DeleteIcon from '@mui/icons-material/Delete';
+import client from "@/app/mqtt_c";
 
 export default function JobInfo({ job, dailyActions, events }: { job: jobs, dailyActions: jobs_actions[], events: events_logs[] }) {
 
@@ -15,7 +16,13 @@ export default function JobInfo({ job, dailyActions, events }: { job: jobs, dail
     return (
         <Paper>
             <div>
-                <Button className="justify-self-start" isIconOnly variant="bordered" color="danger" onClick={() => { deleteJob(job.id); }}>
+                <Button className="justify-self-start" isIconOnly variant="bordered" color="danger" onClick={() => {
+                    deleteJob(job.id);
+                    client.publish(
+                        "hub",
+                        JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
+                    );
+                }}>
                     <DeleteIcon />
                 </Button>
                 <div className="mt-6 border-t border-gray-100">

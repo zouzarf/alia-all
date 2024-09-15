@@ -5,6 +5,7 @@ import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Input,
 import { createZone, deleteZone } from "@/lib/zonesActions";
 import { useRouter } from "next/navigation";
 import DeleteIcon from '@mui/icons-material/Delete';
+import client from "@/app/mqtt_c";
 
 
 export default function ZonesConfig({ config, routers, routes }: { config: zones[], routers: routers[], routes: routes[] }) {
@@ -59,9 +60,16 @@ export default function ZonesConfig({ config, routers, routes }: { config: zones
         );
       case "action":
         return (
-          <Button isIconOnly variant="bordered" color="danger" onClick={() => deleteZone(user.name)}>
+          <Button isIconOnly variant="bordered" color="danger" onClick={() => {
+            deleteZone(user.name);
+            client.publish(
+              "hub",
+              JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
+            );
+          }
+          }>
             <DeleteIcon />
-          </Button>
+          </Button >
         );
       default:
         return user.name;
@@ -155,6 +163,10 @@ export function AddZoneConfig({ routers }: { routers: routers[] }) {
       </ div>
       <Button isDisabled={routerName == "" || name == ""} color="success" onClick={() => {
         createZone(name, routerName, sbcPort, hubPort);
+        client.publish(
+          "hub",
+          JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
+        );
       }}>
         Add
       </Button>

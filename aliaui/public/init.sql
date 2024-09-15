@@ -36,12 +36,12 @@ VALUES
     ('WATERSENSOR', 4, null),
     ('WATERPUMP', 0, 1),
     ('DOSINGPUMP1', 0, 2),
-    ('DOSINGPUMP2', 7, 7),
-    ('DOSINGPUMP3', 0, 3),
+    ('DOSINGPUMP2', 0, 3),
+    ('DOSINGPUMP3', 0, 0),
     ('MIXINGPUMP', 1, 1),
     ('ROUTINGVALVE', 1, 2),
     ('ROUTINGPUMP', 1, 3),
-    ('COMPRESSOR', 1, 4);
+    ('COMPRESSOR', 1, 0);
 
 create table config.zones (
     name varchar(255) not null unique REFERENCES config.nodes(node_name)
@@ -49,7 +49,7 @@ create table config.zones (
 
 create table config.routers (
     name varchar(255) not null unique REFERENCES config.nodes(node_name),
-    mac_address varchar(255) unique,
+    serial_number varchar(255) unique,
     pump_microprocessor_port int,
     pump_hub_port int,
     linked_to_base_station boolean

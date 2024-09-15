@@ -2,6 +2,7 @@ import React, { Key, useState } from "react";
 import { base_station_ports } from '@prisma/client'
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Input } from "@nextui-org/react";
 import { updateBaseStation } from "@/lib/configActions";
+import client from "@/app/mqtt_c";
 
 export default function BaseStationConfig({ config }: { config: base_station_ports[] }) {
 
@@ -71,6 +72,11 @@ export function HubPort({ config }: { config: base_station_ports }) {
       onChange={(e) => {
         setHubPort(parseInt(e.target.value));
         updateBaseStation(config.name, { hub_port: parseInt(e.target.value) })
+
+        client.publish(
+          "hub",
+          JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
+        );
       }}
     />
 
@@ -89,7 +95,11 @@ export function SbcPort({ config }: { config: base_station_ports }) {
       labelPlacement="outside"
       onChange={(e) => {
         setHubPort(parseInt(e.target.value));
-        updateBaseStation(config.name, { microprocessor_port: parseInt(e.target.value) })
+        updateBaseStation(config.name, { microprocessor_port: parseInt(e.target.value) });
+        client.publish(
+          "hub",
+          JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
+        );
       }}
     />
 

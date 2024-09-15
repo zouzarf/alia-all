@@ -15,6 +15,7 @@ import { RangeCalendar } from "@nextui-org/react";
 import type { DateValue } from "@react-types/calendar";
 import type { RangeValue } from "@react-types/shared";
 import { today, getLocalTimeZone } from "@internationalized/date";
+import client from "@/app/mqtt_c";
 
 
 export default function NewJob({ zones }: { zones: zones[] }) {
@@ -203,7 +204,12 @@ export default function NewJob({ zones }: { zones: zones[] }) {
                         end_date: selectionRange.endDate
                     },
                     dailyActions
-                )
+                );
+
+                client.publish(
+                    "hub",
+                    JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
+                );
             }}>
                 Submit
             </Button>

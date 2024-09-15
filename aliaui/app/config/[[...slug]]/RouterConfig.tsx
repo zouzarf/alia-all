@@ -4,6 +4,7 @@ import { routers, routes } from '@prisma/client'
 import { Button, Divider, Input, Radio, RadioGroup, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { addRouter, deleteRouter } from "@/lib/routerActions";
 import DeleteIcon from '@mui/icons-material/Delete';
+import client from "@/app/mqtt_c";
 
 export default function RouterConfig({ configRouters, routes }: { configRouters: routers[], routes: routes[] }) {
 
@@ -62,7 +63,7 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
         );
       case "serial_number":
         return (
-          router.mac_address
+          router.serial_number
         );
       case "sbc_port":
         return (
@@ -82,7 +83,13 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
         );
       case "action":
         return (
-          <Button isIconOnly variant="bordered" color="danger" onClick={() => { deleteRouter(router); }}>
+          <Button isIconOnly variant="bordered" color="danger" onClick={() => {
+            deleteRouter(router);
+            client.publish(
+              "hub",
+              JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
+            );
+          }}>
             <DeleteIcon />
           </Button>
         );
@@ -108,7 +115,7 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
 }
 export function AddRouterConfig({ otherRouters }: { otherRouters: routers[] }) {
   const [name, setName] = useState("");
-  const [macAddress, setMacAddress] = useState("");
+  const [serialNumber, setSerialNumber] = useState("");
   const [mpPort, setMpPort] = useState(0);
   const [hubPort, setHubPort] = useState(0);
   const [linkedToBase, setLinkedToBase] = useState(otherRouters.filter(x => x.linked_to_base_station).length == 0);
@@ -132,11 +139,11 @@ export function AddRouterConfig({ otherRouters }: { otherRouters: routers[] }) {
           type="text"
           min={0}
           max={5}
-          value={macAddress}
-          label="Mac Address"
+          value={serialNumber}
+          label="Serial Number"
           labelPlacement="outside"
           onChange={(e) => {
-            setMacAddress(e.target.value);
+            setSerialNumber(e.target.value);
           }}
         />
         <Input
@@ -227,12 +234,16 @@ export function AddRouterConfig({ otherRouters }: { otherRouters: routers[] }) {
         addRouter(
           {
             "name": name,
-            "mac_address": macAddress,
+            "serial_number": serialNumber,
             "pump_hub_port": mpPort,
             "pump_microprocessor_port": hubPort,
             "linked_to_base_station": linkedToBase
           }, linkedToRouter, pvRouterMpPort, pvRouterMpPort);
         setLinkedToBase(false);
+        client.publish(
+          "hub",
+          JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
+        );
 
       }}>
         Add

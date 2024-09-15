@@ -1,7 +1,6 @@
 "use server"
 import 'server-only'
 
-import { zones } from '@prisma/client'
 import prisma from "@/lib/db";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -30,8 +29,6 @@ export const deleteZone = async (zoneName: string) => {
         , prisma.nodes.delete(
             { "where": { node_name: zoneName } }
         )])
-
     revalidatePath('/')
     redirect(`/config/zones_config`)
-    return r
 }
