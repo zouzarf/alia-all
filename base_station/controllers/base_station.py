@@ -2,6 +2,7 @@ from controllers.pump_water_source import PumpWaterSource
 from db import BaseStationConfig
 from template_classes.relay import RelayChannel
 from template_classes.water_sensor import WaterSensor
+from logger import logger as logging
 
 
 def get_sensor_ports(config: list[BaseStationConfig], conf: str) -> tuple[int, int]:
@@ -56,6 +57,12 @@ class BaseStation:
                 get_sensor_ports(base_station_config, "COMPRESSOR")
             ),
         }
+        logging.info("Config loaded")
+
+    def close(self):
+        self.water_sensor.water_sensor.voltageInput.close()
+        for actionner in self.actionners:
+            self.actionners[actionner].digitalOutput1.close()
 
     def enable_routing_pump(self):
         pass

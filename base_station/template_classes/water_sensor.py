@@ -2,6 +2,7 @@ from template_classes.knob import Knob
 from template_classes.water_level import WaterLevel
 from mqtt_config import client
 import json
+from logger import logger as logging
 
 
 class SingletonMeta(type):
@@ -35,7 +36,7 @@ class WaterSensor(metaclass=SingletonMeta):
                 "sensors", json.dumps({"water_voltage": str(voltage)}), retain=True
             )
 
-        print("-- water sensor -- connecting")
+        logging.info("Connecting to water sensor")
         self.water_sensor = Knob(port=water_port, onVoltageChange=onVoltageChange)
         # self.water_sensor = WaterLevel(port=water_port, onCurrentChange=onVoltageChange)
-        print("-- water sensor -- connected")
+        logging.info("Connected to water sensor")

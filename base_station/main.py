@@ -10,7 +10,7 @@ MQTT_SERVER_IP = rasp_server
 
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code " + str(rc))
+    logging.info("Connected with result code " + str(rc))
     client.subscribe("base_station")
 
 

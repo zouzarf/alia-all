@@ -4,8 +4,8 @@ from Phidget22.Devices.VoltageInput import *
 
 class Knob:
     def __init__(self, port, onVoltageChange):
-        self.voltageInput5 = VoltageInput()
-        self.voltageInput5.setIsHubPortDevice(True)
-        self.voltageInput5.setHubPort(int(port))
-        self.voltageInput5.setOnVoltageChangeHandler(onVoltageChange)
-        self.voltageInput5.openWaitForAttachment(5000)
+        self.voltageInput = VoltageInput()
+        self.voltageInput.setIsHubPortDevice(True)
+        self.voltageInput.setHubPort(int(port))
+        self.voltageInput.setOnVoltageChangeHandler(onVoltageChange)
+        self.voltageInput.openWaitForAttachment(5000)
