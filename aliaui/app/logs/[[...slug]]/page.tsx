@@ -9,7 +9,9 @@ export default async function Page() {
                 ts: 'desc',
             },
         ],
-        take: 10000
+        take: 50
     })
-    return (<Logs logs={a} />)
+    return (
+        <Logs logs={a} />
+    );
 }

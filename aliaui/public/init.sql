@@ -103,10 +103,3 @@ create table live.logs (
     log_level varchar(255),
     log_message varchar(20000)
 );
-
-create table live.events (
-    id SERIAL not null unique,
-    ts timestamptz DEFAULT now(),
-    producer varchar(255),
-    log_message varchar(255)
-);
