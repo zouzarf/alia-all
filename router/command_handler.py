@@ -31,13 +31,13 @@ class CommandHandler:
     def run(self, command_message: RoutingCommand):
         logging.info(f"Executing command: {command_message.command}")
         try:
-            match command_message.command:
+            match command_message.actionner:
                 case "RELOAD_CONFIG":
                     logging.info("Reloading config ...")
                     self.routing_station.close()
                     self.load_config()
                 case "ROUTINGPUMP":
-                    if command_message.action == "ACTIVATE":
+                    if command_message.command == "ACTIVATE":
                         logging.info("Enabling pump ...")
                         self.routing_station.pump.enable()
                         logging.info("Pump enabled")
@@ -46,7 +46,7 @@ class CommandHandler:
                         self.routing_station.pump.disable()
                         logging.info("Pump disabled")
                 case "ROUTINGVALVE":
-                    if command_message.action == "ACTIVATE":
+                    if command_message.command == "ACTIVATE":
                         logging.info(
                             f"Enabling routing valve to {command_message.arg1}..."
                         )
@@ -59,7 +59,7 @@ class CommandHandler:
                         self.routing_station.close_route(command_message.arg1)
                         logging.info("Routing valve disabled")
                 case _:
-                    pass
+                    logging.error("Command" + command_message.command + "Not found")
         except Exception as e:
             logging.error("Error while executing command")
             logging.error(str(e))
