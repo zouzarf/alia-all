@@ -8,6 +8,7 @@ from logger import logger as logging
 from node_command import NodeCommand
 from routing import Routing
 from db import RoutersConfig, RoutingConfig, session, GeneralConfig
+import traceback
 
 RELOAD_COMMAND = "RELOAD_CONFIG"
 FILL_WATER_COMMAND = "b"
@@ -41,13 +42,13 @@ class HubCommandManager:
             i.name: i.value for i in session.query(GeneralConfig).all()
         }
         routing_config = session.query(RoutingConfig).all()
-        routing_config = session.query(RoutersConfig).all()
+        routers_config = session.query(RoutersConfig).all()
         main_router = (
             session.query(RoutersConfig)
             .where(RoutersConfig.linked_to_base_station == True)
             .one()
         )
-        self.routing = Routing(routing_config, main_router, routing_config)
+        self.routing = Routing(routing_config, main_router, routers_config)
 
     def mqtt_message_handler(self, message: MQTTMessage):
         match message.topic:
@@ -146,5 +147,6 @@ class HubCommandManager:
                     pass
         except Exception as e:
             logging.error(str(e))
+            logging.error(traceback.format_exc())
         finally:
             lock.release()

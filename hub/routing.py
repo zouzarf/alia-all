@@ -1,8 +1,13 @@
-from db import RoutersConfig
+from db import RoutersConfig, RoutingConfig
 
 
 class Routing:
-    def __init__(self, routing_config, main_router, routers: list[RoutersConfig]):
+    def __init__(
+        self,
+        routing_config: list[RoutingConfig],
+        main_router,
+        routers: list[RoutersConfig],
+    ):
         self.routing_config = routing_config
         self.routers = routers
         self.main_router = main_router.name

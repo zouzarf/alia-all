@@ -91,8 +91,11 @@ class NodeCommand:
             BASE_STATION_CHANNEL,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="MIXINGPUMP", command="ACTIVATE"),
-                    arg1="",
+                    ControllerCommand(
+                        actionner="MIXINGPUMP",
+                        command="ACTIVATE",
+                        arg1="",
+                    )
                 )
             ),
             2,
@@ -103,8 +106,9 @@ class NodeCommand:
             BASE_STATION_CHANNEL,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="MIXINGPUMP", command="DESACTIVATE"),
-                    arg1="",
+                    ControllerCommand(
+                        actionner="MIXINGPUMP", command="DESACTIVATE", arg1=""
+                    )
                 )
             ),
             2,
@@ -115,8 +119,11 @@ class NodeCommand:
             node_name,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="ROUTINGVALVE", command="ACTIVATE"),
-                    arg1=destination,
+                    ControllerCommand(
+                        actionner="ROUTINGVALVE",
+                        command="ACTIVATE",
+                        arg1=destination,
+                    ),
                 )
             ),
             2,
@@ -127,8 +134,11 @@ class NodeCommand:
             node_name,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="ROUTNGPUMP", command="ACTIVATE"),
-                    arg1="",
+                    ControllerCommand(
+                        actionner="ROUTINGPUMP",
+                        command="ACTIVATE",
+                        arg1="",
+                    )
                 )
             ),
             2,
@@ -139,8 +149,9 @@ class NodeCommand:
             node_name,
             json.dumps(
                 dataclasses.asdict(
-                    ControllerCommand(actionner="ROUTNGPUMP", command="DEACTIVATE"),
-                    arg1="",
+                    ControllerCommand(
+                        actionner="ROUTINGPUMP", command="DEACTIVATE", arg1=""
+                    ),
                 )
             ),
             2,
