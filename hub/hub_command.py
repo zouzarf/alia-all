@@ -95,7 +95,7 @@ class HubCommandManager:
                         + float(self.general_config["WATER_VOLT_TO_L_CONVERSION"])
                         * water_voltage
                     ) < water_level_target:
-                        logging.info(water_voltage)
+                        pass
                     logging.info("Water level reached")
                     logging.info("Disabling water pump")
                     self.node_command.disable_water_pump()
