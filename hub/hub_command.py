@@ -25,6 +25,11 @@ class HubCommand:
     arg3: str
 
 
+@dataclass
+class SensorInfo:
+    water_voltage: str
+
+
 lock = threading.Lock()
 water_voltage = -1
 
@@ -54,11 +59,16 @@ class HubCommandManager:
         match message.topic:
             case str(x) if x == WATER_SENSOR_CHANNEL:
                 global water_voltage
-                water_voltage = float(message.payload.decode())
+                sensor_info = SensorInfo(**json.loads(message.payload))
+                water_voltage = float(sensor_info.water_voltage)
 
             case str(x) if x == "hub":
-                logging.info(f"Received action")
-                self.execute_command(HubCommand(**json.loads(message.payload)))
+                try:
+                    logging.info(f"Received action")
+                    self.execute_command(HubCommand(**json.loads(message.payload)))
+                except Exception as e:
+                    logging.error(str(e))
+                    logging.error(traceback.format_exc())
 
     def execute_command(self, command: HubCommand):
         try:
@@ -85,7 +95,7 @@ class HubCommandManager:
                         + float(self.general_config["WATER_VOLT_TO_L_CONVERSION"])
                         * water_voltage
                     ) < water_level_target:
-                        pass
+                        logging.info(water_voltage)
                     logging.info("Water level reached")
                     logging.info("Disabling water pump")
                     self.node_command.disable_water_pump()
