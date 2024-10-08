@@ -1,12 +1,8 @@
 import React, { useState } from "react";
-import { mqttConnecter } from "../lib/mqttClient";
 import { Button, Input } from "@nextui-org/react";
-import useSWR from "swr";
-const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
-export default function Mixer({ masterEvent }: { masterEvent: string }) {
+import { MqttClient } from "mqtt/*";
+export default function Mixer({ masterEvent, mqttClient }: { masterEvent: string, mqttClient: MqttClient }) {
     const [mixValue, setMixValue] = useState(1);
-    const { data, error } = useSWR("/api/config", fetcher);
-    const client = mqttConnecter(data)
 
     return (
         <div className="flex flex-col">
@@ -22,12 +18,11 @@ export default function Mixer({ masterEvent }: { masterEvent: string }) {
             />
 
             <Button
-                disabled={masterEvent !== "IDLE"}
                 onClick={() => {
                     if (mixValue > 0) {
-                        client?.publish(
-                            "master_command",
-                            JSON.stringify({ command: "MIX", value: mixValue })
+                        mqttClient.publish(
+                            "hub",
+                            JSON.stringify({ command: "MIX", arg1: mixValue, arg2: "", arg3: "" })
                         );
                         setMixValue(0);
                     }
@@ -38,7 +33,7 @@ export default function Mixer({ masterEvent }: { masterEvent: string }) {
             <Button
                 disabled={masterEvent !== "MIX"}
                 onClick={() => {
-                    client?.publish(
+                    mqttClient.publish(
                         "master_command",
                         JSON.stringify({ command: "STOP_MIX", value: "0" })
                     );

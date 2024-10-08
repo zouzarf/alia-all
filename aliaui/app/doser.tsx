@@ -1,20 +1,12 @@
 import React, { useState } from "react";
 
-import FormControl from "@mui/material/FormControl";
-import InputAdornment from "@mui/material/InputAdornment";
-import BalanceIcon from "@mui/icons-material/Balance";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import InputLabel from "@mui/material/InputLabel";
 import { Button, Input } from "@nextui-org/react";
-import { mqttConnecter } from "@/lib/mqttClient";
-import useSWR from "swr";
-const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
-export default function Dosing({ masterEvent }: { masterEvent: string }) {
+import { MqttClient } from "mqtt/*";
+export default function Dosing({ masterEvent, mqttClient }: { masterEvent: string, mqttClient: MqttClient }) {
     const [doseValue, setDoseValue] = useState(0);
     const [doserValue, setDoserValue] = useState("");
-    const { data, error } = useSWR("/api/config", fetcher);
-    const client = mqttConnecter(data)
 
     return (
         <div className="flex flex-col" >
@@ -38,30 +30,26 @@ export default function Dosing({ masterEvent }: { masterEvent: string }) {
                     setDoserValue(value);
                 }}
             >
-                <MenuItem key="0" value="0">
+                <MenuItem key="1" value="1">
                     DOSE 1
                 </MenuItem>
-                <MenuItem key="1" value="1">
+                <MenuItem key="2" value="2">
                     DOSE 2
                 </MenuItem>
-                <MenuItem key="2" value="2">
+                <MenuItem key="3" value="3">
                     DOSE 3
                 </MenuItem>
-                <MenuItem key="3" value="3">
+                <MenuItem key="4" value="4">
                     DOSE 4
                 </MenuItem>
             </Select>
             <Button
                 color="default"
-                disabled={masterEvent !== "IDLE"}
                 onClick={() => {
                     if (doseValue > 0) {
-                        client?.publish(
-                            "master_command",
-                            JSON.stringify({
-                                command: "DOSE",
-                                value: doseValue.toString() + "/" + doserValue.toString(),
-                            })
+                        mqttClient.publish(
+                            "hub",
+                            JSON.stringify({ command: "DOSE", arg1: doserValue, arg2: doseValue, arg3: "" })
                         );
                         setDoseValue(0);
                     }
@@ -71,9 +59,8 @@ export default function Dosing({ masterEvent }: { masterEvent: string }) {
             </Button>
             <Button
                 color="default"
-                disabled={masterEvent !== "DOSE"}
                 onClick={() => {
-                    client?.publish(
+                    mqttClient.publish(
                         "master_command",
                         JSON.stringify({ command: "STOP_DOSE", value: "0" })
                     );

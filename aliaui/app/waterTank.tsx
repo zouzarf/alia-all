@@ -12,7 +12,7 @@ export default function WaterTank({ waterValue, mixing }: { waterValue: number, 
     const endColor = '#dc143c'; // crimson
     const radius = 150;
     //const interpolate = interpolateRgb(startColor, endColor);
-    const fillColor = state > 20 ? startColor : endColor
+    const fillColor = startColor
     const gradientStops = [
         {
             key: '0%',
@@ -38,13 +38,13 @@ export default function WaterTank({ waterValue, mixing }: { waterValue: number, 
             style={{ margin: '0 auto' }}
             width={radius * 2}
             height={radius * 2}
-            value={state}
+            value={state / WATER_MAX_LEVEL * 100}
             percent="L"
             textSize={1}
             textOffsetX={0}
             textOffsetY={0}
             textRenderer={(props: { height: number; width: number; textSize: number; percent: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; }) => {
-                const value = (state / 100 * WATER_MAX_LEVEL).toFixed(1);
+                const value = state.toFixed(2);
                 const radius = Math.min(props.height / 2, props.width / 2);
                 const textPixels = (props.textSize * radius / 2);
                 const valueStyle = {

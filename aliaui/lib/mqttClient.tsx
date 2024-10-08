@@ -6,16 +6,31 @@ export const mqttConnecter = (ip: { ip: string } | undefined) => {
     return null
   const client = mqtt.connect('ws://' + ip['ip'] + ':' + config['MQTT-PORT'], { keepalive: 20 })
   client.on('connect', function () {
-    client.subscribe('water_sensor', function (err) {
+    client.subscribe('sensors', function (err) {
       if (!err) {
-        console.log("connected to water_sensor")
+        console.log("connected to sensors")
       }
     })
     client.subscribe('hub', function (err) {
       if (!err) {
-        console.log("connected to zones")
+        console.log("connected to hub")
       }
     })
   })
+  client.on('reconnect', () => {
+    console.log('Reconnecting...');
+  });
+
+  client.on('close', () => {
+    console.log('Connection closed');
+  });
+
+  client.on('offline', () => {
+    console.log('Client is offline');
+  });
+
+  client.on('error', (error) => {
+    console.error('Connection error: ', error);
+  });
   return client
 }

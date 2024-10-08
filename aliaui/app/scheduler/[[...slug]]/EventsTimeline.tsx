@@ -20,7 +20,7 @@ function Event({ event }: { event: events_logs }) {
         <div className="ml-6">
             <h4 className="font-bold text-blue-500">Job for time : {event.job_full_date?.toUTCString()}</h4>
             <p className="mt-2 max-w-screen-sm text-sm text-gray-500">Start time: {event.process_start?.toUTCString()} -- End time: {event.process_end?.toUTCString()}</p>
-            <span className="mt-1 block text-sm font-semibold text-blue-500">Time: {(event.process_end!.getTime() - event.process_end!.getTime())}s</span>
+            <span className="mt-1 block text-sm font-semibold text-blue-500">Time: {(event.process_end!.getTime() - event.process_start!.getTime())}s</span>
         </div>
     </div>)
 

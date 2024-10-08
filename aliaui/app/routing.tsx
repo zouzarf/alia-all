@@ -4,18 +4,18 @@ import MenuItem from "@mui/material/MenuItem";
 import { Button, Input } from "@nextui-org/react";
 import { mqttConnecter } from "@/lib/mqttClient";
 import useSWR from "swr";
+import { zones } from "@prisma/client";
+import { MqttClient } from "mqtt/*";
 const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
-export default function Routing({ zones, masterEvent }: { zones: string[], masterEvent: string }) {
+export default function Routing({ zones, masterEvent, mqttClient }: { zones: zones[], masterEvent: string, mqttClient: MqttClient }) {
     const listOfZones = zones.map((e) => (
-        <MenuItem key={e} value={e}>
-            {e}
+        <MenuItem key={e.name} value={e.name}>
+            {e.name}
         </MenuItem>
     ));
     const [zoneValue, setzoneValue] = useState("");
     const [routingTime, setRoutingTime] = useState(1);
     const [compressingTime, setComressingTime] = useState(1);
-    const { data, error } = useSWR("/api/config", fetcher);
-    const client = mqttConnecter(data)
 
     return (
         <div className="flex flex-col">
@@ -55,19 +55,10 @@ export default function Routing({ zones, masterEvent }: { zones: string[], maste
             />
 
             <Button
-                disabled={masterEvent === "ROUTING" || masterEvent !== "IDLE"}
                 onClick={() => {
-                    client?.publish(
-                        "master_command",
-                        JSON.stringify({
-                            command: "ROUTE",
-                            value:
-                                zoneValue +
-                                "/" +
-                                routingTime.toString() +
-                                "/" +
-                                compressingTime.toString(),
-                        })
+                    mqttClient.publish(
+                        "hub",
+                        JSON.stringify({ command: "ROUTE", arg1: zoneValue, arg2: routingTime, arg3: compressingTime })
                     );
                     setzoneValue("");
                 }}
@@ -77,7 +68,7 @@ export default function Routing({ zones, masterEvent }: { zones: string[], maste
             <Button
                 disabled={masterEvent !== "ROUTING"}
                 onClick={() => {
-                    client?.publish(
+                    mqttClient.publish(
                         "master_command",
                         JSON.stringify({ command: "STOP_ROUTE", value: "0" })
                     );
