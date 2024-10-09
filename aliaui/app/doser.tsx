@@ -44,7 +44,7 @@ export default function Dosing({ hubEvent, mqttClient }: { hubEvent: string, mqt
                 </MenuItem>
             </Select>
             <Button
-                color="default"
+                color={hubEvent == "processing" ? "default" : "primary"}
                 disabled={hubEvent == "processing"}
                 onClick={() => {
                     if (doseValue > 0) {
@@ -59,7 +59,7 @@ export default function Dosing({ hubEvent, mqttClient }: { hubEvent: string, mqt
                 Add
             </Button>
             <Button
-                color="default"
+                color={hubEvent != "processing" ? "default" : "primary"}
                 disabled={hubEvent != "processing"}
                 onClick={() => {
                     mqttClient.publish(

@@ -24,7 +24,7 @@ export default function ReservoirFiller({ hubEvent, current_value, mqttClient, m
                 }}
             />
             <Button
-                color="default"
+                color={hubEvent == "processing" ? "default" : "primary"}
                 disabled={hubEvent == "processing"}
                 onClick={() => {
                     console.log(waterValue, current_value)
@@ -46,7 +46,7 @@ export default function ReservoirFiller({ hubEvent, current_value, mqttClient, m
                 LOAD
             </Button>
             <Button
-                color="default"
+                color={hubEvent != "processing" ? "default" : "primary"}
                 disabled={hubEvent != "processing"}
                 onClick={() => {
                     mqttClient.publish(

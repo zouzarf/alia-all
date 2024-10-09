@@ -18,6 +18,7 @@ export default function Mixer({ hubEvent, mqttClient }: { hubEvent: string, mqtt
             />
 
             <Button
+                color={hubEvent == "processing" ? "default" : "primary"}
                 disabled={hubEvent == "processing"}
                 onClick={() => {
                     if (mixValue > 0) {
@@ -32,6 +33,7 @@ export default function Mixer({ hubEvent, mqttClient }: { hubEvent: string, mqtt
                 Mix
             </Button>
             <Button
+                color={hubEvent != "processing" ? "default" : "primary"}
                 disabled={hubEvent != "processing"}
                 onClick={() => {
                     mqttClient.publish(

@@ -55,6 +55,7 @@ export default function Routing({ zones, hubEvent, mqttClient }: { zones: zones[
             />
 
             <Button
+                color={hubEvent == "processing" ? "default" : "primary"}
                 disabled={hubEvent == "processing"}
                 onClick={() => {
                     mqttClient.publish(
@@ -67,7 +68,8 @@ export default function Routing({ zones, hubEvent, mqttClient }: { zones: zones[
                 Start Routing
             </Button>
             <Button
-                disabled={hubEvent == "processing"}
+                color={hubEvent != "processing" ? "default" : "primary"}
+                disabled={hubEvent != "processing"}
                 onClick={() => {
                     mqttClient.publish(
                         "hub",
