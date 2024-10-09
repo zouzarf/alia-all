@@ -45,6 +45,7 @@ class Scheduler:
                 """
             )
         ).fetchall()
+        logging.info(db_list)
         return [ScheduleAction.from_list(k) for k in db_list]
 
     def run(self):

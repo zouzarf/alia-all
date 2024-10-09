@@ -16,8 +16,14 @@ class HubCommand:
     arg3: str
 
 
+@dataclass
+class HubEvent:
+    command: str
+    event: str
+
+
 class HubCommandManager:
-    MQTT_SERVER_IP = "localhost"
+    MQTT_SERVER_IP = "192.168.1.167"
     HUB_CHANNEL = "hub"
 
     def __init__(self):
@@ -32,9 +38,12 @@ class HubCommandManager:
 
     def on_message(self, mosq, obj, message: MQTTMessage):
         global command_done
-        logging.info("got message")
-        command_done = True
-        logging.info("command_done set to True")
+        hub_event = HubEvent(**json.loads(message.payload))
+        logging.info("Got Hub Event Message")
+        if hub_event.event == "done":
+            logging.info("got message")
+            command_done = True
+            logging.info("command_done set to True")
 
     def send_command_and_wait_for_response(self, hub_command: HubCommand):
         global command_done
