@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import dataclasses
 import json
 import threading
 import time
@@ -30,8 +31,16 @@ class SensorInfo:
     water_voltage: str
 
 
+@dataclass
+class HubEvent:
+    command: str
+    event: str
+
+
 lock = threading.Lock()
 water_voltage = -1
+stop = threading.Event()
+stop.clear()
 
 
 class HubCommandManager:
@@ -65,7 +74,18 @@ class HubCommandManager:
             case str(x) if x == "hub":
                 try:
                     logging.info(f"Received action")
-                    self.execute_command(HubCommand(**json.loads(message.payload)))
+                    deserialized_command = HubCommand(**json.loads(message.payload))
+                    if deserialized_command.command == "RELOAD_CONFIG":
+                        self.load_config()
+                        for router in self.routing.routers:
+                            self.node_command.reload_config(router.name)
+                        self.node_command.reload_config(BASE_STATION_CHANNEL)
+                        logging.info(f"Reloading config ...")
+                    elif deserialized_command.command == "STOP":
+                        logging.info("Received STOP command")
+                        stop.set()
+                    else:
+                        self.execute_command(deserialized_command)
                 except Exception as e:
                     logging.error(str(e))
                     logging.error(traceback.format_exc())
@@ -75,13 +95,14 @@ class HubCommandManager:
             lock.acquire()
             logging.info(f"Executing action {command.command}")
             match command.command:
-                case "RELOAD_CONFIG":
-                    self.load_config()
-                    for router in self.routing.routers:
-                        self.node_command.reload_config(router.name)
-                    self.node_command.reload_config(BASE_STATION_CHANNEL)
-                    logging.info(f"Reloading config ...")
                 case "FILL_WATER":
+                    self.mqtt_client.publish(
+                        "hub_response",
+                        json.dumps(
+                            dataclasses.asdict(HubEvent("filling", "processing"))
+                        ),
+                        retain=1,
+                    )
                     global water_voltage
                     water_level_target = float(command.arg1)
                     logging.info("Sending water command to base_station")
@@ -94,14 +115,28 @@ class HubCommandManager:
                         float(self.general_config["WATER_OFFSET_L"])
                         + float(self.general_config["WATER_VOLT_TO_L_CONVERSION"])
                         * water_voltage
-                    ) < water_level_target:
+                    ) < water_level_target and not stop.is_set():
                         pass
+                    print(stop.is_set())
+                    if stop.is_set():
+                        stop.clear()
                     logging.info("Water level reached")
                     logging.info("Disabling water pump")
                     self.node_command.disable_water_pump()
                     logging.info("Sending response to hub_response")
-                    self.mqtt_client.publish("hub_response", "water_done")
+                    self.mqtt_client.publish(
+                        "hub_response",
+                        json.dumps(dataclasses.asdict(HubEvent("filling", "done"))),
+                        retain=1,
+                    )
                 case "DOSE":
+                    self.mqtt_client.publish(
+                        "hub_response",
+                        json.dumps(
+                            dataclasses.asdict(HubEvent("dosing", "processing"))
+                        ),
+                        retain=1,
+                    )
                     logging.info(
                         f"Sending dosing command for dosing pump {command.arg1}, amount: {command.arg2}ml"
                     )
@@ -110,21 +145,47 @@ class HubCommandManager:
                         command.arg2
                     )
                     logging.info(f"Waiting {time_to_wait} seconds...")
-                    time.sleep(time_to_wait)
+                    stop.wait(time_to_wait)
+                    if stop.is_set():
+                        stop.clear()
                     logging.info("Disabling dosing pump ...")
                     self.node_command.disable_dosing_pump(command.arg1)
                     logging.info("Sending response to hub_response")
-                    self.mqtt_client.publish("hub_response", "dosing_done")
+                    self.mqtt_client.publish(
+                        "hub_response",
+                        json.dumps(dataclasses.asdict(HubEvent("dosing", "done"))),
+                        retain=1,
+                    )
                 case "MIX":
+                    self.mqtt_client.publish(
+                        "hub_response",
+                        json.dumps(
+                            dataclasses.asdict(HubEvent("mixing", "processing"))
+                        ),
+                        retain=1,
+                    )
                     logging.info("Sending mixing command to base_station")
                     self.node_command.enable_mixing()
                     logging.info(f"Waiting {command.arg1}minutes")
-                    time.sleep(int(command.arg1) * 60)
+                    stop.wait(int(command.arg1) * 60)
+                    if stop.is_set():
+                        stop.clear()
                     logging.info("Disabling mixing pump")
                     self.node_command.disable_mixing()
                     logging.info("Sending mixing_done response to hub_response")
-                    self.mqtt_client.publish("hub_response", "mixing_done")
+                    self.mqtt_client.publish(
+                        "hub_response",
+                        json.dumps(dataclasses.asdict(HubEvent("mixing", "done"))),
+                        retain=1,
+                    )
                 case "ROUTE":
+                    self.mqtt_client.publish(
+                        "hub_response",
+                        json.dumps(
+                            dataclasses.asdict(HubEvent("routing", "processing"))
+                        ),
+                        retain=1,
+                    )
                     zone_name = command.arg1
                     logging.info(f"Getting path to zone {zone_name}  ")
                     path = self.routing.get_path_to_zone(zone_name)
@@ -137,7 +198,7 @@ class HubCommandManager:
                         self.node_command.enable_routing_pump(src)
                     routing_time = command.arg2
                     logging.info(f"Sleeping for {routing_time} minutes ...")
-                    time.sleep(int(routing_time) * 60)
+                    stop.wait(int(routing_time) * 60)
                     for src, _ in path:
                         logging.info(f"Send close pump command to {src} ...")
                         self.node_command.disable_routing_pump(src)
@@ -145,14 +206,20 @@ class HubCommandManager:
                     self.node_command.enable_compressor()
                     compressing_time = command.arg3
                     logging.info(f"Sleeping for {compressing_time} minutes ...")
-                    time.sleep(int(compressing_time) * 60)
+                    stop.wait(int(compressing_time) * 60)
+                    if stop.is_set():
+                        stop.clear()
                     logging.info(f"Disabling compressor ...")
                     self.node_command.disable_compressor()
                     for src, dst in path:
                         logging.info(f"Send close valve command to {src} ...")
                         self.node_command.disable_routing_valve(src, dst)
                     logging.info("Sending routing_done response to hub_response")
-                    self.mqtt_client.publish("hub_response", "routing_done")
+                    self.mqtt_client.publish(
+                        "hub_response",
+                        json.dumps(dataclasses.asdict(HubEvent("routing", "done"))),
+                        retain=1,
+                    )
                 case _:
                     pass
         except Exception as e:
