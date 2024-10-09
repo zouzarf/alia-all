@@ -23,7 +23,7 @@ class HubEvent:
 
 
 class HubCommandManager:
-    MQTT_SERVER_IP = "192.168.1.167"
+    MQTT_SERVER_IP = "localhost"
     HUB_CHANNEL = "hub"
 
     def __init__(self):
