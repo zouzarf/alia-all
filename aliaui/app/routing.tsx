@@ -7,7 +7,7 @@ import useSWR from "swr";
 import { zones } from "@prisma/client";
 import { MqttClient } from "mqtt/*";
 const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
-export default function Routing({ zones, masterEvent, mqttClient }: { zones: zones[], masterEvent: string, mqttClient: MqttClient }) {
+export default function Routing({ zones, hubEvent, mqttClient }: { zones: zones[], hubEvent: string, mqttClient: MqttClient }) {
     const listOfZones = zones.map((e) => (
         <MenuItem key={e.name} value={e.name}>
             {e.name}
@@ -55,6 +55,7 @@ export default function Routing({ zones, masterEvent, mqttClient }: { zones: zon
             />
 
             <Button
+                disabled={hubEvent == "processing"}
                 onClick={() => {
                     mqttClient.publish(
                         "hub",
@@ -66,11 +67,11 @@ export default function Routing({ zones, masterEvent, mqttClient }: { zones: zon
                 Start Routing
             </Button>
             <Button
-                disabled={masterEvent !== "ROUTING"}
+                disabled={hubEvent == "processing"}
                 onClick={() => {
                     mqttClient.publish(
-                        "master_command",
-                        JSON.stringify({ command: "STOP_ROUTE", value: "0" })
+                        "hub",
+                        JSON.stringify({ command: "STOP", arg1: "", arg2: "", arg3: "" })
                     );
                 }}
             >

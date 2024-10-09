@@ -17,7 +17,7 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Link from 'next/link';
 
-const pages = [['Overview', '/overview'], ['Config', '/config'], ['Scheduler', '/scheduler'], ['Logs', '/logs']];
+const pages = [['Init', '/init'], ['Config', '/config'], ['Scheduler', '/scheduler'], ['Logs', '/logs']];
 
 function NavigationBar() {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);

@@ -5,7 +5,7 @@ import { mqttConnecter } from "@/lib/mqttClient";
 import useSWR from "swr";
 import { MqttClient } from "mqtt/*";
 const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
-export default function ReservoirFiller({ masterEvent, current_value, mqttClient, maxLevel }: { masterEvent: string, current_value: number, mqttClient: MqttClient, maxLevel: number }) {
+export default function ReservoirFiller({ hubEvent, current_value, mqttClient, maxLevel }: { hubEvent: string, current_value: number, mqttClient: MqttClient, maxLevel: number }) {
     const WATER_LEVEL_MAX_LITERS = maxLevel;
     const [waterValue, setWaterValue] = useState(10);
 
@@ -25,6 +25,7 @@ export default function ReservoirFiller({ masterEvent, current_value, mqttClient
             />
             <Button
                 color="default"
+                disabled={hubEvent == "processing"}
                 onClick={() => {
                     console.log(waterValue, current_value)
                     if (
@@ -46,10 +47,11 @@ export default function ReservoirFiller({ masterEvent, current_value, mqttClient
             </Button>
             <Button
                 color="default"
+                disabled={hubEvent != "processing"}
                 onClick={() => {
                     mqttClient.publish(
-                        "master_command",
-                        JSON.stringify({ command: "STOP_FILL", value: "0" })
+                        "hub",
+                        JSON.stringify({ command: "STOP", arg1: "", arg2: "", arg3: "" })
                     );
                 }}
             >

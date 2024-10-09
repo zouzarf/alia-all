@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Input } from "@nextui-org/react";
 import { MqttClient } from "mqtt/*";
-export default function Mixer({ masterEvent, mqttClient }: { masterEvent: string, mqttClient: MqttClient }) {
+export default function Mixer({ hubEvent, mqttClient }: { hubEvent: string, mqttClient: MqttClient }) {
     const [mixValue, setMixValue] = useState(1);
 
     return (
@@ -18,6 +18,7 @@ export default function Mixer({ masterEvent, mqttClient }: { masterEvent: string
             />
 
             <Button
+                disabled={hubEvent == "processing"}
                 onClick={() => {
                     if (mixValue > 0) {
                         mqttClient.publish(
@@ -31,11 +32,11 @@ export default function Mixer({ masterEvent, mqttClient }: { masterEvent: string
                 Mix
             </Button>
             <Button
-                disabled={masterEvent !== "MIX"}
+                disabled={hubEvent != "processing"}
                 onClick={() => {
                     mqttClient.publish(
-                        "master_command",
-                        JSON.stringify({ command: "STOP_MIX", value: "0" })
+                        "hub",
+                        JSON.stringify({ command: "STOP", arg1: "", arg2: "", arg3: "" })
                     );
                 }}
             >

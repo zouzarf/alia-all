@@ -18,7 +18,7 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
     const water_offset = parseFloat(general_config.filter(x => x.name == "WATER_OFFSET_L")[0].value!)
     const waterMaxLevel = parseFloat(general_config.filter(x => x.name == "WATER_MAX_LEVEL")[0].value!)
     const [waterValue, setwaterValue] = React.useState(0);
-    const [masterEvent, setmasterEvent] = React.useState("NULL");
+    const [hubEvent, setHubEvent] = React.useState<string | null>(null);
     const client = React.useRef<MqttClient | null>(null)
     useEffect(() => {
         if (!client.current) {
@@ -31,7 +31,7 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
                     setwaterValue(parseFloat(JSON.parse(payload.toString()).water_voltage) * water_conversion + water_offset);
                 }
                 else if (topic === "hub_response") {
-                    setwaterValue(parseFloat(JSON.parse(payload.toString()).water_voltage) * water_conversion + water_offset);
+                    setHubEvent(JSON.parse(payload.toString()).event);
                     console.log(payload.toString())
                 }
                 else {
@@ -60,19 +60,19 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
         <Paper>
             <div className="flex flex-col">
                 <h2 className="text-center">
-                    State: {masterEvent} {masterEvent === "MIX" ? (<CircularProgress size="20px" />) : <div />}
+                    State: {hubEvent!} {hubEvent === "processing" ? (<CircularProgress size="20px" />) : <div />}
                 </h2>
-                <WaterTank waterValue={waterValue} mixing={masterEvent === "MIX"} />
+                <WaterTank waterValue={waterValue} mixing={hubEvent === "processing"} />
 
                 <Divider />
                 <h2 className="text-center">
                     Manual Controls
                 </h2>
                 <div className='flex flex-row content-start justify-center gap-4'>
-                    <ReservoirFiller masterEvent={masterEvent} current_value={waterValue} mqttClient={client.current!} maxLevel={waterMaxLevel} />
-                    <Dosing masterEvent={masterEvent} mqttClient={client.current!} />
-                    <Mixer masterEvent={masterEvent} mqttClient={client.current!} />
-                    <Routing zones={zones} masterEvent={masterEvent} mqttClient={client.current!} />
+                    <ReservoirFiller hubEvent={hubEvent!} current_value={waterValue} mqttClient={client.current!} maxLevel={waterMaxLevel} />
+                    <Dosing hubEvent={hubEvent!} mqttClient={client.current!} />
+                    <Mixer hubEvent={hubEvent!} mqttClient={client.current!} />
+                    <Routing zones={zones} hubEvent={hubEvent!} mqttClient={client.current!} />
                 </div>
             </div>
         </Paper>

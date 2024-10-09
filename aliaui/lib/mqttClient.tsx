@@ -11,7 +11,7 @@ export const mqttConnecter = (ip: { ip: string } | undefined) => {
         console.log("connected to sensors")
       }
     })
-    client.subscribe('hub', function (err) {
+    client.subscribe('hub_response', function (err) {
       if (!err) {
         console.log("connected to hub")
       }
