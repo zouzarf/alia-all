@@ -199,9 +199,8 @@ class HubCommandManager:
                     routing_time = command.arg2
                     logging.info(f"Sleeping for {routing_time} minutes ...")
                     stop.wait(int(routing_time) * 60)
-                    for src, _ in path:
-                        logging.info(f"Send close pump command to {src} ...")
-                        self.node_command.disable_routing_pump(src)
+                    self.node_command.disable_routing_pump("base_station")
+                    logging.info("Disabling rouning pump for base_station")
                     logging.info(f"Enabling compressor ...")
                     self.node_command.enable_compressor()
                     compressing_time = command.arg3
@@ -211,6 +210,9 @@ class HubCommandManager:
                         stop.clear()
                     logging.info(f"Disabling compressor ...")
                     self.node_command.disable_compressor()
+                    for src, _ in path:
+                        logging.info(f"Send close pump command to {src} ...")
+                        self.node_command.disable_routing_pump(src)
                     for src, dst in path:
                         logging.info(f"Send close valve command to {src} ...")
                         self.node_command.disable_routing_valve(src, dst)
