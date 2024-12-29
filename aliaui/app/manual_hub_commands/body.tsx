@@ -58,11 +58,13 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
     }, []);
     return (
         <Paper>
+
+
             <div className="flex flex-col">
                 <h2 className="text-center">
                     State: {hubEvent!} {hubEvent === "processing" ? (<CircularProgress size="20px" />) : <div />}
                 </h2>
-                <WaterTank waterValue={waterValue} mixing={hubEvent === "processing"} />
+                <WaterTank waterValue={waterValue} min={0} max={10} isMixing={hubEvent === "processing"} />
 
                 <Divider />
                 <h2 className="text-center">
