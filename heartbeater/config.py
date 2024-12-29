@@ -1,0 +1,5 @@
+MQTT_IP = "localhost"
+BASE_STATION_CHANNEL = "base_station"
+WATER_SENSOR_CHANNEL = "sensors"
+HUB_LISTENING_CHANNEL = "hub"
+HUB_RESPONSE_CHANNEL = "hub_response"
