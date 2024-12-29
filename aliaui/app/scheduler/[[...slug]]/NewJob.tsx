@@ -126,20 +126,18 @@ export default function NewJob({ zones }: { zones: zones[] }) {
 
         <div className="flex flex-col">
             <h1 className="text-center">New Job</h1>
-
-            <div className="flex flex-row">
-                <Input type="text" label="Job Name"
-                    labelPlacement="outside" value={scheduleName} onChange={(e) => setScheduleName(e.target.value)} />
-                <Select
-                    placeholder="Select a zone"
-                    selectionMode="single"
-                    className="w-full"
-                    selectedKeys={[zone]}
-                    onChange={(e) => setZone(e.target.value)}
-                >
-                    {zones_elements}
-
-                </Select></div>
+            <Input type="text" label="Job Name"
+                labelPlacement="outside" value={scheduleName} onChange={(e) => setScheduleName(e.target.value)} />
+            <Divider className="my-4" />
+            <Select
+                placeholder="Select a zone"
+                selectionMode="single"
+                className="w-full"
+                selectedKeys={[zone]}
+                onChange={(e) => setZone(e.target.value)}
+            >
+                {zones_elements}
+            </Select>
 
 
             <Divider className="my-4" />

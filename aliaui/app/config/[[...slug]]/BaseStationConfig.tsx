@@ -15,11 +15,11 @@ export default function BaseStationConfig({ config }: { config: base_station_por
     },
     {
       key: "microport",
-      label: "SBC Port",
+      label: "Port",
     },
     {
       key: "hubport",
-      label: "Hub Port",
+      label: "Channel",
     },
   ];
   const renderCell = React.useCallback((user: base_station_ports, columnKey: Key) => {
