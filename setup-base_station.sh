@@ -14,3 +14,7 @@ echo \
 apt-get -y update
 systemctl enable docker
 apt-get -y install  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+curl -o docker-compose.yaml https://raw.githubusercontent.com/zouzarf/alia-all/refs/heads/main/docker-compose.yaml
+
+docker compose up base_station -d

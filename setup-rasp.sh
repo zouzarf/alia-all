@@ -15,8 +15,6 @@ sudo apt-get -y update
 sudo systemctl enable docker
 sudo apt-get -y install  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-#sudo dphys-swapfile swapoff
-#sudo nano /etc/dphys-swapfile
-#CONF_SWAPSIZE=1024
-#sudo dphys-swapfile setup
-#sudo dphys-swapfile swapon
+sudo curl -o docker-compose.yaml https://raw.githubusercontent.com/zouzarf/alia-all/refs/heads/main/docker-compose.yaml
+
+sudo docker compose up rasp -d
