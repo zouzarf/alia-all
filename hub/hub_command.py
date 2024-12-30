@@ -191,8 +191,9 @@ class HubCommandManager:
                     path = self.routing.get_path_to_zone(zone_name)
                     logging.info(str(path))
                     for src, dst in path:
-                        logging.info(f"Send open valve command to {src} ...")
-                        self.node_command.enable_routing_valve(src, dst)
+                        if src != "base_station":
+                            logging.info(f"Send open valve command to {src} ...")
+                            self.node_command.enable_routing_valve(src, dst)
                     for src, _ in path:
                         logging.info(f"Send open pump command to {src} ...")
                         self.node_command.enable_routing_pump(src)
@@ -200,7 +201,7 @@ class HubCommandManager:
                     logging.info(f"Sleeping for {routing_time} minutes ...")
                     stop.wait(int(routing_time) * 60)
                     self.node_command.disable_routing_pump("base_station")
-                    logging.info("Disabling rouning pump for base_station")
+                    logging.info("Disabling routing pump for base_station")
                     logging.info(f"Enabling compressor ...")
                     self.node_command.enable_compressor()
                     compressing_time = command.arg3
@@ -214,8 +215,9 @@ class HubCommandManager:
                         logging.info(f"Send close pump command to {src} ...")
                         self.node_command.disable_routing_pump(src)
                     for src, dst in path:
-                        logging.info(f"Send close valve command to {src} ...")
-                        self.node_command.disable_routing_valve(src, dst)
+                        if src != "base_station":
+                            logging.info(f"Send close valve command to {src} ...")
+                            self.node_command.disable_routing_valve(src, dst)
                     logging.info("Sending routing_done response to hub_response")
                     self.mqtt_client.publish(
                         "hub_response",

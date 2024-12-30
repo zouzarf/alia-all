@@ -60,22 +60,48 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
         <Paper>
 
 
-            <div className="flex flex-col">
-                <h2 className="text-center">
-                    State: {hubEvent!} {hubEvent === "processing" ? (<CircularProgress size="20px" />) : <div />}
-                </h2>
-                <WaterTank waterValue={waterValue} min={0} max={10} isMixing={hubEvent === "processing"} />
+            <div className="flex flex-row w-full gap-10 p-2">
 
-                <Divider />
-                <h2 className="text-center">
-                    Manual Controls
-                </h2>
-                <div className='flex flex-row content-start justify-center gap-4'>
-                    <ReservoirFiller hubEvent={hubEvent!} current_value={waterValue} mqttClient={client.current!} maxLevel={waterMaxLevel} />
-                    <Dosing hubEvent={hubEvent!} mqttClient={client.current!} />
-                    <Mixer hubEvent={hubEvent!} mqttClient={client.current!} />
-                    <Routing zones={zones} hubEvent={hubEvent!} mqttClient={client.current!} />
+
+                <div className='flex flex-col gap-10 w-full'>
+
+
+                    <div className="relative overflow-x-auto">
+                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3">
+                                        Command
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Parameters
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Start
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Stop
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ReservoirFiller hubEvent={hubEvent!} current_value={waterValue} mqttClient={client.current!} maxLevel={waterMaxLevel} />
+                                <Dosing hubEvent={hubEvent!} mqttClient={client.current!} />
+                                <Mixer hubEvent={hubEvent!} mqttClient={client.current!} />
+                                <Routing zones={zones} hubEvent={hubEvent!} mqttClient={client.current!} />
+                            </tbody>
+                        </table>
+                    </div>
+
+
                 </div>
+                <div className="flex flex-col">
+                    <h2 className="text-center">
+                        State: {hubEvent!} {hubEvent === "processing" ? (<CircularProgress size="20px" />) : <div />}
+                    </h2>
+                    <WaterTank waterValue={waterValue} min={0} max={10} isMixing={hubEvent === "processing"} />
+                </div>
+
             </div>
         </Paper>
     )

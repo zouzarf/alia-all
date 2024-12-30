@@ -47,9 +47,6 @@ class BaseStation:
                     get_sensor_ports(base_station_config, "MIXINGPUMP")[1],
                 )
             ),
-            "ROUTINGVALVE": RelayChannel(
-                get_sensor_ports(base_station_config, "ROUTINGVALVE")
-            ),
             "ROUTINGPUMP": RelayChannel(
                 get_sensor_ports(base_station_config, "ROUTINGPUMP")
             ),

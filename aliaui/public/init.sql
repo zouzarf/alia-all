@@ -43,10 +43,10 @@ VALUES
     ('DOSINGPUMP1', 0, 2),
     ('DOSINGPUMP2', 0, 3),
     ('DOSINGPUMP3', 0, 0),
+    ('DOSINGPUMP4', 1, 0),
     ('MIXINGPUMP', 1, 1),
-    ('ROUTINGVALVE', 1, 2),
-    ('ROUTINGPUMP', 1, 3),
-    ('COMPRESSOR', 1, 0);
+    ('COMPRESSOR', 1, 2),
+    ('ROUTINGPUMP', 1, 3);
 
 create table config.zones (
     name varchar(255) not null unique REFERENCES config.nodes(node_name)
