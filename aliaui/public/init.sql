@@ -4,11 +4,15 @@ DROP SCHEMA IF EXISTS scheduler CASCADE;
 
 DROP SCHEMA IF EXISTS live CASCADE;
 
+DROP SCHEMA IF EXISTS health CASCADE;
+
 create schema if not exists config;
 
 create schema if not exists scheduler;
 
 create schema if not exists live;
+
+create schema if not exists health;
 
 CREATE TABLE config.nodes (node_name varchar(255) not null unique);
 
@@ -103,4 +107,14 @@ create table live.logs (
     module_name varchar(255),
     log_level varchar(255),
     log_message varchar(20000)
+);
+
+create table health.services(
+    name varchar(255) not null unique,
+    heartbeat timestamptz
+);
+
+create table health.hardware(
+    name varchar(255) not null unique,
+    heartbeat timestamptz
 );

@@ -42,6 +42,7 @@ class Scheduler:
                         and c.process_start is null
                     order by
                         (dd :: date + interval '1 hour' * b.hour)
+                    limit 1
                 """
             )
         ).fetchall()
