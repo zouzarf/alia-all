@@ -41,6 +41,12 @@ class BaseStation:
                     get_sensor_ports(base_station_config, "DOSINGPUMP3")[1],
                 )
             ),
+            "DOSINGPUMP4": RelayChannel(
+                ports=(
+                    get_sensor_ports(base_station_config, "DOSINGPUMP4")[0],
+                    get_sensor_ports(base_station_config, "DOSINGPUMP4")[1],
+                )
+            ),
             "MIXINGPUMP": RelayChannel(
                 ports=(
                     get_sensor_ports(base_station_config, "MIXINGPUMP")[0],

@@ -41,7 +41,7 @@ export default function ZonesConfig({ config, routers, routes }: { config: zones
               Source router Channel
             </th>
             <th scope="col" className="px-6 py-3">
-              Drop
+
             </th>
           </tr>
         </thead>
