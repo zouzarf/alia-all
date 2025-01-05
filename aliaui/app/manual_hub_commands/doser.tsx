@@ -4,6 +4,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { Button, Input } from "@nextui-org/react";
 import { MqttClient } from "mqtt/*";
+import { sendHubCommand } from "./command";
 export default function Dosing({ hubEvent, mqttClient }: { hubEvent: string, mqttClient: MqttClient }) {
     const [doseValue, setDoseValue] = useState(0);
     const [doserValue, setDoserValue] = useState("");
@@ -60,10 +61,7 @@ export default function Dosing({ hubEvent, mqttClient }: { hubEvent: string, mqt
                     disabled={hubEvent == "processing"}
                     onClick={() => {
                         if (doseValue > 0) {
-                            mqttClient.publish(
-                                "hub",
-                                JSON.stringify({ command: "DOSE", arg1: doserValue, arg2: doseValue, arg3: "" })
-                            );
+                            sendHubCommand(mqttClient, "hub", { command: "DOSE", arg1: doserValue, arg2: doseValue.toString(), arg3: "" })
                             setDoseValue(0);
                         }
                     }}
@@ -76,12 +74,7 @@ export default function Dosing({ hubEvent, mqttClient }: { hubEvent: string, mqt
                     className="w-full"
                     color={hubEvent != "processing" ? "default" : "primary"}
                     disabled={hubEvent != "processing"}
-                    onClick={() => {
-                        mqttClient.publish(
-                            "hub",
-                            JSON.stringify({ command: "STOP", arg1: "", arg2: "", arg3: "" })
-                        );
-                    }}
+                    onClick={() => sendHubCommand(mqttClient, "hub", { command: "STOP", arg1: "", arg2: "", arg3: "" })}
                 >
                     STOP
                 </Button>

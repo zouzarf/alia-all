@@ -6,6 +6,7 @@ import { mqttConnecter } from "@/lib/mqttClient";
 import useSWR from "swr";
 import { zones } from "@prisma/client";
 import { MqttClient } from "mqtt/*";
+import { sendHubCommand } from "./command";
 const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 export default function Routing({ zones, hubEvent, mqttClient }: { zones: zones[], hubEvent: string, mqttClient: MqttClient }) {
     const listOfZones = zones.map((e) => (
@@ -68,10 +69,7 @@ export default function Routing({ zones, hubEvent, mqttClient }: { zones: zones[
                     color={hubEvent == "processing" ? "default" : "primary"}
                     disabled={hubEvent == "processing"}
                     onClick={() => {
-                        mqttClient.publish(
-                            "hub",
-                            JSON.stringify({ command: "ROUTE", arg1: zoneValue, arg2: routingTime, arg3: compressingTime })
-                        );
+                        sendHubCommand(mqttClient, "hub", { command: "ROUTE", arg1: zoneValue, arg2: routingTime.toString(), arg3: compressingTime.toString() })
                         setzoneValue("");
                     }}
                 >
@@ -84,10 +82,7 @@ export default function Routing({ zones, hubEvent, mqttClient }: { zones: zones[
                     color={hubEvent != "processing" ? "default" : "primary"}
                     disabled={hubEvent != "processing"}
                     onClick={() => {
-                        mqttClient.publish(
-                            "hub",
-                            JSON.stringify({ command: "STOP", arg1: "", arg2: "", arg3: "" })
-                        );
+                        sendHubCommand(mqttClient, "hub", { command: "STOP", arg1: "", arg2: "", arg3: "" })
                     }}
                 >
                     STOP

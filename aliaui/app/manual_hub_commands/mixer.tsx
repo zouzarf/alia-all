@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Button, Input } from "@nextui-org/react";
 import { MqttClient } from "mqtt/*";
+import { sendHubCommand } from "./command";
+
+
 export default function Mixer({ hubEvent, mqttClient }: { hubEvent: string, mqttClient: MqttClient }) {
     const [mixValue, setMixValue] = useState(1);
 
@@ -31,10 +34,7 @@ export default function Mixer({ hubEvent, mqttClient }: { hubEvent: string, mqtt
                     disabled={hubEvent == "processing"}
                     onClick={() => {
                         if (mixValue > 0) {
-                            mqttClient.publish(
-                                "hub",
-                                JSON.stringify({ command: "MIX", arg1: mixValue, arg2: "", arg3: "" })
-                            );
+                            sendHubCommand(mqttClient, "hub", { command: "MIX", arg1: mixValue.toString(), arg2: "", arg3: "" })
                             setMixValue(0);
                         }
                     }}
@@ -48,10 +48,7 @@ export default function Mixer({ hubEvent, mqttClient }: { hubEvent: string, mqtt
                     color={hubEvent != "processing" ? "default" : "primary"}
                     disabled={hubEvent != "processing"}
                     onClick={() => {
-                        mqttClient.publish(
-                            "hub",
-                            JSON.stringify({ command: "STOP", arg1: "", arg2: "", arg3: "" })
-                        );
+                        sendHubCommand(mqttClient, "hub", { command: "STOP", arg1: "", arg2: "", arg3: "" })
                     }}
                 >
                     STOP
