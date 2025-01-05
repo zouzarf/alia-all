@@ -9,7 +9,7 @@ services:
         limits:
           cpus: '0.6'
     environment:
-      RASP_SERV: 192.168.178.162
+      RASP_SERV: ${RASP_IP}
   scheduler:
     image: "alia2024/scheduler:latest"
     network_mode: "host"        
@@ -44,7 +44,7 @@ services:
     privileged: true
     profiles: [base_station]
     environment:
-      rasp_server: 192.168.178.162
+      rasp_server: ${RASP_IP}
   router:
     image: "alia2024/router:latest"
     network_mode: "host"        
@@ -52,7 +52,7 @@ services:
     privileged: true
     profiles: [router]
     environment:
-      rasp_server: 192.168.178.162
+      rasp_server: ${RASP_IP}
   db:
     image: "postgres:16.3-alpine3.20"
     network_mode: "host"        
