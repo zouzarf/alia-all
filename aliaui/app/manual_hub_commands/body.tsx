@@ -9,9 +9,8 @@ import Mixer from "./mixer";
 import Routing from "./routing";
 import useSWR from 'swr'
 import { mqttConnecter } from "@/lib/mqttClient";
-import { general_config, zones } from "@prisma/client";
+import { base_station_ports, general_config, zones } from "@prisma/client";
 import { MqttClient } from "mqtt/*";
-const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 
 export default function Body({ zones, general_config, mqttIp }: { zones: zones[], general_config: general_config[], mqttIp: string }) {
     const water_conversion = parseFloat(general_config.filter(x => x.name == "WATER_VOLT_TO_L_CONVERSION")[0].value!)
@@ -56,6 +55,8 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
             }
         };
     }, []);
+    const tab = [client.current!]
+    console.log(tab)
     return (
         <Paper>
 
@@ -97,7 +98,7 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
                 </div>
                 <div className="flex flex-col">
                     <h2 className="text-center">
-                        State: {hubEvent!} {hubEvent === "processing" ? (<CircularProgress size="20px" />) : <div />}
+                        Water Tank {hubEvent!} {hubEvent === "processing" ? (<CircularProgress size="20px" />) : <></>}
                     </h2>
                     <WaterTank waterValue={waterValue} min={0} max={10} isMixing={hubEvent === "processing"} />
                 </div>

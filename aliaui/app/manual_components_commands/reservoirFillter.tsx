@@ -27,7 +27,6 @@ export default function ReservoirFiller({ hubEvent, current_value, mqttClient, m
                 color={hubEvent == "processing" ? "default" : "primary"}
                 disabled={hubEvent == "processing"}
                 onClick={() => {
-                    console.log(waterValue, current_value)
                     if (
                         waterValue > 0 &&
                         waterValue <= WATER_LEVEL_MAX_LITERS &&
@@ -37,10 +36,8 @@ export default function ReservoirFiller({ hubEvent, current_value, mqttClient, m
                             "hub",
                             JSON.stringify({ command: "FILL_WATER", arg1: waterValue, arg2: "", arg3: "" })
                         );
-                        console.log("sending water command")
                         setWaterValue(0);
                     }
-                    console.log("sending water command")
                 }}
             >
                 LOAD

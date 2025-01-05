@@ -1,6 +1,8 @@
 import { routers, routes } from "@prisma/client";
+import { MqttClient } from "mqtt/*";
+import sendControllerCommand from "./command";
 
-export default function RouterCommands({ router, routings }: { router: routers, routings: routes[] }) {
+export default function RouterCommands({ mqttClient, router, routings }: { mqttClient: MqttClient, router: routers, routings: routes[] }) {
     return (
         <div className="relative overflow-x-auto">
             <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -20,10 +22,14 @@ export default function RouterCommands({ router, routings }: { router: routers, 
                             WATER_PUMP
                         </th>
                         <td className="px-6 py-4">
-                            <button type="button" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                            <button type="button" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                                onClick={() => { sendControllerCommand(mqttClient, router.name, { actionner: "ROUTINGPUMP", command: "ACTIVATE", arg1: "" }) }}
+                            >
                                 Activate
                             </button>
-                            <button type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
+                            <button type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                                onClick={() => { sendControllerCommand(mqttClient, router.name, { actionner: "ROUTINGPUMP", command: "DEACTIVATE", arg1: "" }) }}
+                            >
                                 Deactivate
                             </button>
                         </td>
@@ -34,10 +40,13 @@ export default function RouterCommands({ router, routings }: { router: routers, 
                                 Valve to {r.dst}
                             </th>
                             <td className="px-6 py-4">
-                                <button type="button" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                                <button type="button" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                                    onClick={() => { sendControllerCommand(mqttClient, router.name, { actionner: "ROUTINGVALVE", command: "ACTIVATE", arg1: r.dst! }) }}
+                                >
                                     Activate
                                 </button>
-                                <button type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
+                                <button type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                                    onClick={() => { sendControllerCommand(mqttClient, router.name, { actionner: "ROUTINGVALVE", command: "DEACTIVATE", arg1: r.dst! }) }}>
                                     Deactivate
                                 </button>
                             </td>
