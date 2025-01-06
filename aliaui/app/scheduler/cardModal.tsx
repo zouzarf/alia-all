@@ -10,6 +10,9 @@ import {
 } from "@nextui-org/react";
 import JobInfo from "./JobInfo";
 import { irrigation } from "@prisma/client";
+import useSWR from "swr";
+import { mqttConnecter } from "@/lib/mqttClient";
+import { deleteJob } from "@/lib/schedulerActions";
 interface scheduleStats {
     name: string
     zones: string[]
@@ -31,8 +34,11 @@ interface scheduleStats {
         compressing_time: number;
     }[];
 }
+const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 export default function CardModal({ irrigations, scheduleStats }: { irrigations: irrigation[], scheduleStats: scheduleStats }) {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const { data, error } = useSWR("/api/config", fetcher);
+    const client = mqttConnecter(data)
     return (
         <>
             <Button
@@ -44,7 +50,7 @@ export default function CardModal({ irrigations, scheduleStats }: { irrigations:
             >
                 {"Edit"}
             </Button>
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="5xl">
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="4xl">
                 <ModalContent>
                     {(onClose) => (
                         <>
@@ -56,8 +62,15 @@ export default function CardModal({ irrigations, scheduleStats }: { irrigations:
                                 <Button color="danger" variant="light" onPress={onClose}>
                                     Close
                                 </Button>
-                                <Button color="primary" onPress={onClose}>
-                                    Action
+                                <Button color="primary" onPress={(e) => {
+                                    deleteJob(scheduleStats.name);
+                                    client?.publish(
+                                        "hub",
+                                        JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
+                                    );
+                                    onClose()
+                                }}>
+                                    Delete
                                 </Button>
                             </ModalFooter>
                         </>

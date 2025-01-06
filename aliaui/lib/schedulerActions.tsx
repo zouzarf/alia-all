@@ -163,10 +163,10 @@ export const readEvents = async (jobId: number) => {
     const response = await prisma.events_logs.findMany({ "where": { "job_id": jobId } })
     return response
 }
-export const deleteJob = async (jobId: number) => {
+export const deleteJob = async (schedulerName: string) => {
     await prisma.$transaction([
-        prisma.irrigation.delete({
-            where: { id: jobId }
+        prisma.irrigation.deleteMany({
+            where: { schedule_name: schedulerName }
         }),
     ])
     revalidatePath('/')

@@ -1,15 +1,8 @@
 "use client"
-import { Paper } from "@mui/material";
-import { Button, Divider, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
-import { irrigation, events_logs } from "@prisma/client";
-import React, { Key } from "react";
+import { irrigation } from "@prisma/client";
+import React from "react";
 import DailyActionsTable from "./dailyActionTable";
 import EventsTimeLine from "./EventsTimeline";
-import { deleteJob } from "@/lib/schedulerActions";
-import DeleteIcon from '@mui/icons-material/Delete';
-import { mqttConnecter } from "@/lib/mqttClient";
-import useSWR from "swr";
-const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 interface scheduleStats {
     name: string
     zones: string[]
@@ -33,10 +26,7 @@ interface scheduleStats {
 }
 export default function JobInfo({ irrigations, scheduleStats }: { irrigations: irrigation[], scheduleStats: scheduleStats }) {
 
-    const { data, error } = useSWR("/api/config", fetcher);
-    const client = mqttConnecter(data)
-    console.log("test")
-    console.log(irrigations)
+
     return (
         <div className="flex flex-col">
             <div className="mt-6 border-t border-gray-100">
