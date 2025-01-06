@@ -69,25 +69,22 @@ create table config.routes (
     UNIQUE (src, dst)
 );
 
-create table scheduler.jobs (
+create table scheduler.irrigation (
     id SERIAL not null unique,
-    name varchar(255) unique not null,
+    schedule_name varchar(255) not null,
     zone_name varchar(255) not null,
-    start_date timestamptz not null,
-    end_date timestamptz not null
-);
-
-create table scheduler.jobs_actions (
-    id SERIAL not null unique,
-    job_id int,
-    hour int,
+    date timestamptz not null,
     water_level int,
-    dose_number int,
-    dose_amount int,
+    dose_1 int,
+    dose_2 int,
+    dose_3 int,
+    dose_4 int,
     mixing_time int,
     routing_time int,
     compressing_time int,
-    UNIQUE (job_id, hour)
+    process_start timestamptz,
+    process_end timestamptz,
+    status varchar(255)
 );
 
 create table scheduler.events_logs (

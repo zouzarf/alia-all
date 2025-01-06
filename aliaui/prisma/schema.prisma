@@ -98,27 +98,22 @@ model events_logs {
   @@schema("scheduler")
 }
 
-model jobs {
-  id         Int      @unique @default(autoincrement())
-  name       String   @unique @db.VarChar(255)
-  zone_name  String   @db.VarChar(255)
-  start_date DateTime @db.Timestamptz(6)
-  end_date   DateTime @db.Timestamptz(6)
-
-  @@schema("scheduler")
-}
-
-model jobs_actions {
-  id               Int  @unique @default(autoincrement())
-  job_id           Int?
-  hour             Int?
+model irrigation {
+  id               Int       @unique @default(autoincrement())
+  schedule_name    String    @db.VarChar(255)
+  zone_name        String    @db.VarChar(255)
+  date             DateTime  @db.Timestamptz(6)
   water_level      Int?
-  dose_number      Int?
-  dose_amount      Int?
+  dose_1           Int?
+  dose_2           Int?
+  dose_3           Int?
+  dose_4           Int?
   mixing_time      Int?
   routing_time     Int?
   compressing_time Int?
+  process_start    DateTime? @db.Timestamptz(6)
+  process_end      DateTime? @db.Timestamptz(6)
+  status           String?   @db.VarChar(255)
 
-  @@unique([job_id, hour])
   @@schema("scheduler")
 }
