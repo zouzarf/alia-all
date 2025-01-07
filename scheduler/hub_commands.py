@@ -51,7 +51,9 @@ class HubCommandManager:
         logging.info(hub_event)
         command_done[hub_event.command] = hub_event.event == "done"
         logging.info(
-            hub_event.command + "set from": + str(command_done[hub_event.command])
+            hub_event.command
+            + "set from"
+            + str(command_done[hub_event.command])
             + " to :"
             + str(hub_event.event == "done")
         )
