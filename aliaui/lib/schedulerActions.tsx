@@ -61,31 +61,8 @@ export const insertScheduler = async (job: irrigationPlan, dailyActions: irrigat
 
 
     }
-
-    // const response = await prisma.jobs.create({
-    //     data: {
-    //         name: job.name,
-    //         zone_name: job.zone_name,
-    //         start_date: job.start_date,
-    //         end_date: job.end_date
-    //     }
-    // })
-    // dailyActions.map(async (dailyAction) => {
-    //     await prisma.jobs_actions.create({
-    //         data: {
-    //             job_id: response.id,
-    //             hour: dailyAction.hour,
-    //             compressing_time: dailyAction.compressing_time,
-    //             water_level: dailyAction.water_level,
-    //             dose_number: dailyAction.dose_number,
-    //             dose_amount: dailyAction.dose_amount,
-    //             mixing_time: dailyAction.mixing_time,
-    //             routing_time: dailyAction.routing_time,
-    //         }
-    //     });
-    // })
-    // revalidatePath('/')
-    // redirect(`/scheduler/${response.id}`)
+    revalidatePath('/')
+    redirect(`/scheduler`)
 }
 export const readScheduleStatistics = async (scheduleName: string) => {
     const todoCount = await prisma.irrigation.count({

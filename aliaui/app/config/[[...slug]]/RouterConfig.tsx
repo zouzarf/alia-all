@@ -67,12 +67,13 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
                         <th scope="col" className="px-6 py-3">
                           From
                         </th>
-                        <th scope="col" className="px-6 py-3">
+                        {(linkedToRouter != "base_station" && linkedToRouter != "") ? (<><th scope="col" className="px-6 py-3">
                           Port
                         </th>
-                        <th scope="col" className="px-6 py-3">
-                          Channel
-                        </th>
+                          <th scope="col" className="px-6 py-3">
+                            Channel
+                          </th></>) : ""}
+
                       </tr>
                     </thead>
                     <tbody>
@@ -83,8 +84,8 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
                             selectionMode="single"
                             className="max-w-xs"
                             value={linkedToRouter}
+                            selectedKeys={[linkedToRouter]}
                             onChange={(e) => {
-                              console.log(e)
                               setLinkedToRouter(e.target.value);
                             }}
                           >
@@ -97,7 +98,7 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
                             ))}
                           </Select>
                         </th>
-                        <td className="px-6 py-4">
+                        {(linkedToRouter != "base_station" && linkedToRouter != "") ? (<><td className="px-6 py-4">
                           <Input
                             min={0}
                             max={5}
@@ -110,19 +111,19 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
                             }}
                           />
                         </td>
-                        <td className="px-6 py-4">
-                          <Input
-                            min={0}
-                            max={5}
-                            value={pvRouterHubPort.toString()}
-                            isDisabled={isOtherRouterLinkedToBase == true}
-                            type="number"
-                            labelPlacement="outside"
-                            onChange={(e) => {
-                              setPvRouterHubPort(parseInt(e.target.value));
-                            }}
-                          />
-                        </td>
+                          <td className="px-6 py-4">
+                            <Input
+                              min={0}
+                              max={5}
+                              value={pvRouterHubPort.toString()}
+                              isDisabled={isOtherRouterLinkedToBase == true}
+                              type="number"
+                              labelPlacement="outside"
+                              onChange={(e) => {
+                                setPvRouterHubPort(parseInt(e.target.value));
+                              }}
+                            />
+                          </td></>) : ""}
                       </tr>
                     </tbody>
                   </table>
@@ -155,7 +156,7 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
                 Pump Channel
               </th>
               <th scope="col" className="px-6 py-3">
-                Routing Source
+                Flow Source (Routing source)
               </th>
               <th scope="col" className="px-6 py-3">
 

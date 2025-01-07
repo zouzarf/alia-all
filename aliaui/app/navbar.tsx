@@ -17,7 +17,7 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Link from 'next/link';
 
-const pages = [['Init', '/init'], ['Manual Hub Commands', '/manual_hub_commands'], ['Manual Component Commands', '/manual_components_commands'], ['Config', '/config'], ['Scheduler', '/scheduler'], ['System Health', '/system_health'], ['Logs', '/logs']];
+const pages = [['Init', '/init'], ['Manual Functional Commands', '/manual_hub_commands'], ['Manual Hardware Commands', '/manual_components_commands'], ['Config', '/config'], ['Scheduler', '/scheduler'], ['System Health', '/system_health'], ['Logs', '/logs']];
 
 function NavigationBar() {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);

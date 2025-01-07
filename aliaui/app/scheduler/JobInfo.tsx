@@ -29,22 +29,37 @@ export default function JobInfo({ irrigations, scheduleStats }: { irrigations: i
 
     return (
         <div className="flex flex-col">
-            <div className="mt-6 border-t border-gray-100">
-                <dl className="divide-y divide-gray-100">
-                    <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt className="text-sm font-medium leading-6 text-gray-900">Zones</dt>
-                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{scheduleStats.zones.toString()}</dd>
-                    </div>
-                    <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt className="text-sm font-medium leading-6 text-gray-900">Start date</dt>
-                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{scheduleStats.minDate?.toDateString()}</dd>
-                    </div>
-                    <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt className="text-sm font-medium leading-6 text-gray-900">End date</dt>
-                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{scheduleStats.maxDate?.toDateString()}</dd>
-                    </div>
 
-                </dl>
+
+            <div className="relative overflow-x-auto">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <tbody>
+                        <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                Zones
+                            </th>
+                            <td className="px-6 py-4">
+                                {scheduleStats.zones.toString()}
+                            </td>
+                        </tr>
+                        <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                Start Date
+                            </th>
+                            <td className="px-6 py-4">
+                                {scheduleStats.minDate?.toDateString()}
+                            </td>
+                        </tr>
+                        <tr className="bg-white dark:bg-gray-800">
+                            <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                End Date
+                            </th>
+                            <td className="px-6 py-4">
+                                {scheduleStats.maxDate?.toDateString()}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             <DailyActionsTable schedules={scheduleStats.schedule} />
             <EventsTimeLine irrigations={irrigations.filter(x => x.status != 'TODO')} />
