@@ -41,9 +41,11 @@ class HubCommandManager:
         hub_event = HubEvent(**json.loads(message.payload))
         logging.info("Got Hub Event Message")
         if hub_event.event == "done":
-            logging.info("got message")
+            logging.info("got done")
             command_done = True
             logging.info("command_done set to True")
+        elif hub_event.event == "processing":
+            logging.info("processing...")
 
     def send_command_and_wait_for_response(self, hub_command: HubCommand):
         global command_done
