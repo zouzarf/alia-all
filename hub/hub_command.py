@@ -99,7 +99,7 @@ class HubCommandManager:
                     self.mqtt_client.publish(
                         "hub_response",
                         json.dumps(
-                            dataclasses.asdict(HubEvent("filling", "processing"))
+                            dataclasses.asdict(HubEvent("WATER_LEVEL", "processing"))
                         ),
                         retain=1,
                     )
@@ -126,14 +126,16 @@ class HubCommandManager:
                     logging.info("Sending response to hub_response")
                     self.mqtt_client.publish(
                         "hub_response",
-                        json.dumps(dataclasses.asdict(HubEvent("filling", "done"))),
+                        json.dumps(dataclasses.asdict(HubEvent("WATER_LEVEL", "done"))),
                         retain=1,
                     )
                 case "DOSE":
                     self.mqtt_client.publish(
                         "hub_response",
                         json.dumps(
-                            dataclasses.asdict(HubEvent("dosing", "processing"))
+                            dataclasses.asdict(
+                                HubEvent("DOSING" + str(command.arg1), "processing")
+                            )
                         ),
                         retain=1,
                     )
@@ -153,14 +155,18 @@ class HubCommandManager:
                     logging.info("Sending response to hub_response")
                     self.mqtt_client.publish(
                         "hub_response",
-                        json.dumps(dataclasses.asdict(HubEvent("dosing", "done"))),
+                        json.dumps(
+                            dataclasses.asdict(
+                                HubEvent("DOSING" + str(command.arg1), "done")
+                            )
+                        ),
                         retain=1,
                     )
                 case "MIX":
                     self.mqtt_client.publish(
                         "hub_response",
                         json.dumps(
-                            dataclasses.asdict(HubEvent("mixing", "processing"))
+                            dataclasses.asdict(HubEvent("MIXING", "processing"))
                         ),
                         retain=1,
                     )
@@ -175,14 +181,14 @@ class HubCommandManager:
                     logging.info("Sending mixing_done response to hub_response")
                     self.mqtt_client.publish(
                         "hub_response",
-                        json.dumps(dataclasses.asdict(HubEvent("mixing", "done"))),
+                        json.dumps(dataclasses.asdict(HubEvent("MIXING", "done"))),
                         retain=1,
                     )
                 case "ROUTE":
                     self.mqtt_client.publish(
                         "hub_response",
                         json.dumps(
-                            dataclasses.asdict(HubEvent("routing", "processing"))
+                            dataclasses.asdict(HubEvent("ROUTING", "processing"))
                         ),
                         retain=1,
                     )
@@ -221,7 +227,7 @@ class HubCommandManager:
                     logging.info("Sending routing_done response to hub_response")
                     self.mqtt_client.publish(
                         "hub_response",
-                        json.dumps(dataclasses.asdict(HubEvent("routing", "done"))),
+                        json.dumps(dataclasses.asdict(HubEvent("ROUTING", "done"))),
                         retain=1,
                     )
                 case _:

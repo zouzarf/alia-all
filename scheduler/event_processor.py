@@ -1,11 +1,10 @@
-from datetime import datetime
 from db import ScheduleAction
-from hub_commands import HubCommand
+from hub_commands import HubCommandManager
 from logger import logger as logging
 
 
 class EventProcessor:
-    def __init__(self, hub_command: HubCommand):
+    def __init__(self, hub_command: HubCommandManager):
         self.command_manager = hub_command
 
     def process_event(self, event: ScheduleAction):

@@ -5,7 +5,15 @@ from mqtt_config import client
 from paho.mqtt.client import MQTTMessage
 from logger import logger as logging
 
-command_done = False
+command_done = {
+    "WATER_LEVEL": False,
+    "DOSING1": False,
+    "DOSING2": False,
+    "DOSING3": False,
+    "DOSING4": False,
+    "MIXING": False,
+    "ROUTING": False,
+}
 
 
 @dataclass
@@ -40,35 +48,42 @@ class HubCommandManager:
         global command_done
         hub_event = HubEvent(**json.loads(message.payload))
         logging.info("Got Hub Event Message")
-        if hub_event.event == "done":
-            logging.info("got done")
-            command_done = True
-            logging.info("command_done set to True")
-        elif hub_event.event == "processing":
-            logging.info("processing...")
+        logging.info(hub_event)
+        command_done[hub_event.command] = hub_event.event == "done"
+        logging.info(
+            hub_event.command + "set from": + str(command_done[hub_event.command])
+            + " to :"
+            + str(hub_event.event == "done")
+        )
 
-    def send_command_and_wait_for_response(self, hub_command: HubCommand):
+    def send_command_and_wait_for_response(self, hub_command: HubCommand, command: str):
         global command_done
+        command_done[command] = False
         client.publish(
             self.HUB_CHANNEL,
             json.dumps(dataclasses.asdict(hub_command)),
             2,
         )
-        while not command_done:
+        while not command_done[command]:
             pass
-        command_done = False
+        command_done[command] = False
 
     def fill_water(self, level):
-        self.send_command_and_wait_for_response(HubCommand("FILL_WATER", level, "", ""))
+        self.send_command_and_wait_for_response(
+            HubCommand("FILL_WATER", level, "", ""), "WATER_LEVEL"
+        )
 
     def dose(self, dose_number: int, dose_amount: int):
         self.send_command_and_wait_for_response(
-            HubCommand("DOSE", dose_number, dose_amount, "")
+            HubCommand("DOSE", dose_number, dose_amount, ""),
+            "DOSING" + str(dose_number),
         )
 
     def mix(self, time: int):
 
-        self.send_command_and_wait_for_response(HubCommand("MIX", time, "", ""))
+        self.send_command_and_wait_for_response(
+            HubCommand("MIX", time, "", ""), "MIXING"
+        )
 
     def route(self, zone: str, routing_time: int, compressing_time: int):
         self.send_command_and_wait_for_response(
@@ -77,5 +92,6 @@ class HubCommandManager:
                 zone,
                 routing_time,
                 compressing_time,
-            )
+            ),
+            "ROUTING",
         )
