@@ -35,7 +35,7 @@ export default function RouterCommands({ mqttClient, router, routings }: { mqttC
                         </td>
                     </tr>
                     {routings.filter(r => r.src == router.name).map(r => (
-                        <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <tr key={r.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                             <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                 Valve to {r.dst}
                             </th>

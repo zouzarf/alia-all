@@ -44,7 +44,7 @@ export default function DailyActionsTable({ schedules }: { schedules: schedule[]
                 </thead>
                 <tbody>
                     {schedules.map(sch => (
-                        <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <tr key={sch.hour + ":" + sch.minute} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                             <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                 {sch.hour.toString().padStart(2, ('0'))} : {sch.minute.toString().padStart(2, ('0'))}
                             </th>

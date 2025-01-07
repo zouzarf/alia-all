@@ -165,7 +165,7 @@ export default function NewJob({ zones }: { zones: zones[] }) {
                     </thead>
                     <tbody>
                         {irrigations.map(irrigation => {
-                            return (<tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            return (<tr key={irrigation.time.toISOString()} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                     {irrigation.time.getHours().toString().padStart(2, "0")}:{irrigation.time.getMinutes().toString().padStart(2, "0")} +{-1 * irrigation.time.getTimezoneOffset() / 60}
                                 </th>
