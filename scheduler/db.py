@@ -7,6 +7,7 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from datetime import datetime
 from pydantic import BaseModel
 
@@ -22,18 +23,6 @@ class GeneralConfig(Base):
     value: Mapped[str] = mapped_column()
 
 
-class EventsLogs(Base):
-    __tablename__ = "events_logs"
-    __table_args__ = {"schema": "scheduler"}
-    id: Mapped[int] = mapped_column(primary_key=True)
-    job_id: Mapped[int] = mapped_column()
-    action_id: Mapped[int] = mapped_column()
-    job_full_date: Mapped[datetime] = mapped_column()
-    process_start: Mapped[datetime] = mapped_column()
-    process_end: Mapped[datetime] = mapped_column()
-    status: Mapped[str] = mapped_column()
-
-
 class Logs(Base):
     __tablename__ = "logs"
     __table_args__ = {"schema": "live"}
@@ -43,6 +32,26 @@ class Logs(Base):
     producer: Mapped[str] = mapped_column()
     log_message: Mapped[str] = mapped_column()
     module_name: Mapped[str] = mapped_column()
+
+
+class Irrigation(Base):
+    __tablename__ = "irrigation"
+    __table_args__ = {"schema": "scheduler"}
+    id: Mapped[int] = mapped_column(primary_key=True)
+    schedule_name: Mapped[str] = mapped_column()
+    zone_name: Mapped[str] = mapped_column()
+    date: Mapped[datetime] = mapped_column()
+    water_level: Mapped[int] = mapped_column()
+    dose_1: Mapped[int] = mapped_column()
+    dose_2: Mapped[int] = mapped_column()
+    dose_3: Mapped[int] = mapped_column()
+    dose_4: Mapped[int] = mapped_column()
+    mixing_time: Mapped[int] = mapped_column()
+    routing_time: Mapped[int] = mapped_column()
+    compressing_time: Mapped[int] = mapped_column()
+    process_start: Mapped[datetime] = Column(DateTime(timezone=True), nullable=True)
+    process_end: Mapped[datetime] = Column(DateTime(timezone=True), nullable=True)
+    status: Mapped[str] = mapped_column()
 
 
 engine = db.create_engine(
@@ -57,17 +66,19 @@ class ScheduleAction(BaseModel):
     def from_list(cls, tpl):
         return cls(**{k: v for k, v in zip(cls.model_fields.keys(), tpl)})
 
-    schedule_id: int
+    id: int
     schedule_name: str
     zone_name: str
-    action_id: int
+    date: datetime
     water_level: int
-    dose_number: int
-    dose_amount: int
+    dose_1: int
+    dose_2: int
+    dose_3: int
+    dose_4: int
     mixing_time: int
     routing_time: int
     compressing_time: int
-    scheduled_date: datetime
+    status: str
 
 
 class DBHandler(logging.Handler):

@@ -31,7 +31,6 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
                 }
                 else if (topic === "hub_response") {
                     setHubEvent(JSON.parse(payload.toString()).event);
-                    console.log(payload.toString())
                 }
                 else {
                     console.log("Weird message:" + topic + "" + payload);

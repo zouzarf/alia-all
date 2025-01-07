@@ -1,10 +1,11 @@
 from datetime import datetime
 import time
-from db import EventsLogs, ScheduleAction
+from db import Irrigation, ScheduleAction
 from event_processor import EventProcessor
 from sqlalchemy.sql import text
 from db import session
 from logger import logger as logging
+from zoneinfo import ZoneInfo
 
 SCAN_INTERVAL = 10
 
@@ -19,29 +20,26 @@ class Scheduler:
             text(
                 """
                     select
-                        a.id as schedule_id,
-                        a.name as schedule_name,
-                        a.zone_name as zone_name,
-                        b.id as action_id,
-                        b.water_level,
-                        b.dose_number,
-                        b.dose_amount,
-                        b.mixing_time,
-                        b.routing_time,
-                        b.compressing_time,
-                        (dd :: date + interval '1 hour' * b.hour) AS scheduled_date
+                        id,
+                        schedule_name,
+                        zone_name,
+                        date,
+                        water_level,
+                        dose_1,
+                        dose_2,
+                        dose_3,
+                        dose_4,
+                        mixing_time,
+                        routing_time,
+                        compressing_time,
+                        status
                     from
-                        scheduler.jobs a
-                        JOIN LATERAL generate_series(a.start_date, a.end_date, '1 day' :: interval) dd ON true
-                        JOIN scheduler.jobs_actions b ON a.id = b.job_id
-                        left join scheduler.events_logs c on a.id = c.job_id
-                        and c.action_id = b.id
-                        and c.job_full_date = (dd :: date + interval '1 hour' * b.hour)
+                        scheduler.irrigation a
                     where
-                        (dd :: date + interval '1 hour' * b.hour) <= now()
-                        and c.process_start is null
+                        date <= now()
+                        and a.status = 'TODO'
                     order by
-                        (dd :: date + interval '1 hour' * b.hour)
+                        date
                     limit 1
                 """
             )
@@ -56,21 +54,21 @@ class Scheduler:
                 tasks = self.get_tasks()
                 logging.info(f"Tasks to do {len(tasks)}")
                 for task in tasks:
-                    start_time = datetime.now()
+                    start_time = datetime.now(ZoneInfo("UTC"))
                     try:
                         self.event_processor.process_event(task)
-                        end_time = datetime.now()
+                        end_time = datetime.now(ZoneInfo("UTC"))
                         logging.info("Saving task log...")
                         # DO STUFF
-                        self.db_session.add(
-                            EventsLogs(
-                                job_id=task.schedule_id,
-                                action_id=task.action_id,
-                                job_full_date=task.scheduled_date,
-                                process_start=start_time,
-                                process_end=end_time,
-                                status="COMPLETE",
-                            )
+                        self.db_session.query(Irrigation).filter(
+                            Irrigation.id == task.id
+                        ).update(
+                            {
+                                Irrigation.process_start: start_time,
+                                Irrigation.process_end: end_time,
+                                Irrigation.status: "DONE",
+                            },
+                            synchronize_session=False,
                         )
                         self.db_session.commit()
                         logging.info("Saving done")

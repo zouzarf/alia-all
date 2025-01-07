@@ -36,6 +36,8 @@ export const insertScheduler = async (job: irrigationPlan, dailyActions: irrigat
             for (const zone of job.zones) {
                 const datetime = dailyAction.time
                 datetime.setFullYear(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())
+                datetime.setMilliseconds(0)
+                datetime.setSeconds(0)
                 if (new Date().getTime() <= datetime.getTime()) {
                     const action = {
                         schedule_name: job.name,
