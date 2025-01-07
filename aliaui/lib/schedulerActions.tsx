@@ -83,14 +83,22 @@ export const readScheduleStatistics = async (scheduleName: string) => {
         },
     });
 
-    const dateRange = await prisma.irrigation.aggregate({
+    const generalStats = await prisma.irrigation.aggregate({
         where: { schedule_name: scheduleName },
         _min: { date: true },
-        _max: { date: true },
+        _max: { date: true }
+    });
+    const generalStatsPast = await prisma.irrigation.aggregate({
+        where: { schedule_name: scheduleName, NOT: { status: "TODO" } },
+        _sum: { water_level: true }
     });
     const nextIrrigation = await prisma.irrigation.aggregate({
         where: { schedule_name: scheduleName, status: "TODO" },
         _min: { date: true },
+    });
+    const pastIrrigation = await prisma.irrigation.aggregate({
+        where: { schedule_name: scheduleName, NOT: { status: "TODO" } },
+        _max: { process_end: true },
     });
     const results = await prisma.$queryRaw<
         { hour: number; minute: number; water_level: number; dose_1: number; dose_2: number; dose_3: number; dose_4: number; mixing_time: number; routing_time: number; compressing_time: number }[]
@@ -119,9 +127,11 @@ export const readScheduleStatistics = async (scheduleName: string) => {
         zones: zones.map(x => x.zone_name),
         todoCount: todoCount,
         notTodoCount: notTodoCount,
-        minDate: dateRange._min.date,
-        maxDate: dateRange._max.date,
+        minDate: generalStats._min.date,
+        maxDate: generalStats._max.date,
         nextIrrigation: nextIrrigation._min.date,
+        pastIrrigation: pastIrrigation._max.process_end,
+        totalWaterConsumed: generalStatsPast._sum.water_level,
         schedule: results
     }
 }

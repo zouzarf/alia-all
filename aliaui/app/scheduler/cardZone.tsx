@@ -32,6 +32,7 @@ export default async function CardZone({ scheduledIrrigation }: { scheduledIrrig
     const scheduleStats = await readScheduleStatistics(scheduledIrrigation)
     const irrigations = await prisma.irrigation.findMany({ where: { schedule_name: scheduledIrrigation } })
     const nextIrrigationTime = DateTime.fromJSDate(scheduleStats.nextIrrigation!).diff(DateTime.now(), ['hours', 'minutes'])
+    const pastIrrigationTime = DateTime.now().diff(DateTime.fromJSDate(scheduleStats.pastIrrigation!), ['hours', 'minutes'])
     return (
         <>
 
@@ -53,24 +54,32 @@ export default async function CardZone({ scheduledIrrigation }: { scheduledIrrig
                 </CardHeader>
                 <CardBody className="px-3 py-0 text-small text-default-400">
                     <p>Next irrigation in {nextIrrigationTime.hours} hours, {nextIrrigationTime.minutes.toFixed(0)} minutes</p>
-                    <p>Last irrigation {nextIrrigationTime.hours} hours, {nextIrrigationTime.minutes.toFixed(0)} minutes ago</p>
+                    <p>Last irrigation {pastIrrigationTime.hours} hours, {pastIrrigationTime.minutes.toFixed(0)} minutes ago</p>
                     <span className="pt-2">
                         <p>From {DateTime.fromJSDate(scheduleStats.minDate!).toFormat('dd-LL-yyyy hh:mm ZZZZ')}</p>
                         <p>To {DateTime.fromJSDate(scheduleStats.maxDate!).toFormat('dd-LL-yyyy hh:mm ZZZZ')} </p>
                     </span>
                 </CardBody>
                 <CardFooter className="gap-3">
-                    <div className="flex gap-1">
-                        <p className="font-semibold text-default-400 text-small">{scheduleStats.todoCount}</p>
-                        <p className=" text-default-400 text-small">Irrigations to come</p>
+                    <div className="flex flex-col">
+                        <div className="flex gap-1">
+                            <p className="font-semibold text-default-400 text-small">{scheduleStats.todoCount}</p>
+                            <p className=" text-default-400 text-small">Irrigations to come</p>
+                        </div>
+                        <div className="flex gap-1">
+                            <p className="font-semibold text-default-400 text-small">{scheduleStats.notTodoCount}</p>
+                            <p className="text-default-400 text-small">Irrigations done</p>
+                        </div>
                     </div>
-                    <div className="flex gap-1">
-                        <p className="font-semibold text-default-400 text-small">{scheduleStats.notTodoCount}</p>
-                        <p className="text-default-400 text-small">Irrigations done</p>
-                    </div>
-                    <div className="flex gap-1">
-                        <p className="font-semibold text-default-400 text-small">{scheduleStats.notTodoCount}</p>
-                        <p className="text-default-400 text-small">litters consumed</p>
+                    <div className="flex flex-col">
+                        <div className="flex gap-1">
+                            <p className="font-semibold text-default-400 text-small">{scheduleStats.totalWaterConsumed}</p>
+                            <p className="text-default-400 text-small">litters consumed</p>
+                        </div>
+                        <div className="flex gap-1">
+                            <p className="font-semibold text-default-400 text-small">{scheduleStats.totalWaterConsumed}</p>
+                            <p className="text-default-400 text-small">Zones</p>
+                        </div>
                     </div>
                 </CardFooter>
             </Card>

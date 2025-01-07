@@ -25,7 +25,7 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
-class WaterSensor(metaclass=SingletonMeta):
+class WaterSensor:
     def __init__(self, port: int):
         water_port = port
 
