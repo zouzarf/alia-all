@@ -2,130 +2,162 @@
 
 
 import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
-import Link from 'next/link';
+import {
+    Navbar,
+    NavbarBrand,
+    NavbarContent,
+    NavbarItem,
+    Link,
+    Button,
+    DropdownItem,
+    DropdownTrigger,
+    Dropdown,
+    DropdownMenu,
+} from "@nextui-org/react";
+import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation'
+const pages = [['System Health', '/system_health'], ['Logs', '/logs']];
 
-const pages = [['Init', '/init'], ['Manual Functional Commands', '/manual_hub_commands'], ['Manual Hardware Commands', '/manual_components_commands'], ['Config', '/config'], ['Scheduler', '/scheduler'], ['System Health', '/system_health'], ['Logs', '/logs']];
+export const AcmeLogo = () => {
+    return (
+        <svg fill="none" height="36" viewBox="0 0 32 32" width="36">
+            <path
+                clipRule="evenodd"
+                d="M17.6482 10.1305L15.8785 7.02583L7.02979 22.5499H10.5278L17.6482 10.1305ZM19.8798 14.0457L18.11 17.1983L19.394 19.4511H16.8453L15.1056 22.5499H24.7272L19.8798 14.0457Z"
+                fill="currentColor"
+                fillRule="evenodd"
+            />
+        </svg>
+    );
+};
+export const ChevronDown = () => {
+    return (
+        <svg
+            fill="none"
+            height="16"
+            viewBox="0 0 24 24"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path
+                d="m19.92 8.95-6.52 6.52c-.77.77-2.03.77-2.8 0L4.08 8.95"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeMiterlimit={10}
+                strokeWidth={1.5}
+            />
+        </svg>
+    );
+};
 
 function NavigationBar() {
-    const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
 
-    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorElNav(event.currentTarget);
-    };
-
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
-    };
+    const pathname = usePathname();
+    const router = useRouter()
 
     return (
-        <AppBar position="static">
-            <Container maxWidth="xl">
-                <Toolbar disableGutters>
-                    <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="a"
-                        href="/"
-                        sx={{
-                            mr: 2,
-                            display: { xs: 'none', md: 'flex' },
-                            fontFamily: 'monospace',
-                            fontWeight: 700,
-                            letterSpacing: '.3rem',
-                            color: 'inherit',
-                            textDecoration: 'none',
+        <Navbar isBordered className='relative flex items-center w-full'>
+            <NavbarBrand className='absolute left-0 flex items-center'>
+                <AcmeLogo />
+                <p className="font-bold text-inherit">ALIA</p>
+            </NavbarBrand>
+            <NavbarContent className="absolute left-1/2 transform -translate-x-1/2 hidden sm:flex gap-4 flex flex-row align-center">
+                <NavbarItem isActive={pathname.includes('/config')}>
+                    <Link color="foreground" href="/config">
+                        <div className='text-sm'>Config</div>
+                    </Link>
+                </NavbarItem>
+                <NavbarItem isActive={pathname === '/scheduler'}>
+                    <Link color="foreground" href="/scheduler">
+                        <div className='text-sm'>Scheduler</div>
+                    </Link>
+                </NavbarItem>
+                <Dropdown >
+                    <NavbarItem isActive >
+                        <DropdownTrigger>
+                            <Button
+                                disableRipple
+                                className="p-0 h-auto bg-transparent leading-none data-[hover=true]:bg-transparent"
+                                radius="none"
+                                aria-label='Manual Commands'
+                                endContent={<ChevronDown />}
+                                variant="light"
+                            >
+                                <div className='text-sm'>Manual Commands</div>
+                            </Button>
+                        </DropdownTrigger>
+                    </NavbarItem>
+                    <DropdownMenu
+                        aria-label="ACME features"
+                        className="w-[340px]"
+                        itemClasses={{
+                            base: "gap-4",
                         }}
                     >
-                        Alia
-                    </Typography>
+                        <DropdownItem
+                            key="autoscaling"
+                            description=""
+                            onPress={() => router.push("/init")}
+                        >
+                            <div className='text-sm'>Initialize database</div>
+                        </DropdownItem>
+                        <DropdownItem
+                            key="usage_metrics"
+                            description=""
+                            onPress={() => router.push("/manual_components_commands")}
+                        >
+                            <div className='text-sm'>Hardware</div>
+                        </DropdownItem>
+                        <DropdownItem
+                            key="production_ready"
+                            description=""
+                            onPress={() => router.push("/manual_hub_commands")}
+                        >
+                            <div className='text-sm'>Hub</div>
+                        </DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+                <Dropdown>
+                    <NavbarItem>
+                        <DropdownTrigger>
+                            <Button
+                                disableRipple
+                                className="p-0 h-auto bg-transparent leading-none data-[hover=true]:bg-transparent"
+                                endContent={<ChevronDown />}
+                                radius="sm"
+                                variant="light"
 
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                        <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleOpenNavMenu}
-                            color="inherit"
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorElNav}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left',
-                            }}
-                            open={Boolean(anchorElNav)}
-                            onClose={handleCloseNavMenu}
-                            sx={{
-                                display: { xs: 'block', md: 'none' },
-                            }}
-                        >
-                            {pages.map((page) => (
-                                <Link key={page[0]} href={page[1]}>
-                                    <MenuItem key={page[0]} onClick={handleCloseNavMenu}>
-                                        <Typography textAlign="center">{page[0]}</Typography>
-                                    </MenuItem>
-                                </Link>
-                            ))}
-                        </Menu>
-                    </Box>
-                    <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-                    <Typography
-                        variant="h5"
-                        noWrap
-                        component="a"
-                        href="#app-bar-with-responsive-menu"
-                        sx={{
-                            mr: 2,
-                            display: { xs: 'flex', md: 'none' },
-                            flexGrow: 1,
-                            fontFamily: 'monospace',
-                            fontWeight: 700,
-                            letterSpacing: '.3rem',
-                            color: 'inherit',
-                            textDecoration: 'none',
+                            >
+                                Observability
+                            </Button>
+                        </DropdownTrigger>
+                    </NavbarItem>
+                    <DropdownMenu
+                        aria-label="ACME features"
+                        className="w-[340px]"
+                        itemClasses={{
+                            base: "gap-4",
                         }}
                     >
-                        LOGO
-                    </Typography>
-                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        {pages.map((page) => (
-                            <Link key={page[0]} href={page[1]}>
-                                <Button
-                                    key={page[0]}
-                                    onClick={handleCloseNavMenu}
-                                    sx={{ my: 2, color: 'white', display: 'block' }}
-                                >
-                                    {page[0]}
-                                </Button>
-                            </Link>
-                        ))}
-                    </Box>
-                </Toolbar>
-            </Container>
-        </AppBar>
+                        <DropdownItem
+                            key="autoscaling"
+                            description=""
+                            onPress={() => router.push("/logs")}
+                        >
+                            <div className='text-sm'>Logs</div>
+                        </DropdownItem>
+                        <DropdownItem
+                            key="usage_metrics"
+                            description=""
+                            onPress={() => router.push("/system_health")}
+                        >
+                            <div className='text-sm'>System health</div>
+                        </DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+            </NavbarContent>
+        </Navbar>
     );
 }
 export default NavigationBar;

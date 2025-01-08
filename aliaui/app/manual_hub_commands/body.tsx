@@ -21,10 +21,7 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
     const client = React.useRef<MqttClient | null>(null)
     useEffect(() => {
         if (!client.current) {
-            console.log("connecting")
-            console.log(`client: ${client.current}`);
             client.current = mqttConnecter({ 'ip': mqttIp });
-            console.log(`client: ${client.current}`);
             client.current?.on('message', function (topic: string, payload: Buffer) {
                 if (topic === "sensors") {
                     setwaterValue(parseFloat(JSON.parse(payload.toString()).water_voltage) * water_conversion + water_offset);
@@ -54,8 +51,6 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
             }
         };
     }, []);
-    const tab = [client.current!]
-    console.log(tab)
     return (
         <Paper>
 

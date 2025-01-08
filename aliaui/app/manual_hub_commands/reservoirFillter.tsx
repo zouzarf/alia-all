@@ -9,8 +9,6 @@ const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res)
 export default function ReservoirFiller({ hubEvent, current_value, mqttClient, maxLevel }: { hubEvent: string, current_value: number, mqttClient: MqttClient, maxLevel: number }) {
     const WATER_LEVEL_MAX_LITERS = maxLevel;
     const [waterValue, setWaterValue] = useState(10);
-    console.log("hub" + mqttClient)
-
     return (
         <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
             <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">

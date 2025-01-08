@@ -8,9 +8,6 @@ export default async function Home() {
     const routings = await prisma.routes.findMany()
     const mqttIp = process.env.RASP_SERVER || ""
     const generalConfig = await prisma.general_config.findMany()
-    console.log("izane")
-    console.log(process.env.RASP_SERVER)
-    console.log("ip" + mqttIp)
     return (
         <Body bs_config={bs_config} router={router} routings={routings} mqttIp={mqttIp} general_config={generalConfig} />
     );
