@@ -1,3 +1,4 @@
+import os
 from template_classes.knob import Knob
 from template_classes.water_level import WaterLevel
 from mqtt_config import client
@@ -30,13 +31,18 @@ class WaterSensor:
         water_port = port
 
         def onVoltageChange(self, voltage):
-            # wl = round((float(voltage) * 1000 - 4) / 16 * 100, 2)
             voltage = float(voltage)
             client.publish(
                 "sensors", json.dumps({"water_voltage": str(voltage)}), retain=True
             )
 
-        logging.info("Connecting to water sensor")
-        self.water_sensor = Knob(port=water_port, onVoltageChange=onVoltageChange)
-        # self.water_sensor = WaterLevel(port=water_port, onCurrentChange=onVoltageChange)
-        logging.info("Connected to water sensor")
+        logging.info("Connecting to water sensor...")
+        if os.environ.get("BASE_TEST", "false") == "true":
+            logging.info("Connected to Knob Water sensor")
+            self.water_sensor = Knob(port=water_port, onVoltageChange=onVoltageChange)
+        else:
+            logging.info("Connected to Water Level sensor")
+            self.water_sensor = WaterLevel(
+                port=water_port, onCurrentChange=onVoltageChange
+            )
+        logging.info("Connection to water sensor complete.")
