@@ -1,6 +1,6 @@
 import prisma from "@/lib/db";
 import React from "react";
-
+export const dynamic = 'force-dynamic'
 export default async function SystemHealth() {
     const generalConfig = await prisma.general_config.findMany()
     const zones = await prisma.zones.findMany()

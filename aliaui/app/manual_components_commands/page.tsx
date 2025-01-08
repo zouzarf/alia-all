@@ -1,7 +1,7 @@
 import prisma from "@/lib/db";
 import React from "react";
 import Body from "./body";
-
+export const dynamic = 'force-dynamic'
 export default async function Home() {
     const router = await prisma.routers.findMany()
     const bs_config = await prisma.base_station_ports.findMany()

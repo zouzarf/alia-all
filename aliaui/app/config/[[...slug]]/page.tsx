@@ -1,6 +1,6 @@
 import prisma from "@/lib/db";
 import ConfigEditor from "./ConfigEditor";
-
+export const dynamic = 'force-dynamic'
 export default async function ConfigPage({ params }: { params: { slug: string[] } }) {
 
     const baseStationPorts = await prisma.base_station_ports.findMany()
