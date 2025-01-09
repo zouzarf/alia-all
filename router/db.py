@@ -3,7 +3,7 @@ import logging
 import os
 from get_serial_number import get_serial_number
 import sqlalchemy as db
-from sqlalchemy import String
+from sqlalchemy import Column, DateTime, String
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -56,11 +56,23 @@ class RoutersConfig(Base):
     linked_to_base_station: Mapped[bool] = mapped_column()
 
 
+class HardwareHealth(Base):
+    __tablename__ = "hardware"
+    __table_args__ = {"schema": "health"}
+    name: Mapped[str] = mapped_column(String(255), primary_key=True)
+    heartbeat: Mapped[datetime] = Column(DateTime(timezone=True))
+
+
 engine = db.create_engine(
     f"postgresql://postgres:mysecretpassword@{MQTT_SERVER_IP}:5432/postgres"
 )
 Session = sessionmaker(bind=engine)
 session = Session()
+engine2 = db.create_engine(
+    f"postgresql://postgres:mysecretpassword@{rasp_server}:5432/postgres"
+)
+Session2 = sessionmaker(bind=engine2)
+session2 = Session2()
 
 
 class DBHandler(logging.Handler):

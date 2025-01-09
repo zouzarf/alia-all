@@ -1,13 +1,34 @@
+from datetime import datetime
 import os
+import threading
+import time
 import traceback
 from command_handler import CommandHandler, RoutingCommand
 from get_serial_number import get_serial_number
 from mqtt_config import client
+from db import session, RoutersConfig, HardwareHealth, session2
 import json
 from logger import logger as logging
 
 rasp_server = os.environ["rasp_server"]
 MQTT_SERVER_IP = rasp_server
+serial_number = get_serial_number()
+router_name = (
+    session.query(RoutersConfig)
+    .where(RoutersConfig.serial_number == str(serial_number))
+    .one()
+).name
+HEARTBEAT_INTERVAL = 10
+running = True
+
+
+def heartbeat():
+    global running
+    while running:
+        now = HardwareHealth(name=router_name, heartbeat=datetime.now())
+        session2.merge(now)
+        session2.commit()
+        time.sleep(HEARTBEAT_INTERVAL)
 
 
 def main():
@@ -33,6 +54,8 @@ def main():
 
         client.connect(MQTT_SERVER_IP, 1883, 60)
         logging.info("Listening ....")
+        heartbeat_thread = threading.Thread(target=heartbeat)
+        heartbeat_thread.start()
         client.loop_forever()
     except Exception as e:
         logging.error("Error while initializing")

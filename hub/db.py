@@ -1,6 +1,6 @@
 import logging
 import sqlalchemy as db
-from sqlalchemy import String
+from sqlalchemy import Column, DateTime, String
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -60,11 +60,23 @@ class Logs(Base):
     module_name: Mapped[str] = mapped_column()
 
 
+class ServiceHealth(Base):
+    __tablename__ = "services"
+    __table_args__ = {"schema": "health"}
+    name: Mapped[str] = mapped_column(String(255), primary_key=True)
+    heartbeat: Mapped[datetime] = Column(DateTime(timezone=True))
+
+
 engine = db.create_engine(
     "postgresql://postgres:mysecretpassword@localhost:5432/postgres"
 )
 Session = sessionmaker(bind=engine)
 session = Session()
+engine2 = db.create_engine(
+    f"postgresql://postgres:mysecretpassword@localhost:5432/postgres"
+)
+Session2 = sessionmaker(bind=engine2)
+session2 = Session2()
 
 
 class DBHandler(logging.Handler):
