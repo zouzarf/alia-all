@@ -257,10 +257,10 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
                     {
                       "name": name,
                       "serial_number": serialNumber,
-                      "pump_hub_port": mpPort,
-                      "pump_microprocessor_port": hubPort,
+                      "pump_hub_port": hubPort,
+                      "pump_microprocessor_port": mpPort,
                       "linked_to_base_station": linkedToRouter == "base_station"
-                    }, linkedToRouter, pvRouterMpPort, pvRouterMpPort);
+                    }, linkedToRouter, pvRouterMpPort, pvRouterHubPort);
                   client?.publish(
                     "hub",
                     JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })

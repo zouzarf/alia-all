@@ -24,6 +24,7 @@ class Routing:
 
     def get_path_to_zone(self, zone_name: str) -> list[tuple[str, str]]:
         vertices = self.get_nodes_and_neighbours()
+        print(vertices)
         visited = []
         queue = [("base_station", [])]
         while queue != []:

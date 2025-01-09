@@ -4,6 +4,7 @@ import CardZone from "./cardZone";
 import { Button } from "@nextui-org/react";
 import Link from "next/link";
 import Image from 'next/image'
+export const dynamic = 'force-dynamic'
 
 export default async function ScheduleA() {
     const AddCircleIcon = (props: React.SVGProps<SVGSVGElement>) => (

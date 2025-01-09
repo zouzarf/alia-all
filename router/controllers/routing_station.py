@@ -12,11 +12,13 @@ class RoutingStation:
         self.name = router_config.name
         logging.info(f"Router name: {self.name}")
         self.zones = {}
+        logging.info(routes_config)
         for node in routes_config:
-            logging.info(f"Loading zone {node.dst}")
-            self.zones[node.dst] = RelayChannel(
-                (node.valve_microprocessor_port, node.valve_hub_port)
-            )
+            if node.src == self.name:
+                logging.info(f"Loading node {node.dst}")
+                self.zones[node.dst] = RelayChannel(
+                    (node.valve_microprocessor_port, node.valve_hub_port)
+                )
         self.pump = RelayChannel(
             (router_config.pump_microprocessor_port, router_config.pump_hub_port)
         )
