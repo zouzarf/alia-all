@@ -35,9 +35,13 @@ class Scheduler:
                         status
                     from
                         scheduler.irrigation a
+                    join
+                        config.general_config b
+                        ON b.name = 'SCHEDULER'
                     where
                         date <= now()
                         and a.status = 'TODO'
+                        and b.value = 'true'
                     order by
                         date
                     limit 1

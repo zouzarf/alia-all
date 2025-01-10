@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { general_config } from '@prisma/client'
-import { Input } from "@nextui-org/react";
+import { Input, Switch } from "@nextui-org/react";
 import { generalConfig } from "@/lib/configActions";
 
 export default function GeneralConfig({ config }: { config: general_config[] }) {
@@ -24,8 +24,12 @@ export default function GeneralConfig({ config }: { config: general_config[] }) 
 export function GeneralConfigLine({ config }: { config: general_config }) {
   const name = config.name
   const [value, setValue] = useState(config.value)
-  const end: Record<string, any> = { "RESERVOIR_OFFSET_LITTERS": "Liters", "ROUTING_TIME": "Seconds", "RESERVOIR_MAX_VALUE": "Liters", "RESERVOIR_CONVERSION_TO_LITTER": "Volts/Liter" }
-
+  const end: Record<string, any> = { "RESERVOIR_OFFSET_LITTERS": "Liters", "DOSING_TIME": "Seconds", "RESERVOIR_MAX_VALUE": "Liters", "RESERVOIR_CONVERSION_TO_LITTER": "Volts/Liter" }
+  if (name == "SCHEDULER") {
+    return (
+      <div className="flex flex-col"><p>Scheduler enabled</p><Switch isSelected={value == "true"} aria-label="Automatic updates" onClick={() => { setValue(value => { const newValue = value == "true" ? "false" : "true"; generalConfig({ name: name, value: newValue }); return (newValue) }); }} /></div>
+    )
+  }
   return (
 
     <Input

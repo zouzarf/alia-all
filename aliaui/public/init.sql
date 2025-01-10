@@ -27,6 +27,7 @@ VALUES
     ('WATER_OFFSET_L', '1'),
     ('WATER_VOLT_TO_L_CONVERSION', '0.1'),
     ('WATER_MAX_LEVEL', '10'),
+    ('SCHEDULER', 'false'),
     ('DOSING_TIME', '10');
 
 create table config.base_station_ports (
