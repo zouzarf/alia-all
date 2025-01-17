@@ -56,7 +56,7 @@ export default function WaterTank({ waterValue, min, max, isMixing }: { waterVal
       </div>
       <div className="relative" style={styles.container}>
         <div className="absolute" style={styles.water}></div>
-        <div className="absolute" style={styles.label}>{waterValue.toFixed(2)}</div>
+        <div className="absolute" style={styles.label}>{(Math.ceil(waterValue * 100) / 100).toFixed(2)}</div>
       </div>
       <style jsx>{`
             @keyframes mixing {

@@ -17,4 +17,5 @@ sudo apt-get -y install  docker-ce docker-ce-cli containerd.io docker-buildx-plu
 
 sudo curl -o docker-compose.yaml https://raw.githubusercontent.com/zouzarf/alia-all/refs/heads/main/docker-compose.yaml
 
-sudo docker compose up rasp -d
+echo "RASP_IP=192.168.1.167" > .env
+sudo docker compose --profile rasp up -d

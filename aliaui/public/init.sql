@@ -25,7 +25,8 @@ INSERT INTO
     config.general_config
 VALUES
     ('WATER_OFFSET_L', '1'),
-    ('WATER_VOLT_TO_L_CONVERSION', '0.1'),
+    ('WATER_AMP_COEFF', '625'),
+    ('WATER_AMP_OFFSET', '0.00419'),
     ('WATER_MAX_LEVEL', '10'),
     ('SCHEDULER', 'false'),
     ('DOSING_TIME', '10');

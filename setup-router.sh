@@ -17,4 +17,5 @@ apt-get -y install  docker-ce docker-ce-cli containerd.io docker-buildx-plugin d
 
 curl -o docker-compose.yaml https://raw.githubusercontent.com/zouzarf/alia-all/refs/heads/main/docker-compose.yaml
 
+echo "RASP_IP=192.168.1.167" > .env
 docker compose up router -d

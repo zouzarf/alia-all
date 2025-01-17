@@ -64,6 +64,12 @@ class HubCommandManager:
         )
         self.routing = Routing(routing_config, main_router, routers_config)
 
+    def convert_water_sensor_to_litter(self, water_voltage: float):
+
+        return float(self.general_config["WATER_OFFSET_L"]) + float(
+            self.general_config["WATER_AMP_COEFF"]
+        ) * (water_voltage - float(self.general_config["WATER_AMP_OFFSET"]))
+
     def mqtt_message_handler(self, message: MQTTMessage):
         match message.topic:
             case str(x) if x == WATER_SENSOR_CHANNEL:
@@ -112,9 +118,7 @@ class HubCommandManager:
                         f"Waiting for water level to reach the target {water_level_target}L"
                     )
                     while (
-                        float(self.general_config["WATER_OFFSET_L"])
-                        + float(self.general_config["WATER_VOLT_TO_L_CONVERSION"])
-                        * water_voltage
+                        self.convert_water_sensor_to_litter(water_voltage)
                     ) < water_level_target and not stop.is_set():
                         pass
                     print(stop.is_set())

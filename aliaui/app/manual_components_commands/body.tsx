@@ -11,45 +11,26 @@ const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res)
 
 export default function Body({ bs_config, router, routings, general_config, mqttIp }: { bs_config: base_station_ports[], router: routers[], routings: routes[], general_config: general_config[], mqttIp: string }) {
     const [activeTab, setActiveTab] = React.useState("base_station");
-    const water_conversion = parseFloat(general_config.filter(x => x.name == "WATER_VOLT_TO_L_CONVERSION")[0].value!)
-    const water_offset = parseFloat(general_config.filter(x => x.name == "WATER_OFFSET_L")[0].value!)
-    const waterMaxLevel = parseFloat(general_config.filter(x => x.name == "WATER_MAX_LEVEL")[0].value!)
-    const [waterValue, setwaterValue] = React.useState(0);
-    const [hubEvent, setHubEvent] = React.useState<string | null>(null);
-    const client = React.useRef<MqttClient | null>(null)
+    const [client, setClient] = React.useState<MqttClient | null>(null)
     useEffect(() => {
-        if (!client.current) {
+        if (!client) {
             console.log("connecting")
-            console.log(`client: ${client.current}`);
-            client.current = mqttConnecter({ 'ip': mqttIp });
-            console.log(`client: ${client.current}`);
-            client.current?.on('message', function (topic: string, payload: Buffer) {
-                if (topic === "sensors") {
-                    setwaterValue(parseFloat(JSON.parse(payload.toString()).water_voltage) * water_conversion + water_offset);
-                }
-                else if (topic === "hub_response") {
-                    setHubEvent(JSON.parse(payload.toString()).event);
-                    console.log(payload.toString())
-                }
-                else {
-                    console.log("Weird message:" + topic + "" + payload);
-                }
-            })
-            client.current?.on('disconnect', function () {
+            console.log(`client: ${client}`);
+            const clientNv = mqttConnecter({ 'ip': mqttIp })
+            setClient(clientNv);
+            clientNv!.on('disconnect', function () {
                 console.log('DISCONNECTION');
             });
-            client.current?.on('offline', function () {
+            clientNv!.on('offline', function () {
                 console.log('OFFLINE');
             });
-            client.current?.on('close', () => console.log('disconnected', new Date()));
-            client.current?.on('error', (err: any) => console.error('error', err));
+            clientNv!.on('close', () => console.log('disconnected', new Date()));
+            clientNv!.on('error', (err: any) => console.error('error', err));
         }
-        console.log("connecting")
         return () => {
-            // always clean up the effect if clientRef.current has a value
-            if (client.current) {
-                client.current.unsubscribe('test');
-                client.current.end();
+            // always clean up the effect if clientRef has a value
+            if (client) {
+                client!.end();
             }
         };
     }, []);
@@ -58,12 +39,12 @@ export default function Body({ bs_config, router, routings, general_config, mqtt
         {
             id: "base_station",
             label: "Base Station",
-            "content": (<><BaseStationCommands mqttClient={client.current!} bs_config={bs_config} /></>)
+            "content": (<><BaseStationCommands mqttClient={client!} bs_config={bs_config} /></>)
         }].concat(router.map(r => {
             return {
                 "id": r.name,
                 "label": r.name,
-                "content": (<> < RouterCommands mqttClient={client.current!} router={r} routings={routings} /></>)
+                "content": (<> < RouterCommands mqttClient={client!} router={r} routings={routings} /></>)
             }
         }))
     return (

@@ -5,14 +5,13 @@ import { useState } from "react";
 
 export default function BaseStationCommands({ mqttClient, bs_config }: { mqttClient: MqttClient, bs_config: base_station_ports[] }) {
     if (mqttClient != null) {
-        console.log("test")
         mqttClient.on('message', function (topic: string, payload: Buffer) {
-            console.log("message")
             if (topic === "sensors") {
                 setWaterSensor(parseFloat(JSON.parse(payload.toString()).water_voltage));
             }
         })
     }
+
     const [waterSensor, setWaterSensor] = useState(0.0)
     return (
 
@@ -36,7 +35,7 @@ export default function BaseStationCommands({ mqttClient, bs_config }: { mqttCli
                             WATER SENSOR
                         </th>
                         <td className="px-6 py-4">
-                            {waterSensor} V
+                            {waterSensor} A
                         </td>
                     </tr>
                     {bs_config.filter(b => b.name != "WATERSENSOR").sort((a, b) => (a.name <= b.name ? -1 : 1)).map(c => (

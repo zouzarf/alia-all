@@ -6,8 +6,8 @@ import { Button, Input } from "@nextui-org/react";
 import { MqttClient } from "mqtt/*";
 import { sendHubCommand } from "./command";
 export default function Dosing({ hubEvent, mqttClient }: { hubEvent: string, mqttClient: MqttClient }) {
-    const [doseValue, setDoseValue] = useState(0);
-    const [doserValue, setDoserValue] = useState("");
+    const [doseValue, setDoseValue] = useState(1);
+    const [doserValue, setDoserValue] = useState("1");
 
     return (
         <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
@@ -57,8 +57,8 @@ export default function Dosing({ hubEvent, mqttClient }: { hubEvent: string, mqt
             <td className="px-6 py-4">
                 <Button
                     className="w-full"
-                    color={hubEvent == "processing" ? "default" : "primary"}
-                    disabled={hubEvent == "processing"}
+                    color={(hubEvent == "processing" || doserValue == "" || doseValue <= 0) ? "default" : "primary"}
+                    disabled={(hubEvent == "processing" || doserValue == "" || doseValue <= 0)}
                     onClick={() => {
                         if (doseValue > 0) {
                             sendHubCommand(mqttClient, "hub", { command: "DOSE", arg1: doserValue, arg2: doseValue.toString(), arg3: "" })

@@ -14,7 +14,7 @@ export default function Routing({ zones, hubEvent, mqttClient }: { zones: zones[
             {e.name}
         </MenuItem>
     ));
-    const [zoneValue, setzoneValue] = useState("");
+    const [zoneValue, setzoneValue] = useState(zones.length > 0 ? zones[0].name : "");
     const [routingTime, setRoutingTime] = useState(1);
     const [compressingTime, setComressingTime] = useState(1);
 
@@ -66,8 +66,8 @@ export default function Routing({ zones, hubEvent, mqttClient }: { zones: zones[
             <td className="px-6 py-4">
                 <Button
                     className="w-full"
-                    color={hubEvent == "processing" ? "default" : "primary"}
-                    disabled={hubEvent == "processing"}
+                    color={(hubEvent == "processing" || zoneValue == "" || compressingTime <= 0 || routingTime <= 0) ? "default" : "primary"}
+                    disabled={hubEvent == "processing" || zoneValue == "" || compressingTime <= 0 || routingTime <= 0}
                     onClick={() => {
                         sendHubCommand(mqttClient, "hub", { command: "ROUTE", arg1: zoneValue, arg2: routingTime.toString(), arg3: compressingTime.toString() })
                         setzoneValue("");

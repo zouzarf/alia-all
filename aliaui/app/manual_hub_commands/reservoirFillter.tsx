@@ -31,8 +31,8 @@ export default function ReservoirFiller({ hubEvent, current_value, mqttClient, m
             <td className="px-6 py-4">
                 <Button
                     className="w-full"
-                    color={hubEvent == "processing" ? "default" : "primary"}
-                    disabled={hubEvent == "processing"}
+                    color={(hubEvent == "processing" || waterValue <= current_value) ? "default" : "primary"}
+                    disabled={(hubEvent == "processing" || waterValue <= current_value)}
                     onClick={() => {
                         console.log(waterValue, current_value)
                         if (

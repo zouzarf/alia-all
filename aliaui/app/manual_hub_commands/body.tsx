@@ -13,7 +13,8 @@ import { base_station_ports, general_config, zones } from "@prisma/client";
 import { MqttClient } from "mqtt/*";
 
 export default function Body({ zones, general_config, mqttIp }: { zones: zones[], general_config: general_config[], mqttIp: string }) {
-    const water_conversion = parseFloat(general_config.filter(x => x.name == "WATER_VOLT_TO_L_CONVERSION")[0].value!)
+    const water_amp_coeff = parseFloat(general_config.filter(x => x.name == "WATER_AMP_COEFF")[0].value!)
+    const water_amp_offset = parseFloat(general_config.filter(x => x.name == "WATER_AMP_OFFSET")[0].value!)
     const water_offset = parseFloat(general_config.filter(x => x.name == "WATER_OFFSET_L")[0].value!)
     const waterMaxLevel = parseFloat(general_config.filter(x => x.name == "WATER_MAX_LEVEL")[0].value!)
     const [waterValue, setwaterValue] = React.useState(0);
@@ -24,7 +25,7 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
             client.current = mqttConnecter({ 'ip': mqttIp });
             client.current?.on('message', function (topic: string, payload: Buffer) {
                 if (topic === "sensors") {
-                    setwaterValue(parseFloat(JSON.parse(payload.toString()).water_voltage) * water_conversion + water_offset);
+                    setwaterValue((parseFloat(JSON.parse(payload.toString()).water_voltage) - water_amp_offset) * water_amp_coeff + water_offset);
                 }
                 else if (topic === "hub_response") {
                     setHubEvent(JSON.parse(payload.toString()).event);
