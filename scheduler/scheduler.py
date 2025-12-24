@@ -24,14 +24,11 @@ class Scheduler:
                         schedule_name,
                         zone_name,
                         date,
-                        water_level,
-                        dose_1,
-                        dose_2,
-                        dose_3,
-                        dose_4,
-                        mixing_time,
+                        water_pump,
                         routing_time,
                         compressing_time,
+                        warmup_pump,
+                        warmup_compressor,
                         status
                     from
                         scheduler.irrigation a

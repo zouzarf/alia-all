@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = ["Zakaria Ouzarf <zakaria.ouzarf@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.127.0"
+uvicorn = "^0.40.0"
+sqlalchemy = "^2.0.45"
+psycopg2 = "^2.9.11"
+phidget22 = "^1.23.20251006"
+httpx = "^0.28.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

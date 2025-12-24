@@ -14,14 +14,11 @@ interface scheduleStats {
     schedule: {
         hour: number;
         minute: number,
-        water_level: number,
-        dose_1: number,
-        dose_2: number,
-        dose_3: number,
-        dose_4: number,
-        mixing_time: number,
-        routing_time: number,
-        compressing_time: number;
+        water_pump: number,
+        routing_time: number
+        warmup_pump: number
+        warmup_compressor: number
+        compressing_time: number
     }[];
 }
 export default function JobInfo({ irrigations, scheduleStats }: { irrigations: irrigation[], scheduleStats: scheduleStats }) {

@@ -1,18 +1,16 @@
 "use server"
-import 'server-only'
-
 import prisma from "@/lib/db";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 
-export const createZone = async (zoneName: string, router: string, port1: number, port2: number) => {
+export const createZone = async (zoneName: string, router: string, hub_serial_number: number, hub_port: number, relay_channel: number) => {
     const response = await prisma.$transaction([prisma.nodes.create({ "data": { node_name: zoneName } })
         , prisma.zones.create(
             { "data": { name: zoneName } }
         )
         , prisma.routes.create(
-            { "data": { src: router, dst: zoneName, valve_microprocessor_port: port1, valve_hub_port: port2 } }
+            { "data": { src: router, dst: zoneName, hub_port: hub_port, relay_channel: relay_channel, hub_serial_number: hub_serial_number } }
         )
     ])
     revalidatePath('/')
@@ -20,9 +18,10 @@ export const createZone = async (zoneName: string, router: string, port1: number
     return response
 }
 export const deleteZone = async (zoneName: string) => {
-    const r = await prisma.$transaction([prisma.zones.delete(
-        { "where": { name: zoneName } }
-    )
+    const r = await prisma.$transaction([
+        prisma.zones.delete(
+            { "where": { name: zoneName } }
+        )
         , prisma.routes.deleteMany(
             { "where": { dst: zoneName } }
         )

@@ -3,9 +3,7 @@ import React, { useState } from "react";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { Button, Input } from "@nextui-org/react";
-import { MqttClient } from "mqtt/*";
-import { sendHubCommand } from "./command";
-export default function Dosing({ hubEvent, mqttClient }: { hubEvent: string, mqttClient: MqttClient }) {
+export default function Dosing({ hubEvent }: { hubEvent: string }) {
     const [doseValue, setDoseValue] = useState(1);
     const [doserValue, setDoserValue] = useState("1");
 
@@ -59,12 +57,6 @@ export default function Dosing({ hubEvent, mqttClient }: { hubEvent: string, mqt
                     className="w-full"
                     color={(hubEvent == "processing" || doserValue == "" || doseValue <= 0) ? "default" : "primary"}
                     disabled={(hubEvent == "processing" || doserValue == "" || doseValue <= 0)}
-                    onClick={() => {
-                        if (doseValue > 0) {
-                            sendHubCommand(mqttClient, "hub", { command: "DOSE", arg1: doserValue, arg2: doseValue.toString(), arg3: "" })
-                            setDoseValue(0);
-                        }
-                    }}
                 >
                     START
                 </Button>
@@ -74,7 +66,6 @@ export default function Dosing({ hubEvent, mqttClient }: { hubEvent: string, mqt
                     className="w-full"
                     color={hubEvent != "processing" ? "default" : "primary"}
                     disabled={hubEvent != "processing"}
-                    onClick={() => sendHubCommand(mqttClient, "hub", { command: "STOP", arg1: "", arg2: "", arg3: "" })}
                 >
                     STOP
                 </Button>

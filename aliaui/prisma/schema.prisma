@@ -5,14 +5,15 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://postgres:mysecretpassword@127.0.0.1:5432/postgres"
   schemas  = ["config", "health", "live", "scheduler"]
 }
 
 model base_station_ports {
-  name                String @unique @db.VarChar(255)
-  microprocessor_port Int?
-  hub_port            Int?
+  name              String @unique @db.VarChar(255)
+  hub_port          Int?
+  relay_channel     Int?
+  hub_serial_number Int?
 
   @@schema("config")
 }
@@ -33,22 +34,23 @@ model nodes {
 }
 
 model routers {
-  name                     String   @unique @db.VarChar(255)
-  serial_number            String?  @unique @db.VarChar(255)
-  pump_microprocessor_port Int?
-  pump_hub_port            Int?
-  linked_to_base_station   Boolean?
-  nodes                    nodes    @relation(fields: [name], references: [node_name], onDelete: NoAction, onUpdate: NoAction)
+  name                   String   @unique @db.VarChar(255)
+  hub_serial_number      Int?     @unique
+  hub_port               Int?
+  relay_channel          Int?
+  linked_to_base_station Boolean?
+  nodes                  nodes    @relation(fields: [name], references: [node_name], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("config")
 }
 
 model routes {
-  id                        Int     @unique @default(autoincrement())
-  src                       String? @db.VarChar(255)
-  dst                       String? @db.VarChar(255)
-  valve_microprocessor_port Int?
-  valve_hub_port            Int?
+  id                Int     @unique @default(autoincrement())
+  src               String? @db.VarChar(255)
+  dst               String? @db.VarChar(255)
+  hub_port          Int?
+  relay_channel     Int?
+  hub_serial_number Int?
 
   @@unique([src, dst])
   @@schema("config")
@@ -59,20 +61,6 @@ model zones {
   nodes nodes  @relation(fields: [name], references: [node_name], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("config")
-}
-
-model hardware {
-  name      String    @unique @db.VarChar(255)
-  heartbeat DateTime? @db.Timestamptz(6)
-
-  @@schema("health")
-}
-
-model services {
-  name      String    @unique @db.VarChar(255)
-  heartbeat DateTime? @db.Timestamptz(6)
-
-  @@schema("health")
 }
 
 model logs {
@@ -98,22 +86,40 @@ model events_logs {
   @@schema("scheduler")
 }
 
+model hardware {
+  name      String    @unique @db.VarChar(255)
+  heartbeat DateTime? @db.Timestamptz(6)
+
+  @@schema("health")
+}
+
+model services {
+  name      String    @unique @db.VarChar(255)
+  heartbeat DateTime? @db.Timestamptz(6)
+
+  @@schema("health")
+}
+
 model irrigation {
-  id               Int       @unique @default(autoincrement())
-  schedule_name    String    @db.VarChar(255)
-  zone_name        String    @db.VarChar(255)
-  date             DateTime  @db.Timestamptz(6)
-  water_level      Int?
-  dose_1           Int?
-  dose_2           Int?
-  dose_3           Int?
-  dose_4           Int?
-  mixing_time      Int?
-  routing_time     Int?
-  compressing_time Int?
-  process_start    DateTime? @db.Timestamptz(6)
-  process_end      DateTime? @db.Timestamptz(6)
-  status           String?   @db.VarChar(255)
+  id                Int       @unique @default(autoincrement())
+  schedule_name     String    @db.VarChar(255)
+  zone_name         String    @db.VarChar(255)
+  date              DateTime  @db.Timestamptz(6)
+  water_pump        Int?
+  routing_time      Float?
+  compressing_time  Float?
+  warmup_pump       Float?
+  warmup_compressor Float?
+  process_start     DateTime? @db.Timestamptz(6)
+  process_end       DateTime? @db.Timestamptz(6)
+  status            String?   @db.VarChar(255)
 
   @@schema("scheduler")
+}
+
+model wireless_hubs {
+  id Int    @unique @default(autoincrement())
+  ip String @unique @db.VarChar(255)
+
+  @@schema("config")
 }

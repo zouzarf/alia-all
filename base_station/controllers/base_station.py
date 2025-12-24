@@ -13,48 +13,54 @@ def get_sensor_ports(config: list[BaseStationConfig], conf: str) -> tuple[int, i
 
 class BaseStation:
     def __init__(self, base_station_config: list[BaseStationConfig]):
-        self.water_sensor = WaterSensor(
-            get_sensor_ports(base_station_config, "WATERSENSOR")[0]
-        )
         self.actionners = {
-            "WATERPUMP": RelayChannel(
+            "WATERPUMP1": RelayChannel(
                 ports=(
-                    get_sensor_ports(base_station_config, "WATERPUMP")[0],
-                    get_sensor_ports(base_station_config, "WATERPUMP")[1],
+                    get_sensor_ports(base_station_config, "WATERPUMP1")[0],
+                    get_sensor_ports(base_station_config, "WATERPUMP1")[1],
                 )
             ),
-            "DOSINGPUMP1": RelayChannel(
+            "WATERPUMP2": RelayChannel(
                 ports=(
-                    get_sensor_ports(base_station_config, "DOSINGPUMP1")[0],
-                    get_sensor_ports(base_station_config, "DOSINGPUMP1")[1],
+                    get_sensor_ports(base_station_config, "WATERPUMP2")[0],
+                    get_sensor_ports(base_station_config, "WATERPUMP2")[1],
                 )
             ),
-            "DOSINGPUMP2": RelayChannel(
+            "WATERPUMP3": RelayChannel(
                 ports=(
-                    get_sensor_ports(base_station_config, "DOSINGPUMP2")[0],
-                    get_sensor_ports(base_station_config, "DOSINGPUMP2")[1],
+                    get_sensor_ports(base_station_config, "WATERPUMP3")[0],
+                    get_sensor_ports(base_station_config, "WATERPUMP3")[1],
                 )
             ),
-            "DOSINGPUMP3": RelayChannel(
+            "WATERPUMP4": RelayChannel(
                 ports=(
-                    get_sensor_ports(base_station_config, "DOSINGPUMP3")[0],
-                    get_sensor_ports(base_station_config, "DOSINGPUMP3")[1],
+                    get_sensor_ports(base_station_config, "WATERPUMP4")[0],
+                    get_sensor_ports(base_station_config, "WATERPUMP4")[1],
                 )
             ),
-            "DOSINGPUMP4": RelayChannel(
+            "VALVE1": RelayChannel(
                 ports=(
-                    get_sensor_ports(base_station_config, "DOSINGPUMP4")[0],
-                    get_sensor_ports(base_station_config, "DOSINGPUMP4")[1],
+                    get_sensor_ports(base_station_config, "VALVE1")[0],
+                    get_sensor_ports(base_station_config, "VALVE1")[1],
                 )
             ),
-            "MIXINGPUMP": RelayChannel(
+            "VALVE2": RelayChannel(
                 ports=(
-                    get_sensor_ports(base_station_config, "MIXINGPUMP")[0],
-                    get_sensor_ports(base_station_config, "MIXINGPUMP")[1],
+                    get_sensor_ports(base_station_config, "VALVE2")[0],
+                    get_sensor_ports(base_station_config, "VALVE2")[1],
                 )
             ),
-            "ROUTINGPUMP": RelayChannel(
-                get_sensor_ports(base_station_config, "ROUTINGPUMP")
+            "VALVE3": RelayChannel(
+                ports=(
+                    get_sensor_ports(base_station_config, "VALVE3")[0],
+                    get_sensor_ports(base_station_config, "VALVE3")[1],
+                )
+            ),
+            "VALVE4": RelayChannel(
+                ports=(
+                    get_sensor_ports(base_station_config, "VALVE4")[0],
+                    get_sensor_ports(base_station_config, "VALVE4")[1],
+                )
             ),
             "COMPRESSOR": RelayChannel(
                 get_sensor_ports(base_station_config, "COMPRESSOR")

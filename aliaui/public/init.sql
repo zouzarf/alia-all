@@ -24,31 +24,27 @@ create table config.general_config (
 INSERT INTO
     config.general_config
 VALUES
-    ('WATER_OFFSET_L', '1'),
-    ('WATER_AMP_COEFF', '625'),
-    ('WATER_AMP_OFFSET', '0.00419'),
-    ('WATER_MAX_LEVEL', '10'),
-    ('SCHEDULER', 'false'),
-    ('DOSING_TIME', '10');
+    ('SCHEDULER', 'false');
 
 create table config.base_station_ports (
     name varchar(255) not null UNIQUE,
-    microprocessor_port int,
-    hub_port int
+    hub_port int,
+    relay_channel int,
+    hub_serial_number int
 );
 
 INSERT INTO
     config.base_station_ports
 VALUES
-    ('WATERSENSOR', 4, null),
-    ('WATERPUMP', 0, 1),
-    ('DOSINGPUMP1', 0, 2),
-    ('DOSINGPUMP2', 0, 3),
-    ('DOSINGPUMP3', 0, 0),
-    ('DOSINGPUMP4', 1, 0),
-    ('MIXINGPUMP', 1, 1),
-    ('COMPRESSOR', 1, 2),
-    ('ROUTINGPUMP', 1, 3);
+    ('PUMP_1', 0, 0, 622610),
+    ('PUMP_2', 0, 1, 622610),
+    ('PUMP_3', 0, 2, 622610),
+    ('PUMP_4', 0, 3, 622610),
+    ('VALVE_1', 1, 0, 622610),
+    ('VALVE_2', 1, 1, 622610),
+    ('VALVE_3', 1, 2, 622610),
+    ('VALVE_4', 1, 3, 622610),
+    ('COMPRESSOR', 2, 0, 622610);
 
 create table config.zones (
     name varchar(255) not null unique REFERENCES config.nodes(node_name)
@@ -56,9 +52,9 @@ create table config.zones (
 
 create table config.routers (
     name varchar(255) not null unique REFERENCES config.nodes(node_name),
-    serial_number varchar(255) unique,
-    pump_microprocessor_port int,
-    pump_hub_port int,
+    hub_serial_number int unique,
+    hub_port int,
+    relay_channel int,
     linked_to_base_station boolean
 );
 
@@ -66,8 +62,9 @@ create table config.routes (
     id SERIAL not null unique,
     src varchar(255),
     dst varchar(255),
-    valve_microprocessor_port int,
-    valve_hub_port int,
+    hub_port int,
+    relay_channel int,
+    hub_serial_number int,
     UNIQUE (src, dst)
 );
 
@@ -76,14 +73,11 @@ create table scheduler.irrigation (
     schedule_name varchar(255) not null,
     zone_name varchar(255) not null,
     date timestamptz not null,
-    water_level int,
-    dose_1 int,
-    dose_2 int,
-    dose_3 int,
-    dose_4 int,
-    mixing_time int,
-    routing_time int,
-    compressing_time int,
+    water_pump int,
+    routing_time float,
+    compressing_time float,
+    warmup_pump float,
+    warmup_compressor float,
     process_start timestamptz,
     process_end timestamptz,
     status varchar(255)
@@ -97,6 +91,11 @@ create table scheduler.events_logs (
     process_start timestamptz,
     process_end timestamptz,
     status varchar(255)
+);
+
+create table config.wireless_hubs (
+    id SERIAL not null unique,
+    ip varchar(255) not null unique
 );
 
 create table live.logs (

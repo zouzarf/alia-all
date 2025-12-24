@@ -17,14 +17,11 @@ interface scheduleStats {
     schedule: {
         hour: number;
         minute: number,
-        water_level: number,
-        dose_1: number,
-        dose_2: number,
-        dose_3: number,
-        dose_4: number,
-        mixing_time: number,
-        routing_time: number,
-        compressing_time: number;
+        water_pump: number,
+        routing_time: number
+        warmup_pump: number
+        warmup_compressor: number
+        compressing_time: number
     }[];
 }
 
@@ -54,7 +51,7 @@ export default async function CardZone({ scheduledIrrigation }: { scheduledIrrig
                 </CardHeader>
                 <CardBody className="px-3 py-0 text-small text-default-400">
                     <p>Next irrigation in {nextIrrigationTime.hours} hours, {nextIrrigationTime.minutes.toFixed(0)} minutes</p>
-                    <p>Last irrigation {pastIrrigationTime.hours} hours, {pastIrrigationTime.minutes.toFixed(0)} minutes ago</p>
+                    {pastIrrigationTime.hours > 0 && <p>Last irrigation {pastIrrigationTime.hours} hours, {pastIrrigationTime.minutes.toFixed(0)} minutes ago</p>}
                     <span className="pt-2">
                         <p>From {DateTime.fromJSDate(scheduleStats.minDate!).toFormat('dd-LL-yyyy hh:mm ZZZZ')}</p>
                         <p>To {DateTime.fromJSDate(scheduleStats.maxDate!).toFormat('dd-LL-yyyy hh:mm ZZZZ')} </p>
@@ -73,12 +70,12 @@ export default async function CardZone({ scheduledIrrigation }: { scheduledIrrig
                     </div>
                     <div className="flex flex-col">
                         <div className="flex gap-1">
-                            <p className="font-semibold text-default-400 text-small">{scheduleStats.totalWaterConsumed}</p>
-                            <p className="text-default-400 text-small">litters consumed</p>
+                            <p className="font-semibold text-default-400 text-small"></p>
+                            <p className="text-default-400 text-small"></p>
                         </div>
                         <div className="flex gap-1">
-                            <p className="font-semibold text-default-400 text-small">{scheduleStats.totalWaterConsumed}</p>
-                            <p className="text-default-400 text-small">Zones</p>
+                            <p className="font-semibold text-default-400 text-small"></p>
+                            <p className="text-default-400 text-small"></p>
                         </div>
                     </div>
                 </CardFooter>

@@ -1,7 +1,5 @@
 "use server"
-import 'server-only'
-
-import { irrigation, Prisma } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import prisma from "@/lib/db";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -15,13 +13,10 @@ interface irrigationPlan {
 }
 interface irrigationz {
     time: Date
-    water_level: number
-    dose1: number
-    dose2: number
-    dose3: number
-    dose4: number
-    mixing_time: number
+    water_pump: number
     routing_time: number
+    warmup_pump: number
+    warmup_compressor: number
     compressing_time: number
 }
 export const insertScheduler = async (job: irrigationPlan, dailyActions: irrigationz[]) => {
@@ -43,12 +38,9 @@ export const insertScheduler = async (job: irrigationPlan, dailyActions: irrigat
                         schedule_name: job.name,
                         zone_name: zone,
                         date: datetime,
-                        water_level: dailyAction.water_level,
-                        dose_1: dailyAction.dose1,
-                        dose_2: dailyAction.dose2,
-                        dose_3: dailyAction.dose3,
-                        dose_4: dailyAction.dose4,
-                        mixing_time: dailyAction.mixing_time,
+                        water_pump: dailyAction.water_pump,
+                        warmup_pump: dailyAction.warmup_pump,
+                        warmup_compressor: dailyAction.warmup_compressor,
                         routing_time: dailyAction.routing_time,
                         compressing_time: dailyAction.compressing_time,
                         status: "TODO"
@@ -88,10 +80,6 @@ export const readScheduleStatistics = async (scheduleName: string) => {
         _min: { date: true },
         _max: { date: true }
     });
-    const generalStatsPast = await prisma.irrigation.aggregate({
-        where: { schedule_name: scheduleName, NOT: { status: "TODO" } },
-        _sum: { water_level: true }
-    });
     const nextIrrigation = await prisma.irrigation.aggregate({
         where: { schedule_name: scheduleName, status: "TODO" },
         _min: { date: true },
@@ -101,18 +89,20 @@ export const readScheduleStatistics = async (scheduleName: string) => {
         _max: { process_end: true },
     });
     const results = await prisma.$queryRaw<
-        { hour: number; minute: number; water_level: number; dose_1: number; dose_2: number; dose_3: number; dose_4: number; mixing_time: number; routing_time: number; compressing_time: number }[]
+        {
+            hour: number; minute: number; water_pump: number; routing_time: number;
+            warmup_pump: number;
+            warmup_compressor: number;
+            compressing_time: number
+        }[]
     >(Prisma.sql`
         SELECT DISTINCT 
         CAST(EXTRACT(HOUR FROM date AT TIME ZONE ${DateTime.local().zoneName}) AS INT) AS hour, 
         CAST(EXTRACT(MINUTE FROM date AT TIME ZONE ${DateTime.local().zoneName})AS INT) AS minute,
-        water_level,
-        dose_1,
-        dose_2,
-        dose_3,
-        dose_4,
-        mixing_time,
+        water_pump,
         routing_time,
+        warmup_pump,
+        warmup_compressor,
         compressing_time
         FROM scheduler.irrigation
         WHERE schedule_name=${scheduleName}
@@ -131,7 +121,6 @@ export const readScheduleStatistics = async (scheduleName: string) => {
         maxDate: generalStats._max.date,
         nextIrrigation: nextIrrigation._min.date,
         pastIrrigation: pastIrrigation._max.process_end,
-        totalWaterConsumed: generalStatsPast._sum.water_level,
         schedule: results
     }
 }
@@ -153,11 +142,9 @@ export const readEvents = async (jobId: number) => {
     return response
 }
 export const deleteJob = async (schedulerName: string) => {
-    await prisma.$transaction([
-        prisma.irrigation.deleteMany({
-            where: { schedule_name: schedulerName }
-        }),
-    ])
+    await prisma.irrigation.deleteMany({
+        where: { schedule_name: schedulerName }
+    })
     revalidatePath('/')
     redirect(`/scheduler`)
 

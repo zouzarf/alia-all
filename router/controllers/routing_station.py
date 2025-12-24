@@ -19,12 +19,8 @@ class RoutingStation:
                 self.zones[node.dst] = RelayChannel(
                     (node.valve_microprocessor_port, node.valve_hub_port)
                 )
-        self.pump = RelayChannel(
-            (router_config.pump_microprocessor_port, router_config.pump_hub_port)
-        )
 
     def close(self):
-        self.pump.close()
         for zone in self.zones:
             self.zones[zone].close()
 

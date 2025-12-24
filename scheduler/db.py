@@ -1,13 +1,10 @@
 import logging
-import time
 import sqlalchemy as db
-from sqlalchemy.sql import text
-from sqlalchemy import String, Integer
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import Column, String, DateTime
 from datetime import datetime
 from pydantic import BaseModel
 
@@ -41,14 +38,11 @@ class Irrigation(Base):
     schedule_name: Mapped[str] = mapped_column()
     zone_name: Mapped[str] = mapped_column()
     date: Mapped[datetime] = mapped_column()
-    water_level: Mapped[int] = mapped_column()
-    dose_1: Mapped[int] = mapped_column()
-    dose_2: Mapped[int] = mapped_column()
-    dose_3: Mapped[int] = mapped_column()
-    dose_4: Mapped[int] = mapped_column()
-    mixing_time: Mapped[int] = mapped_column()
-    routing_time: Mapped[int] = mapped_column()
-    compressing_time: Mapped[int] = mapped_column()
+    water_pump: Mapped[int] = mapped_column()
+    routing_time: Mapped[float] = mapped_column()
+    compressing_time: Mapped[float] = mapped_column()
+    warmup_pump: Mapped[float] = mapped_column()
+    warmup_compressor: Mapped[float] = mapped_column()
     process_start: Mapped[datetime] = Column(DateTime(timezone=True), nullable=True)
     process_end: Mapped[datetime] = Column(DateTime(timezone=True), nullable=True)
     status: Mapped[str] = mapped_column()
@@ -62,15 +56,10 @@ class ServiceHealth(Base):
 
 
 engine = db.create_engine(
-    "postgresql://postgres:mysecretpassword@localhost:5432/postgres"
+    "postgresql://postgres:mysecretpassword@raspberry:5432/postgres"
 )
 Session = sessionmaker(bind=engine)
 session = Session()
-engine2 = db.create_engine(
-    f"postgresql://postgres:mysecretpassword@localhost:5432/postgres"
-)
-Session2 = sessionmaker(bind=engine2)
-session2 = Session2()
 
 
 class ScheduleAction(BaseModel):
@@ -82,14 +71,11 @@ class ScheduleAction(BaseModel):
     schedule_name: str
     zone_name: str
     date: datetime
-    water_level: int
-    dose_1: int
-    dose_2: int
-    dose_3: int
-    dose_4: int
-    mixing_time: int
-    routing_time: int
-    compressing_time: int
+    water_pump: int
+    routing_time: float
+    compressing_time: float
+    warmup_pump: float
+    warmup_compressor: float
     status: str
 
 

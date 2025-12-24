@@ -1,99 +1,33 @@
 from dataclasses import dataclass
-import dataclasses
 import json
-from mqtt_config import client
-from paho.mqtt.client import MQTTMessage
 from logger import logger as logging
-
-command_done = {
-    "WATER_LEVEL": False,
-    "DOSING1": False,
-    "DOSING2": False,
-    "DOSING3": False,
-    "DOSING4": False,
-    "MIXING": False,
-    "ROUTING": False,
-}
+import httpx
 
 
 @dataclass
-class HubCommand:
-    command: str
-    arg1: str
-    arg2: str
-    arg3: str
-
-
-@dataclass
-class HubEvent:
-    command: str
-    event: str
+class RoutingCommand:
+    pump_number: str
+    zone: str
+    pump_warmup_timer: str
+    pump_timer: str
+    compressor_warmup_timer: str
+    compressor_timer: str
 
 
 class HubCommandManager:
-    MQTT_SERVER_IP = "localhost"
-    HUB_CHANNEL = "hub"
+    HUB_ENDPOINT = "http://raspberry"
 
     def __init__(self):
-        self.client = client
-        self.client.on_connect = self.on_connect
-        self.client.on_message = self.on_message
-        self.client.connect(self.MQTT_SERVER_IP, 1883, 60)
+        self.full_endpoint = self.HUB_ENDPOINT + ":8001"
 
-    def on_connect(self, client, userdata, flags, rc):
-        logging.info("MQTT: Connected with result code " + str(rc))
-        client.subscribe("hub_response")
-
-    def on_message(self, mosq, obj, message: MQTTMessage):
-        global command_done
-        hub_event = HubEvent(**json.loads(message.payload))
-        logging.info("Got Hub Event Message")
-        logging.info(hub_event)
-        command_done[hub_event.command] = hub_event.event == "done"
-        logging.info(
-            hub_event.command
-            + "set from"
-            + str(command_done[hub_event.command])
-            + " to :"
-            + str(hub_event.event == "done")
-        )
-
-    def send_command_and_wait_for_response(self, hub_command: HubCommand, command: str):
-        global command_done
-        command_done[command] = False
-        client.publish(
-            self.HUB_CHANNEL,
-            json.dumps(dataclasses.asdict(hub_command)),
-            2,
-        )
-        while not command_done[command]:
-            pass
-        command_done[command] = False
-
-    def fill_water(self, level):
-        self.send_command_and_wait_for_response(
-            HubCommand("FILL_WATER", level, "", ""), "WATER_LEVEL"
-        )
-
-    def dose(self, dose_number: int, dose_amount: int):
-        self.send_command_and_wait_for_response(
-            HubCommand("DOSE", dose_number, dose_amount, ""),
-            "DOSING" + str(dose_number),
-        )
-
-    def mix(self, time: int):
-
-        self.send_command_and_wait_for_response(
-            HubCommand("MIX", time, "", ""), "MIXING"
-        )
-
-    def route(self, zone: str, routing_time: int, compressing_time: int):
-        self.send_command_and_wait_for_response(
-            HubCommand(
-                "ROUTE",
-                zone,
-                routing_time,
-                compressing_time,
-            ),
-            "ROUTING",
-        )
+    def route(self, routing_command: RoutingCommand):
+        with httpx.Client(
+            timeout=float(routing_command.pump_warmup_timer)
+            + float(routing_command.pump_timer)
+            + float(routing_command.compressor_warmup_timer)
+            + float(routing_command.compressor_timer)
+            + 5
+        ) as client:
+            client.get(
+                f"{self.full_endpoint}/route_water?pump_number={routing_command.pump_number}&pump_warm_up={routing_command.pump_warmup_timer}&pump_seconds={routing_command.pump_timer}&compressor_warm_up={routing_command.compressor_warmup_timer}&compressor_seconds={routing_command.compressor_timer}&destination={routing_command.zone}"
+            )

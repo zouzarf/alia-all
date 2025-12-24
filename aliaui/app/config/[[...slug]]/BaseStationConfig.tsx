@@ -14,12 +14,16 @@ export default function BaseStationConfig({ config }: { config: base_station_por
       label: "NAME",
     },
     {
-      key: "microport",
-      label: "Port",
+      key: "hub_port",
+      label: "Hub Port",
     },
     {
-      key: "hubport",
-      label: "Channel",
+      key: "relay_channel",
+      label: "Relay Channel",
+    },
+    {
+      key: "sn",
+      label: "Hub Serial Number",
     },
   ];
   const renderCell = React.useCallback((user: base_station_ports, columnKey: Key) => {
@@ -29,13 +33,17 @@ export default function BaseStationConfig({ config }: { config: base_station_por
         return (
           user.name
         );
-      case "microport":
+      case "hub_port":
         return (
           <SbcPort config={user} />
         );
-      case "hubport":
+      case "relay_channel":
         return (
           <HubPort config={user} />
+        );
+      case "sn":
+        return (
+          <SerialNumber config={user} />
         );
       default:
         return user.name;
@@ -59,7 +67,7 @@ export default function BaseStationConfig({ config }: { config: base_station_por
 }
 const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
 export function HubPort({ config }: { config: base_station_ports }) {
-  const [hub_port, setHubPort] = useState(config.hub_port)
+  const [hub_port, setHubPort] = useState(config.relay_channel)
 
   const { data, error } = useSWR("/api/config", fetcher);
   const client = mqttConnecter(data)
@@ -85,8 +93,33 @@ export function HubPort({ config }: { config: base_station_ports }) {
 
   );
 }
+export function SerialNumber({ config }: { config: base_station_ports }) {
+  const [serialNumber, setSerialNumber] = useState(config.hub_serial_number)
+
+  const { data, error } = useSWR("/api/config", fetcher);
+  const client = mqttConnecter(data)
+
+  return (
+    <Input
+      type="number"
+      value={serialNumber?.toString()}
+      disabled={serialNumber == null}
+      labelPlacement="outside"
+      onChange={(e) => {
+        setSerialNumber(parseInt(e.target.value));
+        updateBaseStation(config.name, { hub_serial_number: parseInt(e.target.value) })
+
+        client?.publish(
+          "hub",
+          JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
+        );
+      }}
+    />
+
+  );
+}
 export function SbcPort({ config }: { config: base_station_ports }) {
-  const [hub_port, setHubPort] = useState(config.microprocessor_port)
+  const [hub_port, setHubPort] = useState(config.hub_port)
   const { data, error } = useSWR("/api/config", fetcher);
   const client = mqttConnecter(data)
 
@@ -100,7 +133,7 @@ export function SbcPort({ config }: { config: base_station_ports }) {
       labelPlacement="outside"
       onChange={(e) => {
         setHubPort(parseInt(e.target.value));
-        updateBaseStation(config.name, { microprocessor_port: parseInt(e.target.value) });
+        updateBaseStation(config.name, { hub_port: parseInt(e.target.value) });
         client?.publish(
           "hub",
           JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })

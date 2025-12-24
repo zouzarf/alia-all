@@ -1,57 +1,11 @@
 "use client"
-import { CircularProgress, Divider, Paper } from "@mui/material";
-import Image from "next/image";
-import React, { useEffect } from "react";
-import WaterTank from "./waterTank";
-import ReservoirFiller from "./reservoirFillter";
-import Dosing from "./doser";
-import Mixer from "./mixer";
+import { CircularProgress, Paper } from "@mui/material";
+import React from "react";
 import Routing from "./routing";
-import useSWR from 'swr'
-import { mqttConnecter } from "@/lib/mqttClient";
-import { base_station_ports, general_config, zones } from "@prisma/client";
-import { MqttClient } from "mqtt/*";
+import { zones } from "@prisma/client";
 
-export default function Body({ zones, general_config, mqttIp }: { zones: zones[], general_config: general_config[], mqttIp: string }) {
-    const water_amp_coeff = parseFloat(general_config.filter(x => x.name == "WATER_AMP_COEFF")[0].value!)
-    const water_amp_offset = parseFloat(general_config.filter(x => x.name == "WATER_AMP_OFFSET")[0].value!)
-    const water_offset = parseFloat(general_config.filter(x => x.name == "WATER_OFFSET_L")[0].value!)
-    const waterMaxLevel = parseFloat(general_config.filter(x => x.name == "WATER_MAX_LEVEL")[0].value!)
-    const [waterValue, setwaterValue] = React.useState(0);
+export default function Body({ zones }: { zones: zones[] }) {
     const [hubEvent, setHubEvent] = React.useState<string | null>(null);
-    const client = React.useRef<MqttClient | null>(null)
-    useEffect(() => {
-        if (!client.current) {
-            client.current = mqttConnecter({ 'ip': mqttIp });
-            client.current?.on('message', function (topic: string, payload: Buffer) {
-                if (topic === "sensors") {
-                    setwaterValue((parseFloat(JSON.parse(payload.toString()).water_voltage) - water_amp_offset) * water_amp_coeff + water_offset);
-                }
-                else if (topic === "hub_response") {
-                    setHubEvent(JSON.parse(payload.toString()).event);
-                }
-                else {
-                    console.log("Weird message:" + topic + "" + payload);
-                }
-            })
-            client.current?.on('disconnect', function () {
-                console.log('DISCONNECTION');
-            });
-            client.current?.on('offline', function () {
-                console.log('OFFLINE');
-            });
-            client.current?.on('close', () => console.log('disconnected', new Date()));
-            client.current?.on('error', (err: any) => console.error('error', err));
-        }
-        console.log("connecting")
-        return () => {
-            // always clean up the effect if clientRef.current has a value
-            if (client.current) {
-                client.current.unsubscribe('test');
-                client.current.end();
-            }
-        };
-    }, []);
     return (
         <Paper>
 
@@ -75,27 +29,15 @@ export default function Body({ zones, general_config, mqttIp }: { zones: zones[]
                                     <th scope="col" className="px-6 py-3">
                                         Start
                                     </th>
-                                    <th scope="col" className="px-6 py-3">
-                                        Stop
-                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <ReservoirFiller hubEvent={hubEvent!} current_value={waterValue} mqttClient={client.current!} maxLevel={waterMaxLevel} />
-                                <Dosing hubEvent={hubEvent!} mqttClient={client.current!} />
-                                <Mixer hubEvent={hubEvent!} mqttClient={client.current!} />
-                                <Routing zones={zones} hubEvent={hubEvent!} mqttClient={client.current!} />
+                                <Routing zones={zones} hubEvent={hubEvent!} />
                             </tbody>
                         </table>
                     </div>
 
 
-                </div>
-                <div className="flex flex-col">
-                    <h2 className="text-center">
-                        Water Tank {hubEvent!} {hubEvent === "processing" ? (<CircularProgress size="20px" />) : <></>}
-                    </h2>
-                    <WaterTank waterValue={waterValue} min={0} max={10} isMixing={hubEvent === "processing"} />
                 </div>
 
             </div>

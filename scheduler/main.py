@@ -2,42 +2,37 @@ from datetime import datetime
 import threading
 import time
 from event_processor import EventProcessor
-from concurrent.futures import ThreadPoolExecutor
 from hub_commands import HubCommandManager
 from scheduler import Scheduler
 from logger import logger as logging
-from db import ServiceHealth, session2
+import threading
+import time
+from fastapi import FastAPI
+import uvicorn
 
-MQTT_SERVER_IP = "localhost"
-executor = ThreadPoolExecutor(max_workers=10)
-
-HEARTBEAT_INTERVAL = 10
-running = True
+app = FastAPI()
 
 
-def heartbeat():
-    global running
-    while running:
-        now = ServiceHealth(name="scheduler", heartbeat=datetime.now())
-        session2.merge(now)
-        session2.commit()
-        time.sleep(HEARTBEAT_INTERVAL)
+@app.get("/status")
+def alive():
+    return {"status": "ready"}
+
+
+def start_health_server():
+    uvicorn.run(app, host="0.0.0.0", port=8002, log_level="warning")
 
 
 def main():
-    try:
-        logging.info("------------------")
-        logging.info("STARTING SCHEDULER")
-        logging.info("------------------")
-        h = HubCommandManager()
-        e = EventProcessor(h)
-        s = Scheduler(e)
-        executor.submit(s.run)
-        heartbeat_thread = threading.Thread(target=heartbeat)
-        heartbeat_thread.start()
-        h.client.loop_forever()
-    except Exception as e:
-        logging.error(str(e))
+    logging.info("------------------")
+    logging.info("STARTING SCHEDULER")
+    logging.info("------------------")
+    threading.Thread(target=start_health_server, daemon=True).start()
+    print("test")
+    h = HubCommandManager()
+    e = EventProcessor(h)
+
+    s = Scheduler(e)
+    s.run()
 
 
 main()

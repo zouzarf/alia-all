@@ -1,4 +1,4 @@
-from db import RoutersConfig, RoutingConfig
+from db import RoutersConfig, RoutingConfig, BaseStationConfig
 from collections import deque
 from logger import logger as logging
 
@@ -9,11 +9,13 @@ class Routing:
         routing_config: list[RoutingConfig],
         main_router,
         routers: list[RoutersConfig],
+        base_station_config: list[BaseStationConfig],
     ):
         self.routing_config = routing_config
         self.routers = routers
         self.main_router = main_router.name
         self.routing_table = self.get_nodes_and_neighbours()
+        self.base_station_config = base_station_config
 
     def get_nodes_and_neighbours(self) -> dict[str, list[str]]:
         ret = {}
@@ -24,6 +26,24 @@ class Routing:
                 ret[routing.src].append(routing.dst)
         ret["base_station"] = [self.main_router]
         return ret
+
+    def base_station_to_router_port(self, router_name):
+        for router in self.routers:
+            if router_name == router.name:
+                print(router.base_station_valve_port1, router.base_station_valve_port2)
+                return (
+                    router.base_station_valve_port1,
+                    router.base_station_valve_port2,
+                )
+
+    def base_station_valve_name(self, router_name):
+        router_port = self.base_station_to_router_port(router_name)
+        for bs in self.base_station_config:
+            if (
+                bs.microprocessor_port == router_port[0]
+                and bs.hub_port == router_port[1]
+            ):
+                return bs.name
 
     def get_path_to_zone(self, zone_name: str) -> list[tuple[str, str]]:
 

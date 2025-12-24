@@ -1,24 +1,11 @@
 "use client"
-import React, { Key, useState } from "react";
-import Form from 'react-bootstrap/Form';
-import FloatingLabel from 'react-bootstrap/FloatingLabel';
-import 'react-date-range/dist/styles.css'; // main style file
-import 'react-date-range/dist/theme/default.css'; // theme css file
-import { DateRangePicker } from 'react-date-range';
-import TimeRange from 'react-time-range';
-import TextField from '@mui/material/TextField';
+import React, { useState } from "react";
 import { insertScheduler } from "@/lib/schedulerActions";
-import TimePicker from "react-time-picker";
 import { zones } from '@prisma/client'
-import { Input, Select, SelectItem, TimeInput, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider, DatePicker, CheckboxGroup, Checkbox, RadioGroup, Radio } from "@nextui-org/react";
-import { RangeCalendar } from "@nextui-org/react";
-import type { DateValue } from "@react-types/calendar";
-import type { RangeValue } from "@react-types/shared";
-import { today, getLocalTimeZone } from "@internationalized/date";
+import { Input, Select, SelectItem, TimeInput, Button, DatePicker, CheckboxGroup, Checkbox, RadioGroup, Radio } from "@nextui-org/react";
 import { mqttConnecter } from "@/lib/mqttClient";
 import useSWR from "swr";
-import { parseZonedDateTime, parseAbsoluteToLocal } from "@internationalized/date";
-import type { Selection } from "@nextui-org/react";
+import { parseAbsoluteToLocal } from "@internationalized/date";
 
 interface irrigationPlan {
     name: string
@@ -28,24 +15,16 @@ interface irrigationPlan {
 }
 interface irrigation {
     time: Date
-    water_level: number
-    dose1: number
-    dose2: number
-    dose3: number
-    dose4: number
-    mixing_time: number
+    water_pump: number
     routing_time: number
+    warmup_pump: number
+    warmup_compressor: number
     compressing_time: number
 }
 
 interface irrigationEventDriven {
     humidityLevel: number
-    water_level: number
-    dose1: number
-    dose2: number
-    dose3: number
-    dose4: number
-    mixing_time: number
+    water_pump: number
     routing_time: number
     compressing_time: number
 }
@@ -132,7 +111,7 @@ export default function NewJob({ zones }: { zones: zones[] }) {
                             <td scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                 <RadioGroup value={irrigationType} onValueChange={setIrrigationType}>
                                     <Radio value="time-driven">Time driven</Radio>
-                                    <Radio value="event-driven">Event driven</Radio>
+                                    <Radio value="event-driven" isDisabled={true}>Event driven</Radio>
                                 </RadioGroup>
                             </td>
                         </tr>
@@ -151,11 +130,6 @@ export default function NewJob({ zones }: { zones: zones[] }) {
                         },
                         irrigationsTimeDriven
                     );
-
-                    client?.publish(
-                        "hub",
-                        JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
-                    );
                 }}>
                     Submit
                 </Button>
@@ -166,15 +140,12 @@ export default function NewJob({ zones }: { zones: zones[] }) {
 
 function TimeDrivenIrrigationTable(
     { irrigationsList, irrigationsSetter }: { irrigationsList: irrigation[], irrigationsSetter: React.Dispatch<React.SetStateAction<irrigation[]>> }) {
-    const [dose1, setDose1] = useState(0);
-    const [dose2, setDose2] = useState(0);
-    const [dose3, setDose3] = useState(0);
-    const [dose4, setDose4] = useState(0);
     const [time, setTime] = useState<Date>(new Date());
-    const [waterLevel, setWaterLevel] = useState(0);
-    const [mixingTime, setMixingTime] = useState(0);
-    const [compressingTime, setCompressingTime] = useState(0);
-    const [routingTime, setRoutingTime] = useState(0);
+    const [waterPump, setWaterPump] = useState(1);
+    const [compressingTime, setCompressingTime] = useState("0");
+    const [warmupTimePump, setWarmupTimePump] = useState("0");
+    const [warmUpCompressor, setWarmUpCompressor] = useState("0");
+    const [pumpingTimer, setPumpingTimer] = useState("0");
     return (
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -183,19 +154,20 @@ function TimeDrivenIrrigationTable(
                         Time
                     </th>
                     <th scope="col" className="px-6 py-3 w-1/10">
-                        Water amount
+                        Water pump
                     </th>
-                    <th scope="col" className="px-6 py-3 w-1/6">
-                        Dosing
+
+                    <th scope="col" className="px-6 py-3 w-1/10">
+                        Warmup time pump
                     </th>
                     <th scope="col" className="px-6 py-3 w-1/10">
-                        Mixing time
+                        Pump timer
                     </th>
                     <th scope="col" className="px-6 py-3 w-1/10">
-                        Routing time
+                        Warmup time compressor
                     </th>
                     <th scope="col" className="px-6 py-3 w-1/10">
-                        Compressing time
+                        Compressor timer
                     </th>
                     <th scope="col" className="px-6 py-3 w-1/10">
                         Action
@@ -209,26 +181,19 @@ function TimeDrivenIrrigationTable(
                             {irrigation.time.getHours().toString().padStart(2, "0")}:{irrigation.time.getMinutes().toString().padStart(2, "0")} +{-1 * irrigation.time.getTimezoneOffset() / 60}
                         </th>
                         <td scope="row" className="px-6 py-4">
-                            <span className="text-default-400 text-small">{irrigation.water_level} L</span>
-                        </td>
-                        <td scope="row" className="px-6 py-4 w-300">
-                            <div className="flex flex-col">
-                                <span className="text-default-400 text-small">Dose 1: {irrigation.dose1} ml</span>
-                                <span className="text-default-400 text-small">Dose 2: {irrigation.dose2} ml</span>
-                                <span className="text-default-400 text-small">Dose 3: {irrigation.dose3} ml</span>
-                                <span className="text-default-400 text-small">Dose 4: {irrigation.dose4} ml</span>
-                            </div>
-
-
+                            <span className="text-default-400 text-small">{irrigation.water_pump}</span>
                         </td>
                         <td scope="row" className="px-6 py-4">
-                            <span className="text-default-400 text-small">{irrigation.mixing_time} (min)</span>
+                            <span className="text-default-400 text-small">{irrigation.warmup_pump} (sec)</span>
                         </td>
                         <td scope="row" className="px-6 py-4">
-                            <span className="text-default-400 text-small">{irrigation.routing_time} (min)</span>
+                            <span className="text-default-400 text-small">{irrigation.routing_time} (sec)</span>
                         </td>
                         <td scope="row" className="px-6 py-4">
-                            <span className="text-default-400 text-small">{irrigation.compressing_time} (min)</span>
+                            <span className="text-default-400 text-small">{irrigation.warmup_compressor} (sec)</span>
+                        </td>
+                        <td scope="row" className="px-6 py-4">
+                            <span className="text-default-400 text-small">{irrigation.compressing_time} (sec)</span>
                         </td>
                         <td scope="row" className="px-6 py-4">
                             <Button className="" color="danger" onPress={e => { irrigationsSetter((prevItems) => prevItems.filter((item) => item.time !== irrigation.time)); }} >
@@ -248,96 +213,70 @@ function TimeDrivenIrrigationTable(
                         />
                     </th>
                     <td scope="row" className="px-6 py-4">
-                        <Input type="number" id="outlined-basic" endContent={
-                            <div className="pointer-events-none flex items-center">
-                                <span className="text-default-400 text-small">L</span>
-                            </div>
-                        } min={0} value={waterLevel.toString()} onChange={(e) => { setWaterLevel(parseInt(e.target.value)) }} />
-                    </td>
-                    <td scope="row" className="px-6 py-4 w-300">
-                        <div className="flex flex-col">
-                            <Input type="number" id="outlined-basic"
-                                defaultValue="1"
-                                label="Dose1"
-                                className="w-300"
-                                min={0} value={dose1.toString()}
-                                endContent={
-                                    <div className="pointer-events-none flex items-center">
-                                        <span className="text-default-400 text-small">ml</span>
-                                    </div>
-                                }
-                                onChange={(e) => { setDose1(parseInt(e.target.value)) }}
-                            />
-                            <Input type="number" id="outlined-basic"
-                                defaultValue="0"
-                                label="Dose2"
-                                min={0} value={dose2.toString()}
-                                endContent={
-                                    <div className="pointer-events-none flex items-center">
-                                        <span className="text-default-400 text-small">ml</span>
-                                    </div>
-                                }
-                                onChange={(e) => { setDose2(parseInt(e.target.value)) }}
-                            />
-                            <Input type="number" id="outlined-basic"
-                                defaultValue="1"
-                                label="Dose3"
-                                endContent={
-                                    <div className="pointer-events-none flex items-center">
-                                        <span className="text-default-400 text-small">ml</span>
-                                    </div>
-                                }
-                                min={0} value={dose3.toString()}
-                                onChange={(e) => { setDose3(parseInt(e.target.value)) }}
-                            />
-                            <Input type="number" id="outlined-basic"
-                                defaultValue="1"
-                                label="Dose4"
-                                endContent={
-                                    <div className="pointer-events-none flex items-center">
-                                        <span className="text-default-400 text-small">ml</span>
-                                    </div>
-                                }
-                                min={0} value={dose4.toString()}
-                                onChange={(e) => { setDose4(parseInt(e.target.value)) }}
-                            /></div>
-
-
+                        <div>
+                            <Select
+                                id="demo-simple-select-filled"
+                                value={waterPump}
+                                label="Target pump"
+                                className="w-full"
+                                onChange={(event) => {
+                                    const value = event.target.value;
+                                    setWaterPump(parseInt(value));
+                                }}
+                            >
+                                <SelectItem key={1} value={1}>
+                                    WATERPUMP 1
+                                </SelectItem>
+                                <SelectItem key={2} value={2}>
+                                    WATERPUMP 2
+                                </SelectItem>
+                                <SelectItem key={3} value={3}>
+                                    WATERPUMP 3
+                                </SelectItem>
+                                <SelectItem key={4} value={4}>
+                                    WATERPUMP 4
+                                </SelectItem>
+                            </Select>
+                        </div>
                     </td>
                     <td scope="row" className="px-6 py-4">
-                        <Input type="number" id="outlined-basic" endContent={
+                        <Input type="text" id="outlined-basic" endContent={
                             <div className="pointer-events-none flex items-center">
-                                <span className="text-default-400 text-small">(min)</span>
+                                <span className="text-default-400 text-small">(sec)</span>
                             </div>
-                        } min={0} value={mixingTime.toString()} onChange={(e) => { setMixingTime(parseInt(e.target.value)) }} />
+                        } min={0} value={warmupTimePump.toString()} onValueChange={(e) => { setWarmupTimePump((e)) }} />
                     </td>
                     <td scope="row" className="px-6 py-4">
-                        <Input type="number" id="outlined-basic" endContent={
+                        <Input type="text" id="outlined-basic" endContent={
                             <div className="pointer-events-none flex items-center">
-                                <span className="text-default-400 text-small">(min)</span>
+                                <span className="text-default-400 text-small">(sec)</span>
                             </div>
-                        } min={0} value={routingTime.toString()} onChange={(e) => { setRoutingTime(parseInt(e.target.value)) }} />
+                        } min={0} value={pumpingTimer.toString()} onValueChange={(e) => { setPumpingTimer((e)) }} />
                     </td>
                     <td scope="row" className="px-6 py-4">
-                        <Input type="number" id="outlined-basic" endContent={
+                        <Input type="text" id="outlined-basic" endContent={
                             <div className="pointer-events-none flex items-center">
-                                <span className="text-default-400 text-small">(min)</span>
+                                <span className="text-default-400 text-small">(sec)</span>
                             </div>
-                        } min={0} value={compressingTime.toString()} onChange={(e) => { setCompressingTime(parseInt(e.target.value)) }} />
+                        } min={0} value={warmUpCompressor.toString()} onValueChange={(e) => { setWarmUpCompressor((e)) }} />
+                    </td>
+                    <td scope="row" className="px-6 py-4">
+                        <Input type="text" id="outlined-basic" endContent={
+                            <div className="pointer-events-none flex items-center">
+                                <span className="text-default-400 text-small">(sec)</span>
+                            </div>
+                        } min={0} value={compressingTime.toString()} onValueChange={(e) => { setCompressingTime((e)) }} />
                     </td>
                     <td scope="row" className="px-6 py-4">
                         <Button className="" color="success" onClick={
                             () => {
                                 irrigationsSetter(oldArray => [...oldArray, {
                                     time: time,
-                                    water_level: waterLevel,
-                                    dose1: dose1,
-                                    dose2: dose2,
-                                    dose3: dose3,
-                                    dose4: dose4,
-                                    mixing_time: mixingTime,
-                                    routing_time: routingTime,
-                                    compressing_time: compressingTime
+                                    water_pump: waterPump,
+                                    routing_time: parseFloat(pumpingTimer),
+                                    warmup_pump: parseFloat(warmupTimePump),
+                                    warmup_compressor: parseFloat(warmUpCompressor),
+                                    compressing_time: parseFloat(compressingTime)
                                 }])
                             }
                         }>
@@ -381,6 +320,12 @@ function EventDrivenIrrigationTable(
                         Routing time
                     </th>
                     <th scope="col" className="px-6 py-3 w-1/10">
+                        Routing time
+                    </th>
+                    <th scope="col" className="px-6 py-3 w-1/10">
+                        Routing time
+                    </th>
+                    <th scope="col" className="px-6 py-3 w-1/10">
                         Compressing time
                     </th>
                     <th scope="col" className="px-6 py-3 w-1/10">
@@ -396,7 +341,7 @@ function EventDrivenIrrigationTable(
                     <td scope="row" className="px-6 py-4">
                         <Input type="number" id="outlined-basic" endContent={
                             <div className="pointer-events-none flex items-center">
-                                <span className="text-default-400 text-small">L</span>
+                                <span className="text-default-400 text-small"></span>
                             </div>
                         } min={0} value={waterLevel.toString()} onChange={(e) => { setWaterLevel(parseInt(e.target.value)) }} />
                     </td>
@@ -453,21 +398,21 @@ function EventDrivenIrrigationTable(
                     <td scope="row" className="px-6 py-4">
                         <Input type="number" id="outlined-basic" endContent={
                             <div className="pointer-events-none flex items-center">
-                                <span className="text-default-400 text-small">(min)</span>
+                                <span className="text-default-400 text-small">(sec)</span>
                             </div>
                         } min={0} value={mixingTime.toString()} onChange={(e) => { setMixingTime(parseInt(e.target.value)) }} />
                     </td>
                     <td scope="row" className="px-6 py-4">
                         <Input type="number" id="outlined-basic" endContent={
                             <div className="pointer-events-none flex items-center">
-                                <span className="text-default-400 text-small">(min)</span>
+                                <span className="text-default-400 text-small">(sec)</span>
                             </div>
                         } min={0} value={routingTime.toString()} onChange={(e) => { setRoutingTime(parseInt(e.target.value)) }} />
                     </td>
                     <td scope="row" className="px-6 py-4">
                         <Input type="number" id="outlined-basic" endContent={
                             <div className="pointer-events-none flex items-center">
-                                <span className="text-default-400 text-small">(min)</span>
+                                <span className="text-default-400 text-small">(sec)</span>
                             </div>
                         } min={0} value={compressingTime.toString()} onChange={(e) => { setCompressingTime(parseInt(e.target.value)) }} />
                     </td>

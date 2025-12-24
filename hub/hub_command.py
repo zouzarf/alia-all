@@ -8,7 +8,7 @@ from config import BASE_STATION_CHANNEL, WATER_SENSOR_CHANNEL
 from logger import logger as logging
 from node_command import NodeCommand
 from routing import Routing
-from db import RoutersConfig, RoutingConfig, session, GeneralConfig
+from db import RoutersConfig, RoutingConfig, session, GeneralConfig, BaseStationConfig
 import traceback
 
 RELOAD_COMMAND = "RELOAD_CONFIG"
@@ -24,6 +24,7 @@ class HubCommand:
     arg1: str
     arg2: str
     arg3: str
+    arg4: str
 
 
 @dataclass
@@ -57,12 +58,15 @@ class HubCommandManager:
         }
         routing_config = session.query(RoutingConfig).all()
         routers_config = session.query(RoutersConfig).all()
+        base_station_config = session.query(BaseStationConfig).all()
         main_router = (
             session.query(RoutersConfig)
             .where(RoutersConfig.linked_to_base_station == True)
             .one()
         )
-        self.routing = Routing(routing_config, main_router, routers_config)
+        self.routing = Routing(
+            routing_config, main_router, routers_config, base_station_config
+        )
 
     def convert_water_sensor_to_litter(self, water_voltage: float):
 
@@ -196,44 +200,58 @@ class HubCommandManager:
                         ),
                         retain=1,
                     )
-                    zone_name = command.arg1
+                    pump_number = command.arg1
+                    zone_name = command.arg2
                     logging.info(f"Getting path to zone {zone_name}  ")
                     path = self.routing.get_path_to_zone(zone_name)
                     logging.info(str(path))
+
+                    # STEP 1 OPEN ALL THE VALVES
                     for src, dst in path:
                         if src != "base_station":
                             logging.info(f"Send open valve command to {src} ...")
                             self.node_command.enable_routing_valve(src, dst)
-                    for src, _ in path:
-                        logging.info(f"Send open pump command to {src} ...")
-                        self.node_command.enable_routing_pump(src)
-                    routing_time = command.arg2
-                    logging.info(f"Sleeping for {routing_time} minutes ...")
-                    stop.wait(int(routing_time) * 60)
-                    self.node_command.disable_routing_pump("base_station")
+                        else:
+                            self.node_command.enable_base_station_valve(
+                                self.routing.base_station_valve_name(dst)
+                            )
+                    logging.info(f"Send open pump command to {pump_number} ...")
+
+                    # STEP 2 Open the pump
+                    self.node_command.enable_pump_number(pump_number)
+                    routing_time = command.arg3
+
+                    # Step3 wait for water to run
+                    logging.info(f"Sleeping for {routing_time} seconds ...")
+                    stop.wait(float(routing_time))
+                    # Step4 disable pump
+                    self.node_command.disable_pump_number(pump_number)
                     logging.info("Disabling routing pump for base_station")
                     logging.info(f"Enabling compressor ...")
+                    # step5 enable compressor
                     self.node_command.enable_compressor()
-                    compressing_time = command.arg3
-                    logging.info(f"Sleeping for {compressing_time} minutes ...")
-                    stop.wait(int(compressing_time) * 60)
+                    compressing_time = command.arg4
+                    logging.info(f"Sleeping for {compressing_time} seconds ...")
+                    stop.wait(float(compressing_time))
                     if stop.is_set():
                         stop.clear()
                     logging.info(f"Disabling compressor ...")
                     self.node_command.disable_compressor()
-                    for src, _ in path:
-                        logging.info(f"Send close pump command to {src} ...")
-                        self.node_command.disable_routing_pump(src)
                     for src, dst in path:
                         if src != "base_station":
                             logging.info(f"Send close valve command to {src} ...")
                             self.node_command.disable_routing_valve(src, dst)
+                        else:
+                            self.node_command.disable_base_station_valve(
+                                self.routing.base_station_valve_name(dst)
+                            )
                     logging.info("Sending routing_done response to hub_response")
                     self.mqtt_client.publish(
                         "hub_response",
                         json.dumps(dataclasses.asdict(HubEvent("ROUTING", "done"))),
                         retain=1,
                     )
+                    logging.info("Done")
                 case _:
                     pass
         except Exception as e:

@@ -8,8 +8,9 @@ export default async function ConfigPage({ params }: { params: { slug: string[] 
     const zones = await prisma.zones.findMany()
     const routers = await prisma.routers.findMany()
     const routes = await prisma.routes.findMany()
+    const wirelessHubs = await prisma.wireless_hubs.findMany()
 
     return (
-        <ConfigEditor generalConfig={generalConfig} zones={zones} routers={routers} baseStationConfig={baseStationPorts} routes={routes} selected={params.slug != null && params.slug.length > 0 ? params.slug[0] : "general"} />
+        <ConfigEditor generalConfig={generalConfig} zones={zones} routers={routers} baseStationConfig={baseStationPorts} routes={routes} selected={params.slug != null && params.slug.length > 0 ? params.slug[0] : "general"} wirelessHubs={wirelessHubs} />
     );
 }

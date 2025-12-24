@@ -129,6 +129,36 @@ class NodeCommand:
             2,
         )
 
+    def enable_base_station_valve(self, valve_name: str):
+        self.mqtt_client.publish(
+            "base_station",
+            json.dumps(
+                dataclasses.asdict(
+                    ControllerCommand(
+                        actionner=valve_name,
+                        command="ACTIVATE",
+                        arg1="",
+                    ),
+                )
+            ),
+            2,
+        )
+
+    def disable_base_station_valve(self, valve_name: str):
+        self.mqtt_client.publish(
+            "base_station",
+            json.dumps(
+                dataclasses.asdict(
+                    ControllerCommand(
+                        actionner=valve_name,
+                        command="DEACTIVATE",
+                        arg1="",
+                    ),
+                )
+            ),
+            2,
+        )
+
     def enable_routing_pump(self, node_name: str):
         self.mqtt_client.publish(
             node_name,
@@ -137,6 +167,36 @@ class NodeCommand:
                     ControllerCommand(
                         actionner="ROUTINGPUMP",
                         command="ACTIVATE",
+                        arg1="",
+                    )
+                )
+            ),
+            2,
+        )
+
+    def enable_pump_number(self, pump_name: str):
+        self.mqtt_client.publish(
+            "base_station",
+            json.dumps(
+                dataclasses.asdict(
+                    ControllerCommand(
+                        actionner=pump_name,
+                        command="ACTIVATE",
+                        arg1="",
+                    )
+                )
+            ),
+            2,
+        )
+
+    def disable_pump_number(self, pump_name: str):
+        self.mqtt_client.publish(
+            "base_station",
+            json.dumps(
+                dataclasses.asdict(
+                    ControllerCommand(
+                        actionner=pump_name,
+                        command="DEACTIVATE",
                         arg1="",
                     )
                 )

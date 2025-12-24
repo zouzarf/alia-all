@@ -9,10 +9,12 @@ from mqtt_config import client
 from db import session, RoutersConfig, HardwareHealth, session2
 import json
 from logger import logger as logging
+from Phidget22.PhidgetServerType import PhidgetServerType
+from Phidget22.Net import Net
 
 rasp_server = os.environ["rasp_server"]
 MQTT_SERVER_IP = rasp_server
-serial_number = get_serial_number()
+serial_number = "1001"
 router_name = (
     session.query(RoutersConfig)
     .where(RoutersConfig.serial_number == str(serial_number))
@@ -33,8 +35,11 @@ def heartbeat():
 
 def main():
     try:
-        serial_number = get_serial_number()
+        serial_number = "1001"
         print(serial_number)
+
+        Net.addServer("MyHub1", "192.168.1.100", 5661, "", 0)
+
         logging.info(f"Starting router {serial_number}")
         cm = CommandHandler(serial_number)
 

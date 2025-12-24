@@ -98,9 +98,9 @@ function NavigationBar() {
                         <DropdownItem
                             key="autoscaling"
                             description=""
-                            onPress={() => router.push("/init")}
+                            onPress={() => router.push("/manual_system_commands")}
                         >
-                            <div className='text-sm'>Initialize database</div>
+                            <div className='text-sm'>System commands</div>
                         </DropdownItem>
                         <DropdownItem
                             key="usage_metrics"

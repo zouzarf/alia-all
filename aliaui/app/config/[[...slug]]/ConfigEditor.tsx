@@ -1,16 +1,16 @@
 "use client"
 import React from 'react';
-import { base_station_ports, general_config, routers, routes, zones } from '@prisma/client';
+import { base_station_ports, general_config, routers, routes, zones, wireless_hubs } from '@prisma/client';
 import GeneralConfig from './GeneralConfig';
 import ZonesConfig from './ZonesConfig';
 import RouterConfig from './RouterConfig';
 import BaseStationConfig from './BaseStationConfig';
 import { Tabs, Tab, Card, CardBody } from "@nextui-org/react";
-import Init from './Init';
+import WirelessHub from './WirelessHubConfig';
 
 export default function ConfigEditor(
-    { generalConfig, zones, routers, baseStationConfig, routes, selected }: {
-        generalConfig: general_config[], zones: zones[], routers: routers[], baseStationConfig: base_station_ports[], routes: routes[], selected: string
+    { generalConfig, zones, routers, baseStationConfig, routes, selected, wirelessHubs }: {
+        generalConfig: general_config[], zones: zones[], routers: routers[], baseStationConfig: base_station_ports[], routes: routes[], selected: string, wirelessHubs: wireless_hubs[]
     }) {
 
     return (
@@ -51,10 +51,12 @@ export default function ConfigEditor(
                         </CardBody>
                     </Card>
                 </Tab>
-                <Tab key="init" title="Init" href={"/config/init"}>
+                <Tab key="wireless_hub_config" title="Wireless Hub Config" href="/config/wireless_hub_config">
                     <Card>
                         <CardBody>
-                            <Init />
+                            <WirelessHub
+                                wirelessHubs={wirelessHubs}
+                            />
                         </CardBody>
                     </Card>
                 </Tab>

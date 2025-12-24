@@ -14,12 +14,13 @@ export default function ZonesConfig({ config, routers, routes }: { config: zones
   const rows = config.map(zone => {
     const route = routes.filter(route => route.dst == zone.name)[0]
     const router = route != null ? routers.filter(router => router.name == route.src)[0] : { "name": "" }
-    return { "name": zone.name, "router": router.name, "mp": route?.valve_microprocessor_port, "hp": route?.valve_hub_port }
+    return { "name": zone.name, "router": router.name, "mp": route?.hub_port, "hp": route?.relay_channel }
   });
   const [name, setName] = React.useState("")
   const [routerName, setRouterName] = React.useState("")
-  const [sbcPort, setSbcPort] = React.useState(0)
+  const [hubSerialNumber, setHubSerialNumber] = React.useState(0)
   const [hubPort, setHubPort] = React.useState(0)
+  const [relayChannel, setRelayChannel] = React.useState(0)
 
   return (
     <div
@@ -35,10 +36,13 @@ export default function ZonesConfig({ config, routers, routes }: { config: zones
               Source router
             </th>
             <th scope="col" className="px-6 py-3">
-              Source router Port
+              Valve Hub Serial Number
             </th>
             <th scope="col" className="px-6 py-3">
-              Source router Channel
+              Valve Hub Port
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Valve Relay Channel
             </th>
             <th scope="col" className="px-6 py-3">
 
@@ -58,10 +62,13 @@ export default function ZonesConfig({ config, routers, routes }: { config: zones
                     {routing.src}
                   </td>
                   <td className="px-6 py-4">
-                    {routing.valve_microprocessor_port}
+                    {routing.hub_serial_number}
                   </td>
                   <td className="px-6 py-4">
-                    {routing.valve_hub_port}
+                    {routing.hub_port}
+                  </td>
+                  <td className="px-6 py-4">
+                    {routing.relay_channel}
                   </td>
                   <td className="px-6 py-4">
                     <Button isIconOnly variant="bordered" color="danger" onClick={() => {
@@ -114,19 +121,19 @@ export default function ZonesConfig({ config, routers, routes }: { config: zones
                 type="number"
                 min={0}
                 max={5}
-                value={sbcPort.toString()}
+                value={hubSerialNumber.toString()}
                 labelPlacement="outside"
                 onChange={(e) => {
                   console.log(e)
-                  setSbcPort(parseInt(e.target.value));
+                  setHubSerialNumber(parseInt(e.target.value));
                 }}
               />
             </td>
             <td className="px-6 py-4">
               <Input
+                type="number"
                 min={0}
                 max={5}
-                type="number"
                 value={hubPort.toString()}
                 labelPlacement="outside"
                 onChange={(e) => {
@@ -136,8 +143,21 @@ export default function ZonesConfig({ config, routers, routes }: { config: zones
               />
             </td>
             <td className="px-6 py-4">
+              <Input
+                min={0}
+                max={5}
+                type="number"
+                value={relayChannel.toString()}
+                labelPlacement="outside"
+                onChange={(e) => {
+                  console.log(e)
+                  setRelayChannel(parseInt(e.target.value));
+                }}
+              />
+            </td>
+            <td className="px-6 py-4">
               <Button isDisabled={routerName == "" || name == ""} color="success" onClick={() => {
-                createZone(name, routerName, sbcPort, hubPort);
+                createZone(name, routerName, hubSerialNumber, hubPort, relayChannel);
                 client?.publish(
                   "hub",
                   JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })

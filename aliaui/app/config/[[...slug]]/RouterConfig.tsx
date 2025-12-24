@@ -36,7 +36,7 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
   const client = mqttConnecter(data)
 
   const [name, setName] = useState("");
-  const [serialNumber, setSerialNumber] = useState("");
+  const [serialNumber, setSerialNumber] = useState(0);
   const [mpPort, setMpPort] = useState(0);
   const [hubPort, setHubPort] = useState(0);
   const isOtherRouterLinkedToBase = router.filter(x => x.linked_to_base_station).length == 0;
@@ -147,18 +147,6 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
                 Router Name
               </th>
               <th scope="col" className="px-6 py-3">
-                Serial Number
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Pump port
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Pump Channel
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Flow Source (Routing source)
-              </th>
-              <th scope="col" className="px-6 py-3">
 
               </th>
             </tr>
@@ -172,18 +160,6 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                       {r.name}
                     </th>
-                    <td className="px-6 py-4">
-                      {r.serial_number}
-                    </td>
-                    <td className="px-6 py-4">
-                      {r.pump_microprocessor_port}
-                    </td>
-                    <td className="px-6 py-4">
-                      {r.pump_hub_port}
-                    </td>
-                    <td className="px-6 py-4">
-                      {r.linked_to_base_station == false ? `Router: ${routing.length > 0 ? routing[0].src : "NA"} - Port:${routing.length > 0 ? routing[0].valve_microprocessor_port : "NA"}/Channel:${routing.length > 0 ? routing[0].valve_hub_port : "NA"}` : "Base station"}
-                    </td>
                     <td className="px-6 py-4">
                       <Button isIconOnly variant="bordered" color="danger" onClick={() => {
                         deleteRouter(r);
@@ -211,56 +187,16 @@ export function RouterDivConfig({ router, routes }: { router: routers[], routes:
                 />
               </th>
               <td className="px-6 py-4">
-                <Input
-                  type="text"
-                  min={0}
-                  max={5}
-                  value={serialNumber}
-                  labelPlacement="inside"
-                  onChange={(e) => {
-                    setSerialNumber(e.target.value);
-                  }}
-                />
-              </td>
-              <td className="px-6 py-4">
-                <Input
-                  min={0}
-                  max={5}
-                  value={mpPort.toString()}
-                  type="number"
-                  labelPlacement="inside"
-                  onChange={(e) => {
-                    setMpPort(parseInt(e.target.value));
-                  }}
-                />
-              </td>
-              <td className="px-6 py-4">
-                <Input
-                  min={0}
-                  max={5}
-                  value={hubPort.toString()}
-                  type="number"
-                  labelPlacement="inside"
-                  onChange={(e) => {
-                    setHubPort(parseInt(e.target.value));
-                  }}
-                />
-              </td>
-              <td className="px-6 py-4">
-                {linkedToRouter == "" ? "NA " : linkedToRouter == "base_station" ? "Base station " : `Router: ${linkedToRouter} - Port:${pvRouterMpPort}/Channel:${pvRouterHubPort} `}
-                <Button onPress={onOpen}>Edit</Button>
-              </td>
-              <td className="px-6 py-4">
-                <Button color="success" isDisabled={(isOtherRouterLinkedToBase == false && linkedToRouter == "") || name == ""} onClick={() => {
+                <Button color="success" isDisabled={router.length > 0} onClick={() => {
                   console.log(linkedToRouter == "base_station")
                   addRouter(
                     {
                       "name": name,
-                      "serial_number": serialNumber,
-                      "pump_hub_port": hubPort,
-                      "pump_microprocessor_port": mpPort,
+                      "hub_serial_number": serialNumber,
+                      "hub_port": mpPort,
+                      "relay_channel": hubPort,
                       "linked_to_base_station": linkedToRouter == "base_station"
-                    }, linkedToRouter, pvRouterMpPort, pvRouterHubPort);
+                    }, linkedToRouter, pvRouterMpPort, pvRouterHubPort, serialNumber);
                   client?.publish(
                     "hub",
                     JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })

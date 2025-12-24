@@ -36,15 +36,6 @@ class CommandHandler:
                     logging.info("Reloading config ...")
                     self.routing_station.close()
                     self.load_config()
-                case "ROUTINGPUMP":
-                    if command_message.command == "ACTIVATE":
-                        logging.info("Enabling pump ...")
-                        self.routing_station.pump.enable()
-                        logging.info("Pump enabled")
-                    else:
-                        logging.info("Disabling pump ...")
-                        self.routing_station.pump.disable()
-                        logging.info("Pump disabled")
                 case "ROUTINGVALVE":
                     if command_message.command == "ACTIVATE":
                         logging.info(

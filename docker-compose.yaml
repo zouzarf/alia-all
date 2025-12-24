@@ -3,38 +3,20 @@ services:
     image: "alia2024/ui:latest"
     network_mode: "host"        
     restart: on-failure
-    profiles: [rasp]
-    deploy:
-      resources:
-        limits:
-          cpus: '0.6'
-    environment:
-      RASP_SERV: ${RASP_IP}
   scheduler:
     image: "alia2024/scheduler:latest"
     network_mode: "host"        
     restart: on-failure
-    profiles: [rasp]
-    deploy:
-      resources:
-        limits:
-          cpus: '0.1'
   hub:
     image: "alia2024/backend:latest"
     network_mode: "host"        
     restart: on-failure
-    profiles: [rasp]
-    deploy:
-      resources:
-        limits:
-          cpus: '0.1'
     command: ["poetry", "run", "uvicorn", "hub:app", "--host", "0.0.0.0", "--port", "8001"]
-  base_station:
+  driver:
     image: "alia2024/backend:latest"
     network_mode: "host"        
     restart: on-failure
     privileged: true
-    profiles: [rasp]
     command: ["poetry", "run", "uvicorn", "driver:app", "--host", "0.0.0.0", "--port", "8000"]
   db:
     image: "postgres:16.3-alpine3.20"
@@ -45,10 +27,5 @@ services:
     environment:
       POSTGRES_PASSWORD: mysecretpassword
       PGDATA: /var/lib/postgresql/data/db-files/
-    profiles: [rasp]
-    deploy:
-      resources:
-        limits:
-          cpus: '0.15'
 volumes:
   db-vol:

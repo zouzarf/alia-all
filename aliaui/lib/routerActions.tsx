@@ -1,7 +1,5 @@
 "use server"
-import 'server-only'
-
-import { base_station_ports, general_config, routers } from '@prisma/client'
+import { routers } from '@prisma/client'
 import prisma from "@/lib/db";
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -49,12 +47,12 @@ export const deleteRouter = async (router: routers) => {
 }
 
 
-export const addRouter = async (router: routers, router_from: string, port1: number, port2: number) => {
+export const addRouter = async (router: routers, router_from: string, hub_port: number, relay_channel: number, serial_number: number) => {
     if (router.linked_to_base_station == false && router_from != "") {
         await prisma.$transaction([
             prisma.nodes.create({ "data": { node_name: router.name } })
             , prisma.routers.create({ "data": router }),
-            prisma.routes.create({ "data": { "src": router_from, "dst": router.name, "valve_microprocessor_port": port1, "valve_hub_port": port2 } })
+            prisma.routes.create({ "data": { "src": router_from, "dst": router.name, "hub_port": hub_port, "relay_channel": relay_channel, "hub_serial_number": serial_number } })
         ])
     }
     else {
@@ -65,4 +63,19 @@ export const addRouter = async (router: routers, router_from: string, port1: num
     }
     revalidatePath('/')
     redirect(`/config/routers`)
+}
+
+export const addIp = async (ip: string) => {
+    await prisma.wireless_hubs.create({ "data": { ip: ip } })
+    revalidatePath('/')
+    redirect(`/config/wireless_hub_config`)
+}
+
+export const deleteIp = async (ip: string) => {
+    await prisma.wireless_hubs.delete({
+        where: { ip: ip }
+    })
+    revalidatePath('/')
+    redirect(`/config/wireless_hub_config`)
+
 }
