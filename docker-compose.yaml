@@ -20,7 +20,7 @@ services:
         limits:
           cpus: '0.1'
   hub:
-    image: "alia2024/hub:latest"
+    image: "alia2024/backend:latest"
     network_mode: "host"        
     restart: on-failure
     profiles: [rasp]
@@ -28,31 +28,14 @@ services:
       resources:
         limits:
           cpus: '0.1'
-  mqtt:
-    image: "alia2024/mqtt:latest"
-    network_mode: "host"        
-    restart: on-failure
-    profiles: [rasp]
-    deploy:
-      resources:
-        limits:
-          cpus: '0.05'
+    command: ["poetry", "run", "uvicorn", "hub:app", "--host", "0.0.0.0", "--port", "8001"]
   base_station:
-    image: "alia2024/base_station:latest"
+    image: "alia2024/backend:latest"
     network_mode: "host"        
     restart: on-failure
     privileged: true
-    profiles: [base_station]
-    environment:
-      rasp_server: ${RASP_IP}
-  router:
-    image: "alia2024/router:latest"
-    network_mode: "host"        
-    restart: on-failure
-    privileged: true
-    profiles: [router]
-    environment:
-      rasp_server: ${RASP_IP}
+    profiles: [rasp]
+    command: ["poetry", "run", "uvicorn", "driver:app", "--host", "0.0.0.0", "--port", "8000"]
   db:
     image: "postgres:16.3-alpine3.20"
     network_mode: "host"        
