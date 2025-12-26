@@ -1,77 +1,100 @@
+"use client"
+
+import React, { useState } from "react";
+import { Card, CardBody, Button, Chip, Divider, Tooltip } from "@nextui-org/react";
+import { Power, PowerOff, Activity, Droplets, Zap } from "lucide-react";
 import { base_station_ports } from "@prisma/client";
-import { useState } from "react";
 import { handleComponentCommand } from "./command";
 
-async function handleClick(component: string, command: string) {
-    const res = await fetch('http://127.0.0.1:8000/' + component + '/' + command, { cache: 'no-store' });
-    const data = await res.json();
-    console.log(data);
-}
-
 export default function BaseStationCommands({ bs_config }: { bs_config: base_station_ports[] }) {
+    const [loadingComponent, setLoadingComponent] = useState<string | null>(null);
 
-    const [waterSensor, setWaterSensor] = useState(0.0)
+    // Separate components from sensors
+    const components = bs_config
+        .filter(b => b.name !== "WATERSENSOR")
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    const onCommand = async (name: string, action: "activate" | "deactivate") => {
+        setLoadingComponent(`${name}-${action}`);
+        try {
+            await handleComponentCommand(name, action);
+        } catch (error) {
+            console.error('Command failed:', error);
+        } finally {
+            setLoadingComponent(null);
+        }
+    };
+
     return (
+        <div className="space-y-6">
+            {/* Header / Sensor Status Bar */}
+            <div className="flex items-center justify-between bg-default-50 p-4 rounded-2xl border border-default-200">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                        <Droplets size={20} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black uppercase text-default-400 tracking-widest">Live telemetry</p>
+                        <h3 className="text-sm font-bold">Base Station Flow Sensors</h3>
+                    </div>
+                </div>
+                <Chip
+                    variant="shadow"
+                    color="primary"
+                    classNames={{ content: "font-mono font-bold" }}
+                    startContent={<Activity size={14} className="ml-1" />}
+                >
+                    System Online
+                </Chip>
+            </div>
 
+            {/* Component Control Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {components.map((c) => (
+                    <Card key={c.name} shadow="sm" className="border border-default-100">
+                        <CardBody className="p-4 space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Zap size={16} className="text-amber-500" />
+                                    <span className="font-black uppercase text-xs tracking-tight text-default-700">
+                                        {c.name}
+                                    </span>
+                                </div>
+                                <div className="h-2 w-2 rounded-full bg-default-300 animate-pulse" />
+                            </div>
 
-        <div className="relative overflow-x-auto">
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" className="px-6 py-3">
-                            Component
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Command
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {bs_config.filter(b => b.name != "WATERSENSOR").sort((a, b) => (a.name <= b.name ? -1 : 1)).map(c => (
-                        <tr key={c.name} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <Divider />
 
-                            <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {c.name}
-                            </th>
-                            <td className="px-6 py-4">
-                                <button
-                                    type="button"
-                                    className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-                                    onClick={async () => {
-                                        try {
-                                            const data = await handleComponentCommand(c.name, "activate");
-                                            console.log('Success:', data);
-                                        } catch (error) {
-                                            console.error('Click handler error:', error);
-                                        }
-                                    }}
+                            <div className="flex gap-2">
+                                <Button
+                                    fullWidth
+                                    size="sm"
+                                    color="success"
+                                    variant="flat"
+                                    className="font-bold uppercase text-[10px]"
+                                    startContent={<Power size={14} />}
+                                    isLoading={loadingComponent === `${c.name}-activate`}
+                                    onPress={() => onCommand(c.name, "activate")}
                                 >
-                                    Activate
-                                </button>
-                                <button type="button"
-                                    className="focus:outline-none 
-                                text-white bg-red-700 hover:bg-red-800 
-                                focus:ring-4 focus:ring-red-300 font-medium rounded-lg 
-                                text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 
-                                dark:focus:ring-red-900"
-                                    onClick={async () => {
-                                        try {
-                                            const data = await handleComponentCommand(c.name, "deactivate");
-                                            console.log('Success:', data);
-                                        } catch (error) {
-                                            console.error('Click handler error:', error);
-                                        }
-                                    }}
+                                    On
+                                </Button>
+                                <Button
+                                    fullWidth
+                                    size="sm"
+                                    color="danger"
+                                    variant="flat"
+                                    className="font-bold uppercase text-[10px]"
+                                    startContent={<PowerOff size={14} />}
+                                    isLoading={loadingComponent === `${c.name}-deactivate`}
+                                    onPress={() => onCommand(c.name, "deactivate")}
                                 >
-                                    Deactivate
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-
-                </tbody>
-            </table>
+                                    Off
+                                </Button>
+                            </div>
+                        </CardBody>
+                    </Card>
+                ))}
+            </div>
         </div>
-
-    )
+    );
 }

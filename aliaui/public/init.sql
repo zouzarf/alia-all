@@ -36,15 +36,15 @@ create table config.base_station_ports (
 INSERT INTO
     config.base_station_ports
 VALUES
-    ('PUMP_1', 0, 0, 622610),
-    ('PUMP_2', 0, 1, 622610),
-    ('PUMP_3', 0, 2, 622610),
-    ('PUMP_4', 0, 3, 622610),
-    ('VALVE_1', 1, 0, 622610),
-    ('VALVE_2', 1, 1, 622610),
-    ('VALVE_3', 1, 2, 622610),
-    ('VALVE_4', 1, 3, 622610),
-    ('COMPRESSOR', 2, 0, 622610);
+    ('PUMP_1', 0, 0, 671787),
+    ('PUMP_2', 0, 1, 671787),
+    ('PUMP_3', 0, 2, 671787),
+    ('PUMP_4', 0, 3, 671787),
+    ('VALVE_1', 1, 0, 671787),
+    ('VALVE_2', 1, 1, 671787),
+    ('VALVE_3', 1, 2, 671787),
+    ('VALVE_4', 1, 3, 671787),
+    ('COMPRESSOR', 2, 0, 671787);
 
 create table config.zones (
     name varchar(255) not null unique REFERENCES config.nodes(node_name)

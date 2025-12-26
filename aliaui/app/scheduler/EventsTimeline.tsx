@@ -1,48 +1,104 @@
-import { events_logs, irrigation } from "@prisma/client"
+"use client"
 
-export default function EventsTimeLine({ irrigations }: { irrigations: irrigation[] }) {
-    const eventz = irrigations.map(e => <Event key={e.id} irrigation={e} />)
+import { irrigation } from "@prisma/client"
+import { CheckCircle2, Clock, PlayCircle, StopCircle } from "lucide-react";
+import { Chip } from "@nextui-org/react";
+
+export default function EventsTimeline({ irrigations }: { irrigations: irrigation[] }) {
+    // Sort irrigations by date descending so newest executions are at the top
+    const sortedIrrigations = [...irrigations].sort((a, b) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
     return (
-        <div className="flex bg-white">
-            <div className="space-y-6 border-l-2 border-dashed">
-                {eventz}
+        <div className="p-2">
+            <div className="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-blue-500 before:via-default-200 before:to-transparent">
+                {sortedIrrigations.map((e) => (
+                    <Event key={e.id} irrigation={e} />
+                ))}
+                {sortedIrrigations.length === 0 && (
+                    <p className="text-center text-default-400 text-sm italic py-4">
+                        No execution records found.
+                    </p>
+                )}
             </div>
         </div>
     )
 }
 
 function Event({ irrigation }: { irrigation: irrigation }) {
+    const durationInSeconds = irrigation.process_start && irrigation.process_end
+        ? (irrigation.process_end.getTime() - irrigation.process_start.getTime()) / 1000
+        : 0;
 
-    return (<div className="relative w-full">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="absolute -top-0.5 z-10 -ml-3.5 h-7 w-7 rounded-full text-blue-500">
-            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
-        </svg>
-        <div className="ml-6">
-            <h4 className="font-bold text-blue-500">Execution of : {irrigation.date.toISOString()}</h4>
-            <p className="mt-2 max-w-screen-sm text-sm text-gray-500">Start time: {irrigation.process_start?.toUTCString()}</p>
-            <p className="mt-2 max-w-screen-sm text-sm text-gray-500">End time: {irrigation.process_end?.toUTCString()}</p>
-            <span className="mt-1 block text-sm font-semibold text-blue-500">Time: {formatTime((irrigation.process_end!.getTime() - irrigation.process_start!.getTime()) / 1000)}s</span>
+    return (
+        <div className="relative flex items-start group">
+            {/* Timeline Icon */}
+            <div className="absolute left-0 mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-gray-900 border-2 border-blue-500 z-10 shadow-sm transition-transform group-hover:scale-110">
+                <CheckCircle2 className="h-6 w-6 text-blue-500" />
+            </div>
+
+            {/* Event Content */}
+            <div className="ml-14 flex-1">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <h4 className="font-black text-default-800 text-sm uppercase tracking-tight">
+                            {new Date(irrigation.date).toLocaleDateString()}
+                        </h4>
+                        {/* Zone Name Badge */}
+                        <Chip
+                            size="sm"
+                            variant="dot"
+                            color="primary"
+                            className="border-none h-6 font-bold text-[10px] uppercase"
+                        >
+                            {irrigation.zone_name}
+                        </Chip>
+                    </div>
+
+                    <Chip
+                        size="sm"
+                        variant="flat"
+                        color="success"
+                        startContent={<Clock size={12} />}
+                        className="font-bold px-2"
+                    >
+                        {formatTime(durationInSeconds)}
+                    </Chip>
+                </div>
+
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white dark:bg-default-50 border border-default-200 rounded-xl p-3 shadow-sm">
+                    <div className="flex items-center gap-3 text-tiny font-bold uppercase text-default-500">
+                        <PlayCircle size={14} className="text-blue-400" />
+                        <div className="flex flex-col">
+                            <span className="text-[9px] text-default-400 font-black">Started</span>
+                            <span>{irrigation.process_start ? new Date(irrigation.process_start).toLocaleTimeString() : "N/A"}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3 text-tiny font-bold uppercase text-default-500">
+                        <StopCircle size={14} className="text-orange-400" />
+                        <div className="flex flex-col">
+                            <span className="text-[9px] text-default-400 font-black">Ended</span>
+                            <span>{irrigation.process_end ? new Date(irrigation.process_end).toLocaleTimeString() : "N/A"}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>)
-
+    )
 }
+
 function formatTime(seconds: number) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = parseInt((seconds % 60).toFixed(0));
+    if (!seconds || seconds <= 0) return "0s";
 
-    // Constructing the formatted time
-    let formattedTime = '';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.round(seconds % 60);
 
-    if (hours > 0) {
-        formattedTime += `${hours} hour${hours > 1 ? 's' : ''} `;
-    }
-    if (minutes > 0) {
-        formattedTime += `${minutes} minute${minutes > 1 ? 's' : ''} `;
-    }
-    if (remainingSeconds > 0 || formattedTime === '') { // Always show seconds if no other part exists
-        formattedTime += `${remainingSeconds} second${remainingSeconds > 1 ? 's' : ''}`;
-    }
+    const parts = [];
+    if (h > 0) parts.push(`${h}h`);
+    if (m > 0) parts.push(`${m}m`);
+    if (s > 0 || parts.length === 0) parts.push(`${s}s`);
 
-    return formattedTime.trim();
+    return parts.join(" ");
 }

@@ -1,37 +1,57 @@
 
 import prisma from "@/lib/db";
 import CardZone from "./cardZone";
-import { Button } from "@nextui-org/react";
+import { Button, Divider } from "@nextui-org/react";
 import Link from "next/link";
-import Image from 'next/image'
+import { PlusCircle, LayoutDashboard, Droplets } from "lucide-react";
+
 export const dynamic = 'force-dynamic'
 
 export default async function ScheduleA() {
-    const AddCircleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={24} height={24} color={"#ffffff"} fill={"none"} {...props}>
-            <path d="M12 8V16M16 12L8 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12Z" stroke="currentColor" strokeWidth="1.5" />
-        </svg>
-    );
-
-    const scheduledIrrigations = (await prisma.irrigation.findMany({ distinct: ["schedule_name"] })).map(x => x.schedule_name)
+    const scheduledIrrigations = (await prisma.irrigation.findMany({
+        distinct: ["schedule_name"]
+    })).map(x => x.schedule_name);
 
     return (
-        <div className="flex flex-col gap-y-5">
-            <div className="relative flex items-center justify-center py-5">
-                <h1 className="text-4xl font-bold">Overview</h1>
+        <div className="p-6 space-y-8">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500 rounded-lg text-white shadow-lg shadow-blue-200">
+                        <LayoutDashboard size={24} />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-black uppercase tracking-tight">System Overview</h1>
+                        <p className="text-default-500 text-tiny uppercase tracking-widest font-semibold">Active Irrigation Schedules</p>
+                    </div>
+                </div>
+
                 <Button
-                    startContent={<AddCircleIcon />} as={Link} href="./scheduler/new"
-                    className="absolute right-6 top-1/2 transform -translate-y-1/2 px-4 py-2"
-                    color="primary">
-                    New irrigation schedule
+                    as={Link}
+                    href="./scheduler/new"
+                    color="primary"
+                    variant="shadow"
+                    className="font-bold"
+                    startContent={<PlusCircle size={20} />}
+                >
+                    Create New Schedule
                 </Button>
             </div>
-            <div className="flex flex-row gap-10 justify-center">
-                {scheduledIrrigations.map(x => <CardZone key={x} scheduledIrrigation={x} />)}
-                {scheduledIrrigations.length == 0 ? "No schedules have been added at the moment please add a new one" : ""}
-            </div>
 
+            <Divider />
+
+            {/* Grid for Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {scheduledIrrigations.length > 0 ? (
+                    scheduledIrrigations.map(x => <CardZone key={x} scheduledIrrigation={x} />)
+                ) : (
+                    <div className="col-span-full py-20 text-center border-2 border-dashed border-default-200 rounded-3xl">
+                        <Droplets className="mx-auto text-default-200 mb-4" size={48} />
+                        <p className="text-default-400 font-medium">No irrigation schedules found.</p>
+                        <p className="text-default-300 text-small">Add a new schedule to begin water routing.</p>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

@@ -1,5 +1,4 @@
 "use server"
-import 'server-only'
 
 import { base_station_ports, general_config } from '@prisma/client'
 import prisma from "@/lib/db";

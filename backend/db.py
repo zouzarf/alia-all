@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import sessionmaker
 
-rasp_server = "localhost"
+rasp_server = "127.0.0.1"
 MQTT_SERVER_IP = rasp_server
 serial_number = "1001"
 
@@ -79,7 +79,7 @@ class BaseStationPorts(Base):
 
 
 engine = db.create_engine(
-    f"postgresql://postgres:mysecretpassword@localhost:5432/postgres"
+    f"postgresql://postgres:mysecretpassword@127.0.0.1:5432/postgres"
 )
 Session = sessionmaker(bind=engine)
 session = Session()

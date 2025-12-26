@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:mysecretpassword@127.0.0.1:5432/postgres"
+  url      = env("DATABASE_URL")
   schemas  = ["config", "health", "live", "scheduler"]
 }
 

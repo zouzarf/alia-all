@@ -33,8 +33,6 @@ class Actionner:
         self.device = RelayChannel(
             int(self.serial_number), self.hub_port, self.relay_channel
         )
-        # simulate setup
-        # e.g., open serial, initialize hardware, wait for ready
 
     def do_action(self, action):
         logger.info(f"{self.name}: Executing {action}")
@@ -42,33 +40,39 @@ class Actionner:
             self.device.enable()
         else:
             self.device.disable()
-        # actual action logic here
 
 
 lock = asyncio.Lock()  # Ensure reload is thread-safe
 
 
-# Example: simulate fetching config from DB
 async def load_config_from_db():
-    # Replace with real DB query
     ACTIONNERS.clear()
     for wireless_hub in session.query(WirelessHubs).all():
         Net.addServer("test+000" + str(random.random()), wireless_hub.ip, 5661, "", 0)
         logger.info("Adding server " + wireless_hub.ip)
-    for base_station_port in session.query(BaseStationPorts).all():
-        ACTIONNERS[base_station_port.name] = Actionner(
-            base_station_port.name,
-            base_station_port.hub_port,
-            base_station_port.relay_channel,
-            base_station_port.hub_serial_number,
-        )
-    for zone_ports in session.query(RoutesConfig).all():
-        ACTIONNERS[zone_ports.dst] = Actionner(
-            zone_ports.dst,
-            zone_ports.hub_port,
-            zone_ports.relay_channel,
-            zone_ports.hub_serial_number,
-        )
+    base_station_ports = session.query(BaseStationPorts).all()
+    zone_ports_list = session.query(RoutesConfig).all()
+
+    async def create_actionner(name, hub_port, relay_channel, hub_serial_number):
+        return name, Actionner(name, hub_port, relay_channel, hub_serial_number)
+
+    results = await asyncio.gather(
+        *[
+            create_actionner(
+                port.name, port.hub_port, port.relay_channel, port.hub_serial_number
+            )
+            for port in base_station_ports
+        ],
+        *[
+            create_actionner(
+                zone.dst, zone.hub_port, zone.relay_channel, zone.hub_serial_number
+            )
+            for zone in zone_ports_list
+        ],
+    )
+
+    for name, actionner in results:
+        ACTIONNERS[name] = actionner
 
 
 def create_action_endpoint(device_name, action):

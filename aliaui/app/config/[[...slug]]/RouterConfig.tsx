@@ -1,27 +1,33 @@
 "use client"
-import React, { Key, useState } from "react";
+
+import React, { useState } from "react";
 import { routers, routes } from '@prisma/client'
-import { Button, Divider, Input, Radio, RadioGroup, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
-import { addRouter, deleteRouter } from "@/lib/routerActions";
-import DeleteIcon from '@mui/icons-material/Delete';
-import { mqttConnecter } from "@/lib/mqttClient";
-import useSWR from "swr";
 import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
+  Button,
+  Divider,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+  Card,
+  CardBody
 } from "@nextui-org/react";
-const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())
+import { addRouter, deleteRouter } from "@/lib/routerActions";
+import { Trash2, Plus, Droplets } from 'lucide-react';
+
 export default function RouterConfig({ configRouters, routes }: { configRouters: routers[], routes: routes[] }) {
-
-
   return (
-    <div>
-      <h1 className="text-5xl font-extrabold dark:text-white text-center">List of routers</h1>
-      <Divider className="my-2" />
+    <div className="space-y-4">
+      <div className="text-center py-4">
+        <h1 className="text-4xl font-extrabold dark:text-white uppercase tracking-tight">
+          Routing Stations
+        </h1>
+        <p className="text-default-500 text-sm mt-1">Manage physical valve controller links and flow paths.</p>
+      </div>
+
       <RouterDivConfig
         router={configRouters}
         routes={routes}
@@ -31,185 +37,90 @@ export default function RouterConfig({ configRouters, routes }: { configRouters:
 }
 
 export function RouterDivConfig({ router, routes }: { router: routers[], routes: routes[] }) {
-  const rows = router;
-  const { data, error } = useSWR("/api/config", fetcher);
-  const client = mqttConnecter(data)
-
   const [name, setName] = useState("");
-  const [serialNumber, setSerialNumber] = useState(0);
-  const [mpPort, setMpPort] = useState(0);
-  const [hubPort, setHubPort] = useState(0);
-  const isOtherRouterLinkedToBase = router.filter(x => x.linked_to_base_station).length == 0;
-  const [linkedToRouter, setLinkedToRouter] = useState("");
-  const [pvRouterMpPort, setPvRouterMpPort] = useState(0);
-  const [pvRouterHubPort, setPvRouterHubPort] = useState(0);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-
+  const onAddStation = () => {
+    if (!name.trim()) return;
+    addRouter(
+      {
+        "name": name,
+        "hub_serial_number": 0,
+        "hub_port": 0,
+        "relay_channel": 0,
+        "linked_to_base_station": true
+      }, "", 0, 0, 0);
+    setName("");
+  };
 
   return (
-    <>
-      <Modal
-        isDismissable={false}
-        isKeyboardDismissDisabled={true}
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
+    <div className="max-w-3xl mx-auto flex flex-col gap-4">
+      <Table
+        aria-label="Routing Station List"
+        removeWrapper
+        className="border border-default-200 rounded-xl"
+        classNames={{
+          th: "bg-default-50 text-default-600 font-bold",
+          td: "py-3"
+        }}
       >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Define routing source</ModalHeader>
-              <ModalBody>
-                <div className="w-900">
-                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                      <tr>
-                        <th scope="col" className="px-6 py-3">
-                          From
-                        </th>
-                        {(linkedToRouter != "base_station" && linkedToRouter != "") ? (<><th scope="col" className="px-6 py-3">
-                          Port
-                        </th>
-                          <th scope="col" className="px-6 py-3">
-                            Channel
-                          </th></>) : ""}
-
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                          <Select
-                            placeholder="Source"
-                            selectionMode="single"
-                            className="max-w-xs"
-                            value={linkedToRouter}
-                            selectedKeys={[linkedToRouter]}
-                            onChange={(e) => {
-                              setLinkedToRouter(e.target.value);
-                            }}
-                          >
-
-
-                            {[["base_station", "Base station"]].concat(router.map(router => [router.name, router.name])).map(router => (
-                              <SelectItem key={router[0]} isDisabled={(isOtherRouterLinkedToBase == false && router[0] == "base_station") || (isOtherRouterLinkedToBase == true && router[0] != "base_station")}>
-                                {router[1]}
-                              </SelectItem>
-                            ))}
-                          </Select>
-                        </th>
-                        {(linkedToRouter != "base_station" && linkedToRouter != "") ? (<><td className="px-6 py-4">
-                          <Input
-                            min={0}
-                            max={5}
-                            value={pvRouterMpPort.toString()}
-                            isDisabled={isOtherRouterLinkedToBase == true}
-                            type="number"
-                            labelPlacement="outside"
-                            onChange={(e) => {
-                              setPvRouterMpPort(parseInt(e.target.value));
-                            }}
-                          />
-                        </td>
-                          <td className="px-6 py-4">
-                            <Input
-                              min={0}
-                              max={5}
-                              value={pvRouterHubPort.toString()}
-                              isDisabled={isOtherRouterLinkedToBase == true}
-                              type="number"
-                              labelPlacement="outside"
-                              onChange={(e) => {
-                                setPvRouterHubPort(parseInt(e.target.value));
-                              }}
-                            />
-                          </td></>) : ""}
-                      </tr>
-                    </tbody>
-                  </table>
+        <TableHeader>
+          <TableColumn>STATION NAME</TableColumn>
+          <TableColumn align="end" className="w-[100px]">ACTIONS</TableColumn>
+        </TableHeader>
+        <TableBody emptyContent={"No routing stations configured."}>
+          {router.map((r) => (
+            <TableRow key={r.name} className="border-b border-default-100 last:border-none">
+              <TableCell>
+                <div className="flex items-center gap-2 font-mono font-bold">
+                  <Droplets size={16} className="text-blue-500" />
+                  {r.name}
                 </div>
-
-              </ModalBody>
-              <ModalFooter>
-                <Button color="primary" onPress={onClose}>
-                  Confirm
+              </TableCell>
+              <TableCell>
+                <Button
+                  isIconOnly
+                  variant="light"
+                  color="danger"
+                  size="sm"
+                  onPress={() => deleteRouter(r)}
+                >
+                  <Trash2 size={18} />
                 </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-      <div className="relative overflow-x-auto">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" className="px-6 py-3">
-                Router Name
-              </th>
-              <th scope="col" className="px-6 py-3">
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              router.map(r => {
-                const routing = routes.filter(x => x.dst == r.name);
-                return (
-                  <tr key={r.name} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                      {r.name}
-                    </th>
-                    <td className="px-6 py-4">
-                      <Button isIconOnly variant="bordered" color="danger" onClick={() => {
-                        deleteRouter(r);
-                        client?.publish(
-                          "hub",
-                          JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
-                        );
-                      }}>
-                        <DeleteIcon />
-                      </Button>
-                    </td>
-                  </tr>
-                )
-              })
-            }
-            <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                <Input
-                  type="text"
-                  value={name}
-                  labelPlacement="inside"
-                  onChange={(e) => {
-                    setName(e.target.value);
-                  }}
-                />
-              </th>
-              <td className="px-6 py-4">
-                <Button color="success" isDisabled={router.length > 0} onClick={() => {
-                  console.log(linkedToRouter == "base_station")
-                  addRouter(
-                    {
-                      "name": name,
-                      "hub_serial_number": serialNumber,
-                      "hub_port": mpPort,
-                      "relay_channel": hubPort,
-                      "linked_to_base_station": linkedToRouter == "base_station"
-                    }, linkedToRouter, pvRouterMpPort, pvRouterHubPort, serialNumber);
-                  client?.publish(
-                    "hub",
-                    JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
-                  );
+      {/* Manual Entry Section */}
+      <Card shadow="none" className="bg-default-50/50 border border-default-200">
+        <CardBody className="flex flex-row gap-3 items-end p-4">
+          <Input
+            label="New Station Name"
+            placeholder="e.g. ZONE_A_VALVES"
+            labelPlacement="outside"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            variant="bordered"
+            className="flex-1"
+          />
+          <Button
+            color="primary"
+            onPress={onAddStation}
+            startContent={<Plus size={18} />}
+            isDisabled={!name || router.length > 0}
+            className="font-bold"
+          >
+            Add Station
+          </Button>
+        </CardBody>
+      </Card>
 
-                }}>
-                  Add
-                </Button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </>
+      {router.length > 0 && (
+        <p className="text-[10px] text-default-400 italic text-center uppercase tracking-widest">
+          Primary flow path established
+        </p>
+      )}
+    </div>
   );
 }

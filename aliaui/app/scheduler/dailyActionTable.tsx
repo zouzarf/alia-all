@@ -1,69 +1,87 @@
 "use client"
+
 import React from "react";
+import {
+    Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip
+} from "@nextui-org/react";
+import { Clock, Zap, Waves, Wind, ArrowRight } from "lucide-react";
+
 interface schedule {
     hour: number;
-    minute: number,
-    water_pump: number,
-    routing_time: number
-    warmup_pump: number
-    warmup_compressor: number
-    compressing_time: number
+    minute: number;
+    water_pump: number;
+    routing_time: number;
+    warmup_pump: number;
+    warmup_compressor: number;
+    compressing_time: number;
 }
+
 export default function DailyActionsTable({ schedules }: { schedules: schedule[] }) {
-
     return (
+        <Table
+            aria-label="Daily Irrigation Schedule"
+            removeWrapper
+            classNames={{
+                th: "bg-default-100 text-default-800 font-black text-[10px] uppercase tracking-widest",
+                td: "py-4 font-medium text-small border-b border-default-100 last:border-none",
+            }}
+        >
+            <TableHeader>
+                <TableColumn width={120}>TIME</TableColumn>
+                <TableColumn>HARDWARE</TableColumn>
+                <TableColumn>WATER FLOW SEQUENCE</TableColumn>
+                <TableColumn>AIR PURGE SEQUENCE</TableColumn>
+            </TableHeader>
+            <TableBody emptyContent={"No daily actions defined for this job."}>
+                {schedules.map((sch, idx) => (
+                    <TableRow key={`${sch.hour}-${sch.minute}-${idx}`}>
+                        {/* Time Cell */}
+                        <TableCell>
+                            <div className="flex items-center gap-2 text-primary font-mono font-bold text-base">
+                                <Clock size={14} className="text-default-400" />
+                                {sch.hour.toString().padStart(2, '0')}:{sch.minute.toString().padStart(2, '0')}
+                            </div>
+                        </TableCell>
 
+                        {/* Pump ID Cell */}
+                        <TableCell>
+                            <Chip size="sm" color="primary" variant="flat" className="font-bold uppercase text-[10px]">
+                                Pump Unit {sch.water_pump}
+                            </Chip>
+                        </TableCell>
 
-        <div className="relative overflow-x-auto">
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" className="px-6 py-3">
-                            Hour
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Water Pump
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Warm up time Pump
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Pumping Time
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Warm up time Compressor
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Compressing Time
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {schedules.map(sch => (
-                        <tr key={sch.hour + ":" + sch.minute} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {sch.hour.toString().padStart(2, ('0'))} : {sch.minute.toString().padStart(2, ('0'))}
-                            </th>
-                            <td className="px-6 py-4">
-                                {sch.water_pump}
-                            </td>
-                            <td className="px-6 py-4">
-                                {sch.warmup_pump} (sec)
-                            </td>
-                            <td className="px-6 py-4">
-                                {sch.routing_time} (sec)
-                            </td>
-                            <td className="px-6 py-4">
-                                {sch.warmup_compressor} (sec)
-                            </td>
-                            <td className="px-6 py-4">
-                                {sch.compressing_time} (sec)
-                            </td>
-                        </tr>
-                    ))}
+                        {/* Water Sequence Cell */}
+                        <TableCell>
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1 text-default-500">
+                                    <Zap size={14} className="text-amber-500" />
+                                    <span>{sch.warmup_pump}s</span>
+                                </div>
+                                <ArrowRight size={12} className="text-default-300" />
+                                <div className="flex items-center gap-1 text-blue-600 font-bold">
+                                    <Waves size={14} />
+                                    <span>{sch.routing_time}s</span>
+                                </div>
+                            </div>
+                        </TableCell>
 
-                </tbody>
-            </table>
-        </div>
-    )
+                        {/* Air Sequence Cell */}
+                        <TableCell>
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1 text-default-500">
+                                    <Zap size={14} className="text-amber-500" />
+                                    <span>{sch.warmup_compressor}s</span>
+                                </div>
+                                <ArrowRight size={12} className="text-default-300" />
+                                <div className="flex items-center gap-1 text-sky-600 font-bold">
+                                    <Wind size={14} />
+                                    <span>{sch.compressing_time}s</span>
+                                </div>
+                            </div>
+                        </TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+    );
 }

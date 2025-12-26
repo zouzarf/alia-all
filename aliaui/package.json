@@ -27,6 +27,7 @@
     "@types/luxon": "^3.4.2",
     "d3-color": "^3.1.0",
     "framer-motion": "^11.2.12",
+    "lucide-react": "^0.562.0",
     "luxon": "^3.5.0",
     "mqtt": "^5.7.2",
     "next": "14.2.4",

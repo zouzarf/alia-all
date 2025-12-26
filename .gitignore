@@ -5,3 +5,6 @@ nodeapp/*
 test/*
 python_code/*
 .DS_Store
+*.pyc
+*/*/.pyc
+*/*/*/.pyc

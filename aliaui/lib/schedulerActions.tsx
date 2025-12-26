@@ -59,70 +59,69 @@ export const insertScheduler = async (job: irrigationPlan, dailyActions: irrigat
     redirect(`/scheduler`)
 }
 export const readScheduleStatistics = async (scheduleName: string) => {
-    const todoCount = await prisma.irrigation.count({
-        where: {
-            schedule_name: scheduleName,
-            status: "TODO",
-        },
-    });
+    // 1. Fetch counts, min, and max dates in parallel (2 queries instead of 5)
+    const [counts, aggregates, zones] = await Promise.all([
+        prisma.irrigation.groupBy({
+            by: ['status'],
+            where: { schedule_name: scheduleName },
+            _count: { _all: true },
+        }),
+        prisma.irrigation.aggregate({
+            where: { schedule_name: scheduleName },
+            _min: { date: true },
+            _max: { date: true },
+        }),
+        prisma.irrigation.findMany({
+            where: { schedule_name: scheduleName },
+            distinct: ['zone_name'],
+            select: { zone_name: true }
+        })
+    ]);
 
-    const notTodoCount = await prisma.irrigation.count({
-        where: {
-            schedule_name: scheduleName,
-            NOT: {
-                status: "TODO",
-            },
-        },
-    });
-
-    const generalStats = await prisma.irrigation.aggregate({
-        where: { schedule_name: scheduleName },
-        _min: { date: true },
-        _max: { date: true }
-    });
-    const nextIrrigation = await prisma.irrigation.aggregate({
+    // 2. Fetch specific Next/Past dates (Faster to find single records)
+    const nextIrrigation = await prisma.irrigation.findFirst({
         where: { schedule_name: scheduleName, status: "TODO" },
-        _min: { date: true },
+        orderBy: { date: 'asc' },
+        select: { date: true }
     });
-    const pastIrrigation = await prisma.irrigation.aggregate({
+
+    const pastIrrigation = await prisma.irrigation.findFirst({
         where: { schedule_name: scheduleName, NOT: { status: "TODO" } },
-        _max: { process_end: true },
     });
-    const results = await prisma.$queryRaw<
-        {
-            hour: number; minute: number; water_pump: number; routing_time: number;
-            warmup_pump: number;
-            warmup_compressor: number;
-            compressing_time: number
-        }[]
-    >(Prisma.sql`
+
+    // 3. Optimized Raw Query with proper parameter handling
+    // We calculate the timezone offset string once
+    const userTz = DateTime.local().zoneName;
+
+    const scheduleTemplate = await prisma.$queryRaw<any[]>(Prisma.sql`
         SELECT DISTINCT 
-        CAST(EXTRACT(HOUR FROM date AT TIME ZONE ${DateTime.local().zoneName}) AS INT) AS hour, 
-        CAST(EXTRACT(MINUTE FROM date AT TIME ZONE ${DateTime.local().zoneName})AS INT) AS minute,
-        water_pump,
-        routing_time,
-        warmup_pump,
-        warmup_compressor,
-        compressing_time
+            CAST(EXTRACT(HOUR FROM date AT TIME ZONE ${userTz}) AS INT) AS hour, 
+            CAST(EXTRACT(MINUTE FROM date AT TIME ZONE ${userTz}) AS INT) AS minute,
+            water_pump,
+            routing_time,
+            warmup_pump,
+            warmup_compressor,
+            compressing_time
         FROM scheduler.irrigation
-        WHERE schedule_name=${scheduleName}
-        ;
-        `);
-    const zones = await prisma.irrigation.findMany({
-        distinct: ['zone_name'],
-        where: { schedule_name: scheduleName }
-    })
+        WHERE schedule_name = ${scheduleName}
+        ORDER BY hour, minute;
+    `);
+
+    // Helper to extract counts from the grouped results
+    const todoCount = counts.find(c => c.status === "TODO")?._count._all || 0;
+    const doneCount = counts.filter(c => c.status !== "TODO").reduce((acc, c) => acc + c._count._all, 0);
+
     return {
         name: scheduleName,
         zones: zones.map(x => x.zone_name),
         todoCount: todoCount,
-        notTodoCount: notTodoCount,
-        minDate: generalStats._min.date,
-        maxDate: generalStats._max.date,
-        nextIrrigation: nextIrrigation._min.date,
-        pastIrrigation: pastIrrigation._max.process_end,
-        schedule: results
-    }
+        notTodoCount: doneCount,
+        minDate: aggregates._min.date,
+        maxDate: aggregates._max.date,
+        nextIrrigation: nextIrrigation?.date || null,
+        pastIrrigation: pastIrrigation?.process_end || null,
+        schedule: scheduleTemplate
+    };
 }
 export const readAllSchedules = async () => {
     const response = await prisma.irrigation.findMany()

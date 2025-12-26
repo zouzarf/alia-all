@@ -8,7 +8,7 @@ interface ControllerCommand{
 
 export async function handleComponentCommand(component: string, command: string) {
     const res = await fetch(
-        `http://127.0.0.1:8000/${component}/${command}`, 
+        `http://${process.env.DRIVER_SERVER}:8000/${component}/${command}`, 
         { cache: 'no-store' }
     );
     const data = await res.json();

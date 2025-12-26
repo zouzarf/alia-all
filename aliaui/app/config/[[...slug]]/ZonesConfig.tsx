@@ -1,175 +1,114 @@
-import React, { Key, useState } from "react";
+"use client"
+
+import React, { Key, useState, useCallback } from "react";
 import { zones, routers, routes } from '@prisma/client'
-import { Divider } from "@nextui-org/divider";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Input, Button, SelectItem, Select } from "@nextui-org/react";
+import {
+  Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
+  Input, Button, SelectItem, Select, Card, Chip
+} from "@nextui-org/react";
 import { createZone, deleteZone } from "@/lib/zonesActions";
-import { useRouter } from "next/navigation";
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Trash2, Plus, MapPin, HardDrive, Hash, Share2, Activity } from 'lucide-react';
 import { mqttConnecter } from "@/lib/mqttClient";
 import useSWR from "swr";
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function ZonesConfig({ config, routers, routes }: { config: zones[], routers: routers[], routes: routes[] }) {
-  const { data, error } = useSWR("/api/config", fetcher);
-  const client = mqttConnecter(data)
-  const rows = config.map(zone => {
-    const route = routes.filter(route => route.dst == zone.name)[0]
-    const router = route != null ? routers.filter(router => router.name == route.src)[0] : { "name": "" }
-    return { "name": zone.name, "router": router.name, "mp": route?.hub_port, "hp": route?.relay_channel }
-  });
-  const [name, setName] = React.useState("")
-  const [routerName, setRouterName] = React.useState("")
-  const [hubSerialNumber, setHubSerialNumber] = React.useState(0)
-  const [hubPort, setHubPort] = React.useState(0)
-  const [relayChannel, setRelayChannel] = React.useState(0)
+  const { data } = useSWR("/api/config", fetcher);
+  const client = mqttConnecter(data);
+
+  // Form State
+  const [name, setName] = useState("");
+  const [routerName, setRouterName] = useState("");
+  const [hubSN, setHubSN] = useState(0);
+  const [hubPort, setHubPort] = useState(0);
+  const [relayCh, setRelayCh] = useState(0);
+
+  const handleAdd = () => {
+    createZone(name, routerName, hubSN, hubPort, relayCh);
+    client?.publish("hub", JSON.stringify({ command: "RELOAD_CONFIG" }));
+    // Reset form
+    setName(""); setRouterName(""); setHubSN(0); setHubPort(0); setRelayCh(0);
+  };
+
+  const columns = [
+    { key: "zone", label: "ZONE NAME", icon: <MapPin size={14} /> },
+    { key: "src", label: "ROUTING STATION", icon: <HardDrive size={14} /> },
+    { key: "sn", label: "HUB SERIAL NUMBER", icon: <Hash size={14} /> },
+    { key: "port", label: "HUB PORT", icon: <Share2 size={14} /> },
+    { key: "ch", label: "RELAY CH", icon: <Activity size={14} /> },
+    { key: "actions", label: "" },
+  ];
 
   return (
-    <div
-
-    >
-      <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <tr>
-            <th scope="col" className="px-6 py-3">
-              Zone name
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Source router
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Valve Hub Serial Number
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Valve Hub Port
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Valve Relay Channel
-            </th>
-            <th scope="col" className="px-6 py-3">
-
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            config.map(zone => {
-              const routing = routes.filter(x => x.dst == zone.name)[0];
-              return (
-                <tr key={zone.name} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                  <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {zone.name}
-                  </th>
-                  <td className="px-6 py-4">
-                    {routing.src}
-                  </td>
-                  <td className="px-6 py-4">
-                    {routing.hub_serial_number}
-                  </td>
-                  <td className="px-6 py-4">
-                    {routing.hub_port}
-                  </td>
-                  <td className="px-6 py-4">
-                    {routing.relay_channel}
-                  </td>
-                  <td className="px-6 py-4">
-                    <Button isIconOnly variant="bordered" color="danger" onClick={() => {
+    <div className="space-y-6">
+      <Table
+        aria-label="Zone to Valve Mapping"
+        removeWrapper
+        classNames={{
+          th: "bg-default-50 text-default-500 text-[10px] font-bold py-3",
+          td: "py-3 border-b border-default-100 last:border-none font-mono text-sm"
+        }}
+      >
+        <TableHeader columns={columns}>
+          {(column) => (
+            <TableColumn key={column.key}>
+              <div className="flex items-center gap-2">
+                {column.icon} {column.label}
+              </div>
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody emptyContent={"No water zones configured."}>
+          {config.map((zone) => {
+            const routing = routes.find(x => x.dst === zone.name);
+            return (
+              <TableRow key={zone.name}>
+                <TableCell className="font-bold text-blue-600">{zone.name}</TableCell>
+                <TableCell><Chip size="sm" variant="flat">{routing?.src}</Chip></TableCell>
+                <TableCell>{routing?.hub_serial_number}</TableCell>
+                <TableCell>P{routing?.hub_port}</TableCell>
+                <TableCell>CH{routing?.relay_channel}</TableCell>
+                <TableCell>
+                  <Button
+                    isIconOnly variant="light" color="danger" size="sm"
+                    onPress={() => {
                       deleteZone(zone.name);
-                      client?.publish(
-                        "hub",
-                        JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
-                      );
-                    }
-                    }>
-                      <DeleteIcon />
-                    </Button >
-                  </td>
-                </tr>
-              )
-            })
-          }
-          <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-            <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-              <Input
-                type="text"
-                value={name}
-                labelPlacement="outside"
-                onChange={(e) => {
-                  console.log(e)
-                  setName(e.target.value);
-                }}
-              />
-            </th>
-            <td className="px-6 py-4">
-              <Select
-                placeholder="Select a router"
-                selectionMode="single"
-                className="max-w-xs"
-                value={routerName}
-                onChange={(e) => {
-                  console.log(e)
-                  setRouterName(e.target.value);
-                }}
-              >
-                {routers.map(router => (
-                  <SelectItem key={router.name}>
-                    {router.name}
-                  </SelectItem>
-                ))}
-              </Select>
-            </td>
-            <td className="px-6 py-4">
-              <Input
-                type="number"
-                min={0}
-                max={5}
-                value={hubSerialNumber.toString()}
-                labelPlacement="outside"
-                onChange={(e) => {
-                  console.log(e)
-                  setHubSerialNumber(parseInt(e.target.value));
-                }}
-              />
-            </td>
-            <td className="px-6 py-4">
-              <Input
-                type="number"
-                min={0}
-                max={5}
-                value={hubPort.toString()}
-                labelPlacement="outside"
-                onChange={(e) => {
-                  console.log(e)
-                  setHubPort(parseInt(e.target.value));
-                }}
-              />
-            </td>
-            <td className="px-6 py-4">
-              <Input
-                min={0}
-                max={5}
-                type="number"
-                value={relayChannel.toString()}
-                labelPlacement="outside"
-                onChange={(e) => {
-                  console.log(e)
-                  setRelayChannel(parseInt(e.target.value));
-                }}
-              />
-            </td>
-            <td className="px-6 py-4">
-              <Button isDisabled={routerName == "" || name == ""} color="success" onClick={() => {
-                createZone(name, routerName, hubSerialNumber, hubPort, relayChannel);
-                client?.publish(
-                  "hub",
-                  JSON.stringify({ command: "RELOAD_CONFIG", arg1: "", arg2: "", arg3: "" })
-                );
-              }}>
-                Add
-              </Button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                      client?.publish("hub", JSON.stringify({ command: "RELOAD_CONFIG" }));
+                    }}
+                  >
+                    <Trash2 size={18} />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+
+      {/* Add Zone Controller */}
+      <Card shadow="none" className="bg-default-50/50 border border-default-200 p-6">
+        <p className="text-tiny font-bold text-default-500 uppercase mb-4 tracking-widest">Register New Water Zone</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
+          <Input label="Zone Name" size="sm" variant="bordered" value={name} onChange={(e) => setName(e.target.value)} />
+
+          <Select
+            label="Station" size="sm" variant="bordered"
+            selectedKeys={routerName ? [routerName] : []}
+            onChange={(e) => setRouterName(e.target.value)}
+          >
+            {routers.map((r) => <SelectItem key={r.name}>{r.name}</SelectItem>)}
+          </Select>
+
+          <Input label="Hub Serial Number" type="number" size="sm" variant="bordered" value={hubSN.toString()} onChange={(e) => setHubSN(parseInt(e.target.value))} />
+          <Input label="Port (0-5)" type="number" size="sm" variant="bordered" value={hubPort.toString()} onChange={(e) => setHubPort(parseInt(e.target.value))} />
+          <Input label="Relay CH" type="number" size="sm" variant="bordered" value={relayCh.toString()} onChange={(e) => setRelayCh(parseInt(e.target.value))} />
+
+          <Button color="primary" className="font-bold" onPress={handleAdd} isDisabled={!name || !routerName}>
+            Add Zone
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 }
-const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json())

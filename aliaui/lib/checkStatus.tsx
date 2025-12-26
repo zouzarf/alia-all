@@ -2,7 +2,8 @@
 
 export async function checkStatusHub() {
     try {
-        const response = await fetch('http://127.0.0.1:8001/status', {
+        console.log(process.env.DRIVER_SERVER)
+        const response = await fetch('http://' + process.env.HUB_SERVER + ':8001/status', {
             cache: 'no-store',
         })
         return response.status === 200
@@ -13,7 +14,7 @@ export async function checkStatusHub() {
 }
 export async function checkStatusDriver() {
     try {
-        const response = await fetch('http://127.0.0.1:8000/status', {
+        const response = await fetch('http://' + process.env.DRIVER_SERVER + ':8000/status', {
             cache: 'no-store',
         })
         return response.status === 200
@@ -24,7 +25,7 @@ export async function checkStatusDriver() {
 }
 export async function checkStatusScheduler() {
     try {
-        const response = await fetch('http://127.0.0.1:8002/status', {
+        const response = await fetch('http://' + process.env.SCHEDULER_SERVER + ':8002/status', {
             cache: 'no-store',
         })
         return response.status === 200
@@ -35,7 +36,7 @@ export async function checkStatusScheduler() {
 }
 export async function ReloadDriver() {
     try {
-        const response = await fetch('http://127.0.0.1:8000/reload', {
+        const response = await fetch('http://' + process.env.DRIVER_SERVER + ':8000/reload', {
             cache: 'no-store',
         })
         return response.status === 200

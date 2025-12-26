@@ -16,7 +16,7 @@ export async function routeWater(
     zone: string
 ) {
     const res = await fetch(
-        `http://127.0.0.1:8001/route_water?pump_number=${pump_number}&pump_warm_up=${pump_warm_up}&pump_seconds=${pump_timer}&compressor_warm_up=${warm_up_compressor}&compressor_seconds=${compression_time}&destination=${zone}`, 
+        `http://${process.env.HUB_SERVER}:8001/route_water?pump_number=${pump_number}&pump_warm_up=${pump_warm_up}&pump_seconds=${pump_timer}&compressor_warm_up=${warm_up_compressor}&compressor_seconds=${compression_time}&destination=${zone}`, 
         { cache: 'no-store' }
     );
     const data = await res.json();

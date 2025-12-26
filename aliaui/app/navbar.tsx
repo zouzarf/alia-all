@@ -1,163 +1,192 @@
 "use client"
 
-
 import * as React from 'react';
 import {
-    Navbar,
-    NavbarBrand,
-    NavbarContent,
-    NavbarItem,
-    Link,
-    Button,
-    DropdownItem,
-    DropdownTrigger,
-    Dropdown,
-    DropdownMenu,
+    Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle,
+    NavbarMenu, NavbarMenuItem, Link, Button, DropdownItem,
+    DropdownTrigger, Dropdown, DropdownMenu, Divider
 } from "@nextui-org/react";
-import { usePathname } from 'next/navigation';
-import { useRouter } from 'next/navigation'
-const pages = [['System Health', '/system_health'], ['Logs', '/logs']];
+import { usePathname, useRouter } from 'next/navigation';
+import {
+    ChevronDown, Settings, Calendar, Terminal, Activity,
+    Cpu, Database, FileText, ShieldAlert, PlaySquare
+} from 'lucide-react';
 
-export const AcmeLogo = () => {
-    return (
-        <svg fill="none" height="36" viewBox="0 0 32 32" width="36">
-            <path
-                clipRule="evenodd"
-                d="M17.6482 10.1305L15.8785 7.02583L7.02979 22.5499H10.5278L17.6482 10.1305ZM19.8798 14.0457L18.11 17.1983L19.394 19.4511H16.8453L15.1056 22.5499H24.7272L19.8798 14.0457Z"
-                fill="currentColor"
-                fillRule="evenodd"
-            />
-        </svg>
-    );
-};
-export const ChevronDown = () => {
-    return (
-        <svg
-            fill="none"
-            height="16"
-            viewBox="0 0 24 24"
-            width="16"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path
-                d="m19.92 8.95-6.52 6.52c-.77.77-2.03.77-2.8 0L4.08 8.95"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeMiterlimit={10}
-                strokeWidth={1.5}
-            />
-        </svg>
-    );
-};
-
-function NavigationBar() {
-
+export default function NavigationBar() {
     const pathname = usePathname();
-    const router = useRouter()
+    const router = useRouter();
+    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+    const isActive = (path: string) => pathname.startsWith(path);
+
+    const navLinks = [
+        { label: "Config", href: "/config", icon: <Settings size={18} /> },
+        { label: "Scheduler", href: "/scheduler", icon: <Calendar size={18} /> },
+    ];
 
     return (
-        <Navbar isBordered className='relative flex items-center w-full'>
-            <NavbarBrand className='absolute left-0 flex items-center'>
-                <AcmeLogo />
-                <p className="font-bold text-inherit">ALIA</p>
+        <Navbar
+            isBordered
+            maxWidth="xl"
+            isMenuOpen={isMenuOpen}
+            onMenuOpenChange={setIsMenuOpen}
+            className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md"
+        >
+            {/* Mobile Toggle */}
+            <NavbarContent className="sm:hidden" justify="start">
+                <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+            </NavbarContent>
+
+            {/* Brand Logo */}
+            <NavbarBrand className="gap-3">
+                <img
+                    src="/logo.jpeg"
+                    alt="Logo"
+                    className="w-8 h-8 rounded-lg object-contain shadow-sm"
+                />
+                <p className="font-black text-inherit tracking-tighter text-xl">ALIA</p>
             </NavbarBrand>
-            <NavbarContent className="absolute left-1/2 transform -translate-x-1/2 hidden sm:flex gap-4 flex flex-row align-center">
-                <NavbarItem isActive={pathname.includes('/config')}>
-                    <Link color="foreground" href="/config">
-                        <div className='text-sm'>Config</div>
-                    </Link>
-                </NavbarItem>
-                <NavbarItem isActive={pathname === '/scheduler'}>
-                    <Link color="foreground" href="/scheduler">
-                        <div className='text-sm'>Scheduler</div>
-                    </Link>
-                </NavbarItem>
-                <Dropdown >
-                    <NavbarItem isActive >
+
+            {/* Desktop Menu */}
+            <NavbarContent className="hidden sm:flex gap-8" justify="center">
+                {navLinks.map((link) => (
+                    <NavbarItem key={link.href} isActive={isActive(link.href)}>
+                        <Link
+                            href={link.href}
+                            className={`flex items-center gap-2 text-xs font-black uppercase tracking-widest ${isActive(link.href) ? 'text-blue-600' : 'text-foreground'}`}
+                        >
+                            {link.icon} {link.label}
+                        </Link>
+                    </NavbarItem>
+                ))}
+
+                <Dropdown placement="bottom">
+                    <NavbarItem isActive={isActive('/manual')}>
                         <DropdownTrigger>
                             <Button
                                 disableRipple
-                                className="p-0 h-auto bg-transparent leading-none data-[hover=true]:bg-transparent"
-                                radius="none"
-                                aria-label='Manual Commands'
-                                endContent={<ChevronDown />}
+                                className={`flex items-center gap-2 text-xs font-black uppercase tracking-widest bg-transparent ${isActive('/manual') ? 'text-blue-600' : 'text-foreground'}`}
+                                endContent={<ChevronDown size={14} />}
                                 variant="light"
                             >
-                                <div className='text-sm'>Manual Commands</div>
+                                <Terminal size={18} /> Commands
                             </Button>
                         </DropdownTrigger>
                     </NavbarItem>
-                    <DropdownMenu
-                        aria-label="ACME features"
-                        className="w-[340px]"
-                        itemClasses={{
-                            base: "gap-4",
-                        }}
-                    >
+                    <DropdownMenu className="w-[260px]" variant="flat">
+
+                        {/* SECTION: FUNCTIONALITIES (Routing, Logic) */}
                         <DropdownItem
-                            key="autoscaling"
-                            description=""
-                            onPress={() => router.push("/manual_system_commands")}
-                        >
-                            <div className='text-sm'>System commands</div>
-                        </DropdownItem>
-                        <DropdownItem
-                            key="usage_metrics"
-                            description=""
-                            onPress={() => router.push("/manual_components_commands")}
-                        >
-                            <div className='text-sm'>Hardware</div>
-                        </DropdownItem>
-                        <DropdownItem
-                            key="production_ready"
-                            description=""
+                            key="hub"
+                            description="Execute multi-step sequences"
+                            startContent={<PlaySquare size={20} className="text-blue-500" />}
                             onPress={() => router.push("/manual_hub_commands")}
                         >
-                            <div className='text-sm'>Hub</div>
+                            Process Logic
                         </DropdownItem>
+
+                        {/* SECTION: INDIVIDUAL HARDWARE (Valves, Pumps) */}
+                        <DropdownItem
+                            key="hard"
+                            description="Direct manual actuator control"
+                            startContent={<Cpu size={20} className="text-orange-500" />}
+                            onPress={() => router.push("/manual_components_commands")}
+                        >
+                            Field Units
+                        </DropdownItem>
+
+                        {/* SECTION: SYSTEM (Reset, DB, Software) */}
+                        <DropdownItem
+                            key="sys"
+                            description="Manage software & database"
+                            startContent={<ShieldAlert size={20} className="text-red-500" />}
+                            onPress={() => router.push("/manual_system_commands")}
+                        >
+                            System Maintenance
+                        </DropdownItem>
+
                     </DropdownMenu>
                 </Dropdown>
-                <Dropdown>
-                    <NavbarItem>
+
+                <Dropdown placement="bottom">
+                    <NavbarItem isActive={isActive('/logs') || isActive('/system_health')}>
                         <DropdownTrigger>
                             <Button
                                 disableRipple
-                                className="p-0 h-auto bg-transparent leading-none data-[hover=true]:bg-transparent"
-                                endContent={<ChevronDown />}
-                                radius="sm"
+                                className={`flex items-center gap-2 text-xs font-black uppercase tracking-widest bg-transparent ${(isActive('/logs') || isActive('/system_health')) ? 'text-blue-600' : 'text-foreground'}`}
+                                endContent={<ChevronDown size={14} />}
                                 variant="light"
-
                             >
-                                Observability
+                                <Activity size={18} /> Observability
                             </Button>
                         </DropdownTrigger>
                     </NavbarItem>
-                    <DropdownMenu
-                        aria-label="ACME features"
-                        className="w-[340px]"
-                        itemClasses={{
-                            base: "gap-4",
-                        }}
-                    >
-                        <DropdownItem
-                            key="autoscaling"
-                            description=""
-                            onPress={() => router.push("/logs")}
-                        >
-                            <div className='text-sm'>Logs</div>
-                        </DropdownItem>
-                        <DropdownItem
-                            key="usage_metrics"
-                            description=""
-                            onPress={() => router.push("/system_health")}
-                        >
-                            <div className='text-sm'>System health</div>
-                        </DropdownItem>
+                    <DropdownMenu className="w-[240px]" variant="flat">
+                        <DropdownItem key="logs" startContent={<FileText size={18} />} onPress={() => router.push("/logs")}>Activity Logs</DropdownItem>
+                        <DropdownItem key="health" startContent={<Activity size={18} />} onPress={() => router.push("/system_health")}>System Health</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
             </NavbarContent>
+
+            {/* End Status */}
+            <NavbarContent justify="end">
+                <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-full">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                    <span className="hidden xs:block text-[10px] font-black text-blue-700 uppercase tracking-tight">System Online</span>
+                </div>
+            </NavbarContent>
+
+            {/* Mobile Drawer Menu */}
+            <NavbarMenu className="pt-6 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl">
+                <div className="flex flex-col gap-2">
+                    <p className="text-[10px] font-black text-default-400 uppercase tracking-widest px-4 mb-2">Navigation</p>
+                    {navLinks.map((link) => (
+                        <NavbarMenuItem key={link.href}>
+                            <Link
+                                className={`w-full flex gap-4 px-4 py-3 rounded-xl font-bold ${isActive(link.href) ? 'bg-blue-50 text-blue-600' : 'text-foreground'}`}
+                                href={link.href}
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                {link.icon} {link.label}
+                            </Link>
+                        </NavbarMenuItem>
+                    ))}
+
+                    <Divider className="my-4 mx-4" />
+
+                    <p className="text-[10px] font-black text-default-400 uppercase tracking-widest px-4 mb-2">Hardware Control</p>
+                    <NavbarMenuItem>
+                        <Link className="w-full px-4 py-3 flex gap-4 font-bold text-foreground" href="/manual_components_commands" onClick={() => setIsMenuOpen(false)}>
+                            <Cpu size={20} className="text-primary" /> Hardware Control
+                        </Link>
+                    </NavbarMenuItem>
+                    <NavbarMenuItem>
+                        <Link className="w-full px-4 py-3 flex gap-4 font-bold text-foreground" href="/manual_system_commands" onClick={() => setIsMenuOpen(false)}>
+                            <Settings size={20} className="text-primary" /> System Commands
+                        </Link>
+                    </NavbarMenuItem>
+                    <NavbarMenuItem>
+                        {/* RESTORED HUB COMMAND SECTION */}
+                        <Link className="w-full px-4 py-3 flex gap-4 font-bold text-foreground" href="/manual_hub_commands" onClick={() => setIsMenuOpen(false)}>
+                            <Database size={20} className="text-primary" /> Hub Management
+                        </Link>
+                    </NavbarMenuItem>
+
+                    <Divider className="my-4 mx-4" />
+
+                    <p className="text-[10px] font-black text-default-400 uppercase tracking-widest px-4 mb-2">Monitoring</p>
+                    <NavbarMenuItem>
+                        <Link className="w-full px-4 py-3 flex gap-4 font-bold text-foreground" href="/logs" onClick={() => setIsMenuOpen(false)}>
+                            <FileText size={20} className="text-success" /> Activity Logs
+                        </Link>
+                    </NavbarMenuItem>
+                    <NavbarMenuItem>
+                        <Link className="w-full px-4 py-3 flex gap-4 font-bold text-foreground" href="/system_health" onClick={() => setIsMenuOpen(false)}>
+                            <Activity size={20} className="text-success" /> System Health
+                        </Link>
+                    </NavbarMenuItem>
+                </div>
+            </NavbarMenu>
         </Navbar>
     );
 }
-export default NavigationBar;
